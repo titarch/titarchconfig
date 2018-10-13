@@ -1,0 +1,34 @@
+XTerm*.scrollBar: false
+XTerm*.perl-ext-common: default,matcher
+XTerm*.url-launcher: /usr/bin/xdg-open
+XTerm*.matcher.button: 1
+XTerm*.letterSpace:  0
+XTerm*font:         xft:DejaVu Sans Mono:size=11:style=Book:antialias=true:hinting=true
+
+XTerm*.iso14755: false
+XTerm*.iso14755_52: false
+! special
+
+
+XTerm*.foreground: #F8F8F2
+XTerm*.background: #282A36
+XTerm*.color0:     #000000
+XTerm*.color8:     #4D4D4D
+XTerm*.color1:     #FF5555
+XTerm*.color9:     #FF6E67
+XTerm*.color2:     #50FA7B
+XTerm*.color10:    #5AF78E
+XTerm*.color3:     #F1FA8C
+XTerm*.color11:    #F4F99D
+XTerm*.color4:     #BD93F9
+XTerm*.color12:    #CAA9FA
+XTerm*.color5:     #FF79C6
+XTerm*.color13:    #FF92D0
+XTerm*.color6:     #8BE9FD
+XTerm*.color14:    #9AEDFE
+XTerm*.color7:     #BFBFBF
+XTerm*.color15:    #E6E6E6
+
+XTerm*.cursorColor:  #c0c5ce
+
+XTerm*.transparent: true
