@@ -31,14 +31,32 @@ alias grep='grep --color -n'
 #PS1='[\u@\h \W]\$ '
 export PS1="\[$(tput bold)\]\[\033[38;5;161m\][\[$(tput sgr0)\]\[\033[38;5;141m\]\u\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;219m\]\w\[$(tput sgr0)\]\[\033[38;5;161m\]]\[$(tput sgr0)\]\[\033[38;5;49m\]\\$\[$(tput sgr0)\] "
 alias i3lock='i3lock -i /home/baptiste.parsy/afs/.confs/config/i3/backgound.png'
+
+alias sb='source /home/baptiste.parsy/.bashrc'
+
+#MAKE
 alias mcmake='/home/baptiste.parsy/afs/utils/cmake.sh'
 alias cake='/home/baptiste.parsy/afs/utils/cmake.sh .; make'
-alias ccake='/home/baptiste.parsy/afs/utils/cmake.sh .; make clean; make'
-alias mcake='make clean; make'
+alias ccake='/home/baptiste.parsy/afs/utils/cmake.sh .; make -B'
+alias mcake='make -B'
 alias mcl='make clean'
 alias comp='/home/baptiste.parsy/afs/utils/comp.sh'
 alias compt='/home/baptiste.parsy/afs/utils/comp.sh test test.c'
-alias mdb='mcl; make debug'
-alias mgdb='mcl; make gdb'
+alias mdb='make debug'
+alias mgdb='make gdb'
 alias mt='make test'
 alias mck='make check'
+alias kdb='make -B debug'
+alias kgdb='make -B gdb'
+alias kt='make -B test'
+alias kck='make -B check'
+
+#VIM
+alias v='vim'
+alias p='vim -p'
+alias r='vim -'
+
+#OTHER
+
+alias f='find -name'
+alias g='grep -r'
