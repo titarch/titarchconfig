@@ -28,7 +28,7 @@ set cc=80
 
 autocmd Filetype make setlocal noexpandtab
 
-set list listchars=tab:»·,trail:·
+set list listchars=tab:??,trail:?
 
 
 " per .git vim configs
@@ -36,7 +36,7 @@ set list listchars=tab:»·,trail:·
 " change syntax settings for this repository
 let git_settings = system("git config --get vim.settings")
 if strlen(git_settings)
-	exe "set" git_settings
+ exe "set" git_settings
 endif
 
 " My modifs //////////////////////////////////////////////////////////////////
@@ -96,3 +96,5 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 nnoremap <C-a> :lclose<CR>
+Plugin 'rhysd/vim-clang-format'
+let g:clang_format#detect_style_file = 1
