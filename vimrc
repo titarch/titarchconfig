@@ -40,6 +40,7 @@ if strlen(git_settings)
 endif
 
 " My modifs //////////////////////////////////////////////////////////////////
+Plugin 'dracula/vim'
 set hlsearch
 inoremap ( ()<left>
 inoremap (( (
@@ -60,15 +61,14 @@ inoremap {}     {}
 inoremap } <right>
 inoremap }} }
 
-set t_Co=256
-set background=dark
+"set t_Co=256
+""set background=dark
 colorscheme dracula
+hi Normal guibg=NONE ctermbg=NONE
 "highlight Normal ctermbg=NONE
 "highlight nonText ctermbg=NONE
 
 
-" UNCOMMENT FOR TAB==SPACES
-"filetype plugin indent on
 " show existing tab with 4 spaces width
 set tabstop=8
 " when indenting with '>', use 4 spaces width
