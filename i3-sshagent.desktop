@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=i3 with ssh-agent
+Comment=improved dynamic tiling window manager
+Exec=ssh-agent i3
+TryExec=i3
+Type=Application
+X-LightDM-DesktopName=i3 ssh-agent
+DesktopNames=i3 ssh-agent
+Keywords=tiling;wm;windowmanager;window;manager;
