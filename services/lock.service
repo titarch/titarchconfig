@@ -1,0 +1,12 @@
+[Unit]
+Description=Lock the screen on resume from suspend
+Before=sleep.target
+
+[Service]
+User=parsy_b
+Environment=DISPLAY=:0
+Environment=XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+ExecStart=/usr/bin/dm-tool lock
+
+[Install]
+WantedBy=sleep.target
