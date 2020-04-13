@@ -1,1 +1,2 @@
-[[ -f ~/.Xdefaults ]] && xrdb -merge ~/.Xresources
+eval `ssh-agent`
+xrdb -merge .Xresources && exec i3
