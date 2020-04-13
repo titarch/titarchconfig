@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/parsy/.oh-my-zsh"
+export ZSH="/home/bparsy/.oh-my-zsh"
 
 ZSH_THEME="dracula"
 
@@ -45,9 +45,14 @@ ZSH_THEME="dracula"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git django docker pip python sudo z)
+plugins=(git django docker pip python sudo z autoswitch_virtualenv zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
+
+autoload -Uz compinit
+compinit
+# Completion for kitty
+kitty + complete setup zsh | source /dev/stdin
 
 # User configuration
 
@@ -69,11 +74,13 @@ export PGDATA="$HOME/postgres_data"
 export PGHOST="/tmp"
 alias pgrun='postgres -k "$PGHOST"'
 alias eb='vim ~/.zshrc'
+alias ei='vim ~/.config/i3/config'
 alias sb='source ~/.zshrc'
 alias ebh='vim ~/.zsh_history'
 alias psh='pipenv shell'
 alias goodbye='systemctl poweroff'
 #alias g='grep -R'
 eval $(thefuck --alias)
-alias newalias='/home/parsy/Scripts/new_alias.sh'
+alias newalias='/home/bparsy/Scripts/newalias.sh'
 alias v='vim'
+alias jn='jupyter notebook'
