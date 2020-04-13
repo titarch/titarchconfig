@@ -3,7 +3,7 @@
 read -p "Install base packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S git go gvim curl zsh reflector rofi otf-fira-code otf-fira-sans otf-fire-mono ttf-dejavu chromium feh vlc flameshot kitty rxvt-unicode openssh playerctl pavucontrol thunar
+    sudo pacman -S git go gvim curl zsh reflector rofi otf-fira-code otf-fira-sans otf-fira-mono ttf-dejavu chromium feh vlc flameshot kitty rxvt-unicode openssh playerctl pavucontrol thunar
     [ $? -ne 0 ] && exit 1
 fi
 
