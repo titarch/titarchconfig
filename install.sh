@@ -3,7 +3,7 @@
 read -p "Install base packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S git go gvim curl zsh reflector rofi otf-fira-code otf-fira-sans otf-fire-mono ttf-dejavu chromium feh vlc flameshot kitty rxvt-unicode
+    sudo pacman -S git go gvim curl zsh reflector rofi otf-fira-code otf-fira-sans otf-fire-mono ttf-dejavu chromium feh vlc flameshot kitty rxvt-unicode openssh
     [ $? -ne 0 ] && exit 1
 fi
 
@@ -40,8 +40,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     cp xinitrc ~/.xinitrc
     cp -r i3 ~/.config
-    cp bashrc .bashrc
-    cp zshrc .zshrc
+    cp zshrc ~/.zshrc
     cp -r dracula/* ~/.oh-my-zsh/themes
     cp Xresources ~/.Xresources
     cp vimrc ~/.vimrc
@@ -52,3 +51,10 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo reflector --verbose --country 'France' -l 10 -p https --sort rate --save /etc/pacman.d/mirrorlist
 fi
+
+read -p "Generate ssh-key? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    ssh-keygen -b 4096
+fi
+
