@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sudo pacman -S git go vim curl zsh reflector rofi otf-fira-code otf-fira-sans otf-fire-mono ttf-dejavu chromium feh vlc flameshot kitty rxvt-unicode
+sudo pacman -S git go gvim curl zsh reflector rofi otf-fira-code otf-fira-sans otf-fire-mono ttf-dejavu chromium feh vlc flameshot kitty rxvt-unicode
 [ $? -ne 0 ] && exit 1
 cd /tmp
 git clone https://aur.archlinux.org/yay.git
