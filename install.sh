@@ -12,6 +12,9 @@ makepkg -si
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 [ $? -ne 0 ] && exit 4
 
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+[ $? -ne 0 ] && exit 5
+
 cp xinitrc ~/.xinitrc
 cp -r i3 ~/.config
 cp bashrc .bashrc
@@ -19,4 +22,4 @@ cp zshrc .zshrc
 cp -r dracula/* ~/.oh-my-zsh/themes
 cp Xresources ~/.Xresources
 sudo reflector --verbose --country 'France' -l 10 -p https --sort rate --save /etc/pacman.d/mirrorlist
-
+cp vimrc ~/.vimrc

@@ -40,26 +40,26 @@ if strlen(git_settings)
 endif
 
 " My modifs //////////////////////////////////////////////////////////////////
-Plugin 'dracula/vim'
+Plugin 'dracula/vim', { 'name': 'dracula' }
 set hlsearch
-inoremap ( ()<left>
-inoremap (( (
-inoremap () ()
-inoremap ) <right>
-inoremap )) )
-
-inoremap [ []<left>
-inoremap [[ [
-inoremap [] []
-inoremap ] <right>
-inoremap ]] ]
-
-inoremap { {}<left>
-inoremap {<CR>  {<CR>}<Esc>O
-inoremap {{     {
-inoremap {}     {}
-inoremap } <right>
-inoremap }} }
+"inoremap ( ()<left>
+"inoremap (( (
+"inoremap () ()
+"inoremap ) <right>
+"inoremap )) )
+"
+"inoremap [ []<left>
+"inoremap [[ [
+"inoremap [] []
+"inoremap ] <right>
+"inoremap ]] ]
+"
+"inoremap { {}<left>
+"inoremap {<CR>  {<CR>}<Esc>O
+"inoremap {{     {
+"inoremap {}     {}
+"inoremap } <right>
+"inoremap }} }
 
 "set t_Co=256
 ""set background=dark
@@ -98,3 +98,6 @@ let g:syntastic_check_on_wq = 0
 nnoremap <C-a> :lclose<CR>
 Plugin 'rhysd/vim-clang-format'
 let g:clang_format#detect_style_file = 1
+Plugin 'chrisbra/colorizer'
+let g:colorizer_auto_color = 1
+"let g:colorizer_hex_pattern = ['#', '\%(\x\{3}\|\x\{6}\)', '']
