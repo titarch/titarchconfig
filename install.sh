@@ -25,28 +25,29 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     [ $? -ne 0 ] && exit 4
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
     [ $? -ne 0 ] && exit 5
+    cp -r dracula/* ~/.oh-my-zsh/themes
+    [ $? -ne 0 ] && exit 6
+    cp zshrc ~/.zshrc
+    [ $? -ne 0 ] && exit 7
 fi
 
 read -p "Install vundle? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-    [ $? -ne 0 ] && exit 6
+    cp vimrc ~/.vimrc
 fi
 
 
-read -p "Copy config? " -n 1 -r
+read -p "Copy graphic config? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     cp xinitrc ~/.xinitrc
     cp -r i3 ~/.config
-    cp zshrc ~/.zshrc
-    cp -r dracula/* ~/.oh-my-zsh/themes
     cp Xresources ~/.Xresources
-    cp vimrc ~/.vimrc
 fi
 
-read -p "Refresh mirror? " -n 1 -r
+read -p "Refresh mirrors? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo reflector --verbose --country 'France' -l 10 -p https --sort rate --save /etc/pacman.d/mirrorlist
