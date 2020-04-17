@@ -47,6 +47,12 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     cp vimrc ~/.vimrc
 fi
 
+read -p "Copy kitty config? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    cp -r kitty ~/.config
+fi
+
 read -p "Copy graphic config? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
