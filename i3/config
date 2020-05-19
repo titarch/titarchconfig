@@ -61,6 +61,9 @@ bindsym $mod+F12 exec flameshot gui
 for_window [title ="float-"] floating enable
 for_window [title ="sfml-"] floating enable
 
+bindsym $mod+Ctrl+Right move workspace to output right
+bindsym $mod+Ctrl+Left move workspace to output left
+
 # change focus
 bindsym $mod+j focus left
 bindsym $mod+k focus down
