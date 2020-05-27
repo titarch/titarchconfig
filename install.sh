@@ -36,7 +36,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     [ $? -ne 0 ] && exit 5
     cp -r dracula/* ~/.oh-my-zsh/themes
     [ $? -ne 0 ] && exit 6
-    ln -s zshrc ~/.zshrc
+    ln -sf $PWD/zshrc ~/.zshrc
     [ $? -ne 0 ] && exit 7
 fi
 
@@ -44,21 +44,22 @@ read -p "Install vundle? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-    ln -s vimrc ~/.vimrc
+    ln -sf $PWD/vimrc ~/.vimrc
 fi
 
 read -p "Copy kitty config? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    ln -s kitty ~/.config
+    ln -sf $PWD/kitty ~/.config/kitty
 fi
 
 read -p "Copy graphic config? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    ln -s xinitrc ~/.xinitrc
-    ln -s i3 ~/.config
-    ln -s Xresources ~/.Xresources
+    ln -sf $PATH/xinitrc ~/.xinitrc
+    ln -sf $PATH/i3/config ~/.config/i3/config
+    cp i3/background.png ~/config/i3
+    ln -sf $PATH/Xresources ~/.Xresources
 fi
 
 read -p "Generate ssh-key? " -n 1 -r
