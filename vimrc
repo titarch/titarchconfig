@@ -28,8 +28,8 @@ set cc=80
 
 autocmd Filetype make setlocal noexpandtab
 
-set list listchars=tab:??,trail:?
-
+set showbreak=↪\ 
+set list listchars=tab:→\ ,eol:↲,nbsp:␣,trail:•,extends:⟩,precedes:⟨
 
 " per .git vim configs
 " just `git config vim.settings "expandtab sw=4 sts=4"` in a git repository
