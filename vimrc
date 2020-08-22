@@ -8,9 +8,14 @@ call vundle#begin()
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-
-" https://github.com/tpope/vim-sensible
 Plugin 'tpope/vim-sensible'
+Plugin 'dracula/vim', { 'name': 'dracula' }
+Plugin 'itchyny/lightline.vim'
+Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/syntastic'
+Plugin 'rhysd/vim-clang-format'
+Plugin 'chrisbra/colorizer'
+Plugin 'xuhdev/vim-latex-live-preview'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -28,8 +33,8 @@ set cc=80
 
 autocmd Filetype make setlocal noexpandtab
 
-set list listchars=tab:??,trail:?
-
+set showbreak=↪\ 
+set list listchars=tab:→\ ,eol:↲,nbsp:␣,trail:•,extends:⟩,precedes:⟨
 
 " per .git vim configs
 " just `git config vim.settings "expandtab sw=4 sts=4"` in a git repository
@@ -40,7 +45,6 @@ if strlen(git_settings)
 endif
 
 " My modifs //////////////////////////////////////////////////////////////////
-Plugin 'dracula/vim', { 'name': 'dracula' }
 set hlsearch
 "inoremap ( ()<left>
 "inoremap (( (
@@ -68,7 +72,6 @@ hi Normal guibg=NONE ctermbg=NONE
 "highlight Normal ctermbg=NONE
 "highlight nonText ctermbg=NONE
 
-
 " show existing tab with 4 spaces width
 set tabstop=8
 " when indenting with '>', use 4 spaces width
@@ -77,8 +80,6 @@ set shiftwidth=4
 set expandtab
 set shiftwidth=4
 
-Plugin 'itchyny/lightline.vim'
-Plugin 'scrooloose/nerdtree'
 map <C-o> :NERDTreeToggle<CR>
 map <C-t> :tab new<CR>
 set mouse=a
@@ -87,7 +88,6 @@ set foldmethod=syntax
 set foldlevelstart=20
 set foldcolumn=4
 
-Plugin 'scrooloose/syntastic'
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
@@ -98,8 +98,6 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 nnoremap <C-a> :lclose<CR>
-Plugin 'rhysd/vim-clang-format'
 let g:clang_format#detect_style_file = 1
-Plugin 'chrisbra/colorizer'
 let g:colorizer_auto_color = 1
 "let g:colorizer_hex_pattern = ['#', '\%(\x\{3}\|\x\{6}\)', '']
