@@ -52,7 +52,8 @@ bindsym $mod+Shift+q kill
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
 #bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
-bindsym $mod+d exec --no-startup-id rofi -show run
+bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu='rofi -dmenu'
+bindsym $mod+Shift+d exec --no-startup-id rofi -show run
 bindsym $mod+Ctrl+s exec systemctl suspend
 bindsym $mod+Ctrl+Shift+a exec systemctl poweroff
 bindsym $mod+Ctrl+Shift+r exec reboot
