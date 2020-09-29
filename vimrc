@@ -3,10 +3,7 @@
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
 
-" let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'tpope/vim-sensible'
 Plugin 'dracula/vim', { 'name': 'dracula' }
@@ -16,13 +13,9 @@ Plugin 'scrooloose/syntastic'
 Plugin 'rhysd/vim-clang-format'
 Plugin 'chrisbra/colorizer'
 
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
+call vundle#end()
 
-runtime! plugin/sensible.vim
+filetype plugin indent on "required
 
 set encoding=utf-8 fileencodings=
 syntax on
@@ -43,33 +36,12 @@ if strlen(git_settings)
  exe "set" git_settings
 endif
 
-" My modifs //////////////////////////////////////////////////////////////////
 set hlsearch
-"inoremap ( ()<left>
-"inoremap (( (
-"inoremap () ()
-"inoremap ) <right>
-"inoremap )) )
-"
-"inoremap [ []<left>
-"inoremap [[ [
-"inoremap [] []
-"inoremap ] <right>
-"inoremap ]] ]
-"
-"inoremap { {}<left>
-"inoremap {<CR>  {<CR>}<Esc>O
-"inoremap {{     {
-"inoremap {}     {}
-"inoremap } <right>
-"inoremap }} }
 
-"set t_Co=256
-""set background=dark
+"colorscheme
+set t_Co=256
 colorscheme dracula
 hi Normal guibg=NONE ctermbg=NONE
-"highlight Normal ctermbg=NONE
-"highlight nonText ctermbg=NONE
 
 " show existing tab with 4 spaces width
 set tabstop=8
@@ -77,7 +49,6 @@ set tabstop=8
 set shiftwidth=4
 " On pressing tab, insert 4 spaces
 set expandtab
-set shiftwidth=4
 
 map <C-o> :NERDTreeToggle<CR>
 map <C-t> :tab new<CR>
@@ -99,4 +70,3 @@ let g:syntastic_check_on_wq = 0
 nnoremap <C-a> :lclose<CR>
 let g:clang_format#detect_style_file = 1
 let g:colorizer_auto_color = 1
-"let g:colorizer_hex_pattern = ['#', '\%(\x\{3}\|\x\{6}\)', '']
