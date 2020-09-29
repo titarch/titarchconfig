@@ -9,10 +9,17 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     [ $? -ne 0 ] && exit 1
 fi
 
-read -p "Install base packages? " -n 1 -r
+read -p "Install core packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S git go gvim curl zsh rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium feh vlc flameshot kitty rxvt-unicode openssh playerctl pavucontrol thunar arandr pasystray
+    sudo pacman -S git gvim curl zsh rxvt-unicode openssh
+    [ $? -ne 0 ] && exit 1
+fi
+
+read -p "Install extra packages? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray
     [ $? -ne 0 ] && exit 1
 fi
 
