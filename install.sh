@@ -32,6 +32,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     cd yay
     makepkg -si
     [ $? -ne 0 ] && exit 3
+    cd
 fi
 
 read -p "Install oh-my-zsh? " -n 1 -r
