@@ -60,7 +60,7 @@ fi
 read -p "Copy kitty config? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    mkdir ~/.config
+    mkdir -p ~/.config
     ln -sf $PWD/kitty ~/.config/kitty
 fi
 
