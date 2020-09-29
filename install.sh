@@ -58,10 +58,12 @@ fi
 read -p "Copy graphic config? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    ln -sf $PATH/xinitrc ~/.xinitrc
-    ln -sf $PATH/i3/config ~/.config/i3/config
+    ln -sf $PWD/xinitrc ~/.xinitrc
+    mkdir -p ~/.config/i3
+    ln -sf $PWD/i3/config ~/.config/i3/config
     cp i3/background.png ~/config/i3
-    ln -sf $PATH/Xresources ~/.Xresources
+    ln -sf $PWD/Xresources ~/.Xresources
+    ln -sf $PWD/XCompose ~/.XCompose
 fi
 
 read -p "Generate ssh-key? " -n 1 -r
