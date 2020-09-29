@@ -36,9 +36,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     git clone "https://github.com/MichaelAquilina/zsh-autoswitch-virtualenv.git" "$ZSH_CUSTOM/plugins/autoswitch_virtualenv"
     git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:=~/.oh-my-zsh/custom}/plugins/zsh-completions
     [ $? -ne 0 ] && exit 5
-    cp -r dracula/* ~/.oh-my-zsh/themes
-    [ $? -ne 0 ] && exit 6
     ln -sf $PWD/zshrc ~/.zshrc
+    [ $? -ne 0 ] && exit 6
+    cp -r "dracula"/* ~/.oh-my-zsh/themes
     [ $? -ne 0 ] && exit 7
 fi
 
@@ -52,6 +52,7 @@ fi
 read -p "Copy kitty config? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+    mkdir ~/.config
     ln -sf $PWD/kitty ~/.config/kitty
 fi
 
@@ -59,9 +60,9 @@ read -p "Copy graphic config? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     ln -sf $PWD/xinitrc ~/.xinitrc
-    mkdir -p ~/.config/i3
+    mkdir -p ~/.config/i3/
     ln -sf $PWD/i3/config ~/.config/i3/config
-    cp i3/background.png ~/config/i3
+    cp i3/background.png ~/.config/i3
     ln -sf $PWD/Xresources ~/.Xresources
     ln -sf $PWD/XCompose ~/.XCompose
 fi
