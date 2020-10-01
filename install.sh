@@ -19,7 +19,7 @@ fi
 read -p "Install extra packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray
+    sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray cmake
     [ $? -ne 0 ] && exit 1
 fi
 
