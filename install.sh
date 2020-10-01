@@ -26,13 +26,14 @@ fi
 read -p "Install yay? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+    cfg_path="$PWD"
     cd /tmp
     git clone https://aur.archlinux.org/yay.git
     [ $? -ne 0 ] && exit 2
     cd yay
     makepkg -si
     [ $? -ne 0 ] && exit 3
-    cd
+    cd "$cfg_path"
 fi
 
 read -p "Install oh-my-zsh? " -n 1 -r
