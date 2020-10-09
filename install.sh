@@ -19,7 +19,9 @@ fi
 read -p "Install extra packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray cmake
+    sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium \
+        feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray \
+        cmake dunst
     [ $? -ne 0 ] && exit 1
 fi
 
@@ -74,6 +76,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     cp i3/background.png ~/.config/i3
     ln -sf $PWD/Xresources ~/.Xresources
     ln -sf $PWD/XCompose ~/.XCompose
+    mkdir -p ~/.config/dunst/
+    ln -sf $PWD/dunstrc ~/.config/dunst/dunstrc
 fi
 
 read -p "Generate ssh-key? " -n 1 -r
