@@ -62,12 +62,12 @@ set foldcolumn=4
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
-let g:syntastic_cpp_compiler = 'clang++'
-let g:syntastic_cpp_compiler_options = '-Wall -Wextra -Werror -std=c++2a'
+let g:syntastic_cpp_compiler = 'g++'
+let g:syntastic_cpp_compiler_options = '-Wall -Wextra -Werror -std=c++20'
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
-nnoremap <C-a> :lclose<CR>
+nnoremap <C-w> :lclose<CR>
 let g:clang_format#detect_style_file = 1
 let g:colorizer_auto_color = 1
