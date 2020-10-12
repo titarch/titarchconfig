@@ -6,6 +6,7 @@ call vundle#begin()
 
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'tpope/vim-sensible'
+Plugin 'tpope/vim-surround'
 Plugin 'dracula/vim', { 'name': 'dracula' }
 Plugin 'itchyny/lightline.vim'
 Plugin 'scrooloose/nerdtree'
