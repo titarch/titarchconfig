@@ -82,3 +82,4 @@ alias goodbye='systemctl poweroff'
 eval $(thefuck --alias)
 alias newalias='/home/bparsy/Scripts/newalias.sh'
 alias jn='jupyter notebook'
+alias makj='make -j8'
