@@ -1,0 +1,5 @@
+[user]
+	name = Baptiste Parsy
+	email = baptiste.parsy@epita.fr
+[pull]
+	rebase = false
