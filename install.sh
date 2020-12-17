@@ -22,7 +22,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium \
         feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray \
         cmake dunst lxappearance pulseaudio sysstat pamixer acpi \
-        awesome-terminal-fonts ttf-font-awesome otf-font-awesome
+        awesome-terminal-fonts ttf-font-awesome otf-font-awesome papirus-icon-theme
     [ $? -ne 0 ] && exit 1
 fi
 
