@@ -22,7 +22,7 @@ signal=10
 #
 # Guess the weather hourly
 [weather]
-command=curl -Ss 'https://wttr.in?0&T&Q' | cut -c 16- | head -2 | xargs echo
+command=curl -Ss 'https://wttr.in?0&T' | cut -c 16- | head -4 | xargs echo
 interval=3600
 
 # Query my default IP address only on startup
