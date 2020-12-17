@@ -32,7 +32,7 @@ interval=once
 color=#91E78B
 
 [volume-pulseaudio]
-interval=once
+interval=5
 signal=10
 #STEP=5%
 
@@ -71,6 +71,7 @@ separator=false
 [bandwidth]
 #INTERFACE=eth0
 interval=5
+min_width=II 00.0K OO 0.00K
 
 # The script may be called with -w and -c switches to specify thresholds,
 # see the script for details.
