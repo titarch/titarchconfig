@@ -21,7 +21,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium \
         feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray \
-        cmake dunst
+        cmake dunst lxappearance
     [ $? -ne 0 ] && exit 1
 fi
 
