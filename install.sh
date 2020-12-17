@@ -79,6 +79,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     mkdir -p ~/.config/dunst/
     ln -sf $PWD/dunstrc ~/.config/dunst/dunstrc
     ln -sf $PWD/gitconfig ~/.gitconfig
+    ln -sf $PWD/rofi ~/.config/rofi
 fi
 
 read -p "Generate ssh-key? " -n 1 -r
