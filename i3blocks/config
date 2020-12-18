@@ -41,13 +41,13 @@ signal=10
 [memory]
 label= 
 separator=false
-interval=30
+interval=5
 
 [memory]
 label= 
 instance=swap
 separator=false
-interval=30
+interval=10
 
 # Disk usage
 #
@@ -57,7 +57,7 @@ interval=30
 [disk]
 label= 
 #DIR=/mnt/data
-interval=30
+interval=15
 
 # If the instance is not specified, use the interface used for default route.
 # The address can be forced to IPv4 or IPv6 with -4 or -6 switches.
@@ -70,20 +70,20 @@ separator=false
 
 [bandwidth]
 #INTERFACE=eth0
-interval=5
+interval=1
 min_width=II 00.0K OO 0.00K
 
 # The script may be called with -w and -c switches to specify thresholds,
 # see the script for details.
 [cpu_usage]
 label= 
-interval=10
+interval=1
 min_width=CPU 100.00%
 #separator=false
 
 [load_average]
 label= 
-interval=10
+interval=1
 
 # The battery instance defaults to 0.
 [battery]
@@ -98,7 +98,7 @@ interval=10
 
 [time]
 command=date '+%Y-%m-%d %H:%M:%S'
-interval=5
+interval=1
 
 
 # Key indicators
