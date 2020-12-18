@@ -1,0 +1,16 @@
+configuration {
+	modi: "combi";
+	lines: 15;
+	bw: 2;
+	padding: 0;
+	yoffset: -130;
+	fixed-num-lines: false;
+	terminal: "kitty";
+	sorting-method: "fzf";
+	combi-modi: "drun,run";
+	hide-scrollbar: true;
+	theme: "dracula.rasi";
+	combi-hide-mode-prefix: true;
+	display-combi: "Search";
+	kb-cancel: "Escape,Alt+F1,Alt+F2";
+}

@@ -59,6 +59,10 @@ bindsym $mod+Ctrl+Shift+a exec systemctl poweroff
 bindsym $mod+Ctrl+Shift+r exec reboot
 bindsym $mod+Ctrl+j exec jetbrains-toolbox
 bindsym $mod+F12 exec flameshot gui
+bindsym $mod+grave exec rofimoji
+bindsym $mod+Insert exec notify-send "Clipboard" "$(xclip -o)"
+bindsym $mod+Pause exec qrencode -s 50 -o /tmp/qr.png "$(xclip -o)" && feh --auto-zoom --fullscreen /tmp/qr.png || notify-send "QR Code Failure" "Error code $?"
+bindsym $mod+x exec --no-startup-id rofi -show calc -modi calc -no-show-match -no-sort
 
 for_window [title ="float-"] floating enable
 for_window [title ="sfml-"] floating enable
