@@ -13,6 +13,7 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/syntastic'
 Plugin 'rhysd/vim-clang-format'
 Plugin 'chrisbra/colorizer'
+Plugin 'tikhomirov/vim-glsl'
 
 call vundle#end()
 
