@@ -21,7 +21,9 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium \
         feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray \
-        cmake dunst
+        cmake dunst lxappearance pulseaudio sysstat pamixer acpi htop bashtop \
+        awesome-terminal-fonts ttf-font-awesome otf-font-awesome iotop tig \
+        papirus-icon-theme xdotool xsel xclip rofimoji qrencode rofi-calc
     [ $? -ne 0 ] && exit 1
 fi
 
@@ -73,12 +75,14 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     ln -sf $PWD/xinitrc ~/.xinitrc
     mkdir -p ~/.config/i3/
     ln -sf $PWD/i3/config ~/.config/i3/config
+    ln -sf $PWD/i3blocks ~/.config/i3blocks
     cp i3/background.png ~/.config/i3
     ln -sf $PWD/Xresources ~/.Xresources
     ln -sf $PWD/XCompose ~/.XCompose
     mkdir -p ~/.config/dunst/
     ln -sf $PWD/dunstrc ~/.config/dunst/dunstrc
     ln -sf $PWD/gitconfig ~/.gitconfig
+    ln -sf $PWD/rofi ~/.config/rofi
 fi
 
 read -p "Generate ssh-key? " -n 1 -r
