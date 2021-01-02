@@ -83,3 +83,4 @@ eval $(thefuck --alias)
 alias newalias='/home/bparsy/Scripts/newalias.sh'
 alias jn='jupyter notebook'
 alias makj='make -j8'
+alias nvinit='nvidia-settings --assign CurrentMetaMode="$(cat /etc/X11/xorg.conf | grep metamodes | cut -d\" -f4)"'
