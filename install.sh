@@ -23,7 +23,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray \
         cmake dunst lxappearance pulseaudio sysstat pamixer acpi htop bashtop \
         awesome-terminal-fonts ttf-font-awesome otf-font-awesome iotop tig \
-        papirus-icon-theme xdotool xsel xclip rofimoji qrencode rofi-calc
+        papirus-icon-theme xdotool xsel xclip rofimoji qrencode rofi-calc \
+        polkit-gnome
     [ $? -ne 0 ] && exit 1
 fi
 
