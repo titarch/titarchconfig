@@ -84,6 +84,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     ln -sf $PWD/dunstrc ~/.config/dunst/dunstrc
     ln -sf $PWD/gitconfig ~/.gitconfig
     ln -sf $PWD/rofi ~/.config/rofi
+    mkdir -p ~/.local/bin/
     ln -sf $PWD/nvinit ~/.local/bin/nvinit
 fi
 
