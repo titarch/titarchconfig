@@ -62,6 +62,12 @@ export EDITOR='vim'
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 
+makewatch() {
+    [[ -n "$1" ]] && texfile="$1" || texfile=(*.tex(N[1]))
+    echo "Selected file: $texfile"
+    while true; do inotifywait -e modify "$texfile"; date; make; done
+}
+
 alias rm='rm -I'
 alias grep='grep --color -n'
 alias i3lock='i3lock -c 420042'
