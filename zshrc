@@ -90,3 +90,7 @@ eval $(thefuck --alias)
 alias newalias='/home/bparsy/Scripts/newalias.sh'
 alias jn='jupyter notebook'
 alias makj='make -j8'
+alias nj='ninja'
+alias cnj='cmake -G "Ninja"'
+alias cnjd='cnj -DCMAKE_BUILD_TYPE=Debug'
+alias cnjr='cnj -DCMAKE_BUILD_TYPE=Release'
