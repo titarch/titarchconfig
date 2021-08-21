@@ -1,3 +1,5 @@
+!Xft.dpi: 120
+
 *utf8: always
 *.scrollBar: false
 *.perl-ext-common: default,matcher
