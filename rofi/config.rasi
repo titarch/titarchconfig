@@ -1,16 +1,151 @@
 configuration {
 	modi: "combi";
-	lines: 15;
-	bw: 2;
-	padding: 0;
 	yoffset: -130;
 	fixed-num-lines: false;
 	terminal: "kitty";
 	sorting-method: "fzf";
 	combi-modi: "drun,run";
-	hide-scrollbar: true;
-	theme: "dracula.rasi";
 	combi-hide-mode-prefix: true;
 	display-combi: "Search";
 	kb-cancel: "Escape,Alt+F1,Alt+F2";
+  timeout {
+      action: "kb-cancel";
+      delay:  0;
+  }
+  filebrowser {
+      directories-first: true;
+      sorting-method:    "name";
+  }
+}
+/**
+ * rofi -dump-theme output.
+ * Rofi version: 1.7.0
+ **/
+* {
+    drac-yel:                   rgba ( 241, 250, 140, 100 % );
+    separatorcolor:             var(active-background);
+    drac-cya:                   rgba ( 139, 233, 253, 100 % );
+    drac-ora:                   rgba ( 255, 184, 108, 100 % );
+    background:                 var(drac-bgd);
+    selected-urgent-background: var(urgent-background);
+    drac-red:                   rgba ( 255, 85, 85, 100 % );
+    bordercolor:                rgba ( 98, 114, 164, 100 % );
+    drac-cmt:                   rgba ( 98, 114, 164, 100 % );
+    drac-pnk:                   rgba ( 255, 121, 198, 100 % );
+    drac-grn:                   rgba ( 80, 250, 123, 100 % );
+    font:                       "Jetbrains Mono 12";
+    drac-cur:                   rgba ( 68, 71, 90, 100 % );
+    urgent-background:          var(drac-red);
+    selected-background:        var(active-background);
+    drac-fgd:                   rgba ( 248, 248, 242, 100 % );
+    active-background:          var(drac-pnk);
+    drac-pur:                   rgba ( 189, 147, 249, 100 % );
+    foreground:                 var(drac-fgd);
+    selected-active-background: var(active-background);
+    drac-bgd:                   rgba ( 40, 42, 54, 100 % );
+}
+window {
+    padding:          5;
+    background-color: var(background);
+    border-color:     var(bordercolor);
+    border:           3;
+    border-radius:    6;
+}
+mainbox {
+    padding: 5;
+    border:  0;
+}
+message {
+    padding:      1px ;
+    border-color: var(separatorcolor);
+    border:       1px dash 0px 0px ;
+}
+textbox {
+    text-color: var(foreground);
+}
+listview {
+    padding:      2px 0px 0px ;
+    scrollbar:    false;
+    border-color: var(bordercolor);
+    spacing:      2px ;
+    fixed-height: 0;
+    border:       2px dash 0px 0px ;
+}
+element {
+    padding: 1px ;
+    border:  0;
+}
+element normal.normal {
+    background-color: var(background);
+    text-color:       var(foreground);
+}
+element normal.urgent {
+    background-color: var(urgent-background);
+    text-color:       var(urgent-foreground);
+}
+element normal.active {
+    background-color: var(active-background);
+    text-color:       var(background);
+}
+element selected.normal {
+    background-color: var(selected-background);
+    text-color:       var(foreground);
+}
+element selected.urgent {
+    background-color: var(selected-urgent-background);
+    text-color:       var(foreground);
+}
+element selected.active {
+    background-color: var(selected-active-background);
+    text-color:       var(background);
+}
+element alternate.normal {
+    background-color: var(background);
+    text-color:       var(foreground);
+}
+element alternate.urgent {
+    background-color: var(urgent-background);
+    text-color:       var(foreground);
+}
+element alternate.active {
+    background-color: var(active-background);
+    text-color:       var(foreground);
+}
+scrollbar {
+    width:        2px ;
+    padding:      0;
+    handle-width: 8px ;
+    border:       0;
+}
+sidebar {
+    border-color: var(separatorcolor);
+    border:       2px dash 0px 0px ;
+}
+button selected {
+    background-color: var(selected-background);
+    text-color:       var(foreground);
+}
+inputbar {
+    padding:    1px ;
+    spacing:    0;
+    text-color: var(foreground);
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+case-indicator {
+    spacing:    0;
+    text-color: var(foreground);
+}
+entry {
+    spacing:    0;
+    text-color: var(drac-cya);
+}
+prompt {
+    spacing:    0;
+    text-color: var(drac-grn);
+}
+textbox-prompt-colon {
+    margin:     0px 0.3000em 0.0000em 0.0000em ;
+    expand:     false;
+    str:        ":";
+    text-color: var(drac-grn);
 }
