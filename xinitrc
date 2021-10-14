@@ -1,4 +1,4 @@
-export PATH=$PATH:~/.local/bin
+export PATH=$PATH:$HOME/.local/bin:$HOME/.cabal/bin:$HOME/.ghcup/bin
 pasystray &
 eval `ssh-agent`
 systemctl --user import-environment DISPLAY
