@@ -24,7 +24,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         cmake dunst lxappearance pulseaudio sysstat pamixer acpi htop bashtop \
         awesome-terminal-fonts ttf-font-awesome otf-font-awesome iotop tig \
         papirus-icon-theme xdotool xsel xclip rofimoji qrencode rofi-calc \
-        polkit-gnome
+        polkit-gnome alsa-utils bc
     [ $? -ne 0 ] && exit 1
 fi
 
