@@ -45,7 +45,7 @@ ZSH_THEME="dracula"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(cp git docker pip python sudo z systemd autoswitch_virtualenv zsh-syntax-highlighting zsh-completions)
+plugins=(cp git docker pip python sudo z systemd autoswitch_virtualenv zsh-syntax-highlighting zsh-completions zsh-autosuggestions kubectl aws minikube)
 
 source $ZSH/oh-my-zsh.sh
 
