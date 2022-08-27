@@ -12,7 +12,7 @@ fi
 read -p "Install core packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S git gvim curl zsh rxvt-unicode openssh
+    sudo pacman -S git gvim curl zsh rxvt-unicode openssh python
     [ $? -ne 0 ] && exit 1
 fi
 
