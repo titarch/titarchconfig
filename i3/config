@@ -55,6 +55,7 @@ bindsym $mod+Shift+q kill
 # installed.
 #bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 bindsym $mod+d exec --no-startup-id "rofi -modi window,drun,run -show drun -show-icons -sidebar-mode"
+bindsym $mod+slash exec --no-startup-id "rofi -modi window,drun,run -show window -show-icons -sidebar-mode"
 bindsym $mod+Shift+d exec --no-startup-id i3-dmenu-desktop --dmenu='rofi -dmenu'
 bindsym $mod+Shift+n exec --no-startup-id nvinit
 bindsym $mod+Ctrl+s exec systemctl suspend
