@@ -45,7 +45,7 @@ ZSH_THEME="dracula"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(cp git docker pip python sudo z systemd autoswitch_virtualenv zsh-syntax-highlighting zsh-completions zsh-autosuggestions kubectl aws minikube history web-search enhancd zsh-kubectl-prompt terraform terragrunt)
+plugins=(cp git docker pip python sudo z systemd autoswitch_virtualenv zsh-syntax-highlighting zsh-completions zsh-autosuggestions kubectl aws minikube history web-search zsh-kubectl-prompt terraform terragrunt)
 
 source $ZSH/oh-my-zsh.sh
 
