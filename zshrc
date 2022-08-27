@@ -86,7 +86,6 @@ alias sb='source ~/.zshrc'
 alias ebh='vim ~/.zsh_history'
 alias psh='pipenv shell'
 alias goodbye='systemctl poweroff'
-eval $(thefuck --alias)
 alias newalias='/home/bparsy/Scripts/newalias.sh'
 alias jn='jupyter notebook'
 alias makj='make -j8'
