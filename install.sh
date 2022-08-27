@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 read -p "Refresh mirrors? " -n 1 -r
 echo
