@@ -13,7 +13,7 @@ fi
 read -p "Install core packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S git gvim curl zsh rxvt-unicode openssh python
+    sudo pacman -S git gvim curl zsh rxvt-unicode openssh python python-pip
     [ $? -ne 0 ] && exit 1
 fi
 
@@ -65,6 +65,14 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
     ln -sf $PWD/vimrc ~/.vimrc
+fi
+
+read -p "Install nvx? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    pip install nvx
+    mkdir -p ~/.config
+    ln -sf $PWD/nvx ~/.config/nvx
 fi
 
 read -p "Copy kitty config? " -n 1 -r
