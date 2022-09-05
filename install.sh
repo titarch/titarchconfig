@@ -10,6 +10,12 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     [ $? -ne 0 ] && exit 1
 fi
 
+read -p "Upgrade packages? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    sudo pacman -Syu
+fi
+
 read -p "Install core packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
