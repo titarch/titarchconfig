@@ -107,6 +107,13 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     ln -sf $PWD/nvinit ~/.local/bin/nvinit
 fi
 
+read -p "Import GPG public keys? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    gpg --import gpg/pub.key
+    echo 9B3395420052532132F45BF7E25ADE1208174A13:6 | gpg --import-ownertrust
+fi
+
 read -p "Generate ssh-key? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
