@@ -68,6 +68,9 @@ makewatch() {
     while true; do inotifywait -e modify "$texfile"; date; make; done
 }
 
+zstyle ':completion:*:*:docker:*' option-stacking yes
+zstyle ':completion:*:*:docker-*:*' option-stacking yes
+
 alias rm='rm -I'
 alias grep='grep --color -n'
 alias i3lock='i3lock -c 420042'
