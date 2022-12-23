@@ -1,6 +1,7 @@
 [user]
 	name = Baptiste Parsy
 	email = parsybaptiste@gmail.com
+	signingkey = 11563A7142D25979
 [pull]
 	rebase = false
 [rerere]
@@ -12,3 +13,7 @@
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
+[gpg]
+	program = gpg2
+[commit]
+	gpgsign = true
