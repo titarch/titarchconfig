@@ -58,7 +58,8 @@ bindsym $mod+d exec --no-startup-id "rofi -modi window,drun,run -show drun -show
 bindsym $mod+slash exec --no-startup-id "rofi -modi window,drun,run -show window -show-icons -sidebar-mode"
 bindsym $mod+Shift+v exec --no-startup-id "rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"
 bindsym $mod+Shift+d exec --no-startup-id i3-dmenu-desktop --dmenu='rofi -dmenu'
-bindsym $mod+Shift+n exec --no-startup-id nvinit
+bindsym $mod+Shift+n exec --no-startup-id nvx
+bindsym $mod+Shift+m exec --no-startup-id nvx 1 3
 bindsym $mod+Ctrl+Shift+l exec systemctl suspend
 bindsym $mod+Ctrl+Shift+p exec systemctl hibernate
 bindsym $mod+Ctrl+Shift+a exec systemctl poweroff
