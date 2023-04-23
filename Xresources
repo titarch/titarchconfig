@@ -6,7 +6,7 @@
 *.url-launcher: /usr/bin/xdg-open
 !*.matcher.button: 1
 !*.letterSpace:  0
-XTerm*font:         xft:DejaVu Sans Mono:size=11:style=Book:antialias=true:hinting=true
+XTerm*font:         xft:DejaVu Sans Mono:size=14:style=Book:antialias=true:hinting=true
 !URxvt*font: xft:DejaVu Sans Mono:size=12
 URxvt*font: xft: Fira Code:style=Regular
 !.vt100.locale: true
