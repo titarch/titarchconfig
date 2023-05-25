@@ -55,6 +55,7 @@ set expandtab
 map <C-o> :NERDTreeToggle<CR>
 map <C-t> :tab new<CR>
 set mouse=a
+set ttymouse=sgr
 
 set foldmethod=syntax
 set foldlevelstart=20
