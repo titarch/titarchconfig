@@ -14,6 +14,7 @@ Plugin 'scrooloose/syntastic'
 Plugin 'rhysd/vim-clang-format'
 Plugin 'chrisbra/colorizer'
 Plugin 'tikhomirov/vim-glsl'
+Plugin 'github/copilot.vim'
 
 call vundle#end()
 
