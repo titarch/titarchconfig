@@ -56,6 +56,7 @@ kitty + complete setup zsh | source /dev/stdin
 
 # User configuration
 
+export RPROMPT='%{$fg[blue]%}($ZSH_KUBECTL_PROMPT)%{$reset_color%}'
 export EDITOR='vim'
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
