@@ -98,6 +98,8 @@ alias cnj='cmake -G "Ninja"'
 alias cnjd='cnj -DCMAKE_BUILD_TYPE=Debug'
 alias cnjr='cnj -DCMAKE_BUILD_TYPE=Release'
 alias x='startx'
+alias setclip="xclip -selection c"
+alias getclip="xclip -selection c -o"
 alias kdelps='kdelp --field-selector=status.phase==Succeeded'
 alias kdelpf='kdelp --field-selector=status.phase==Failed'
 alias kdelpa='kdelps && kdelpf'
