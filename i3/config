@@ -292,3 +292,6 @@ bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86AudioPause exec playerctl pause
 bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
+bindsym $mod+$alt+Down exec playerctl play-pause
+bindsym $mod+$alt+Left exec playerctl previous
+bindsym $mod+$alt+Right exec playerctl next
