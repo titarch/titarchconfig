@@ -16,6 +16,8 @@ exec_always --no-startup-id feh --bg-fill ~/.config/i3/background.png
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec --no-startup-id ibus-daemon -rxRd
+exec --no-startup-id /usr/bin/blueman-applet
 
 set $mod Mod4
 set $alt Mod1
