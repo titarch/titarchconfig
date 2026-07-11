@@ -1,0 +1,9 @@
+# Deployed to /etc/udev/rules.d/61-sunshine-uinput.rules
+# Sunshine (user service) needs /dev/uinput to create the virtual
+# keyboard/mouse/gamepad for Moonlight input. The packaged rule only grants
+# access via the "uaccess" tag, which requires an active *seat* session —
+# absent when the machine is booted remotely (WoL + SSH). Owning the node
+# works in every case on this single-user machine.
+KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", OWNER="bparsy", GROUP="input", MODE="0660"
+# DualSense/Switch controller emulation goes through uhid
+KERNEL=="uhid", OWNER="bparsy", GROUP="input", MODE="0660"

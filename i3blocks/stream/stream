@@ -1,0 +1,9 @@
+#!/bin/sh
+# i3blocks indicator for Sunshine streaming "away mode".
+# Shows a red STREAM badge while the virtual-display layout is active.
+# Refreshed via: pkill -RTMIN+12 i3blocks (sent by the `stream` script).
+if [ -e "${XDG_RUNTIME_DIR:-/tmp}/stream-active" ]; then
+    echo "STREAM"
+    echo "STREAM"
+    echo "#FF5555"
+fi

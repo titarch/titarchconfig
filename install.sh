@@ -107,6 +107,22 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     ln -sf $PWD/nvinit ~/.local/bin/nvinit
 fi
 
+read -p "Install Sunshine streaming setup? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    mkdir -p ~/.local/bin ~/.config/stream ~/.config/sunshine
+    ln -sf $PWD/stream/stream ~/.local/bin/stream
+    ln -sf $PWD/zshenv ~/.zshenv
+    ln -sf $PWD/stream/profiles.conf ~/.config/stream/profiles.conf
+    ln -sf $PWD/sunshine/sunshine.conf ~/.config/sunshine/sunshine.conf
+    ln -sf $PWD/sunshine/apps.json ~/.config/sunshine/apps.json
+    echo "Now install the xorg configs (adjust outputs to this machine first!):"
+    echo "  sudo cp $PWD/sunshine/xorg.conf /etc/X11/xorg.conf"
+    echo "  sudo cp $PWD/sunshine/virtual-edid.bin /etc/X11/sunshine-virtual-edid.bin"
+    echo "  sudo cp $PWD/sunshine/Xwrapper.config /etc/X11/Xwrapper.config"
+    echo "then restart X once."
+fi
+
 read -p "Import GPG public keys? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then

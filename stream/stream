@@ -1,0 +1,278 @@
+#!/usr/bin/env bash
+# stream — toggle Sunshine "away mode": a single virtual screen (DP-1)
+# matching the Moonlight client, real monitors off. Pure xrandr, no sudo,
+# no X restart (DP-1/DP-3 are force-connected in /etc/X11/xorg.conf).
+#
+# Usage: stream on [profile] | off | toggle | status | list | panic
+# Profiles: ~/.config/stream/profiles.conf — any WxH@R works, modes are
+# generated on demand (cvt + xrandr --newmode/--addmode).
+set -uo pipefail
+
+VIRT="HDMI-0"
+PHYS=(DP-2 DP-4 DP-0)
+SUNSHINE_UNIT="app-dev.lizardbyte.app.Sunshine.service"
+PROFILES="${XDG_CONFIG_HOME:-$HOME/.config}/stream/profiles.conf"
+RUN_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+WS_STATE="$RUN_DIR/stream-workspaces.json"
+ACTIVE_MARK="$RUN_DIR/stream-active"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/stream"
+LAST_PROFILE_FILE="$STATE_DIR/last-profile"
+
+# Canonical home layout — keep in sync with MetaModes in /etc/X11/xorg.conf
+HOME_METAMODE="DP-2: 2560x1440_144 +0+0 {ForceCompositionPipeline=On}, DP-4: 2560x1440_144 +2560+0 {ForceCompositionPipeline=On}, DP-0: 2560x1440_144 +5120+0 {ForceCompositionPipeline=On}"
+HOME_PRIMARY="DP-4"
+
+die() { echo "stream: $*" >&2; exit 1; }
+
+# Make DISPLAY/XAUTHORITY available when invoked over SSH or from systemd
+ensure_display() {
+    if [ -z "${DISPLAY:-}" ]; then
+        eval "$(systemctl --user show-environment 2>/dev/null \
+            | grep -E '^(DISPLAY|XAUTHORITY)=' | sed 's/^/export /')"
+    fi
+    if [ -z "${DISPLAY:-}" ] && [ -S /tmp/.X11-unix/X0 ]; then
+        export DISPLAY=:0 XAUTHORITY="${XAUTHORITY:-$HOME/.Xauthority}"
+    fi
+    [ -n "${DISPLAY:-}" ] || die "no DISPLAY (X session not running?)"
+}
+
+x_running() { pgrep -x Xorg >/dev/null 2>&1; }
+
+# Headless/SSH support: if no X server is running (tty-only machine), start
+# one on a spare VT. Requires /etc/X11/Xwrapper.config with
+# allowed_users=anybody + needs_root_rights=yes. The session comes up via
+# ~/.xinitrc (i3, env import, Sunshine restart) exactly like a console start.
+ensure_x() {
+    x_running && return 0
+    echo "stream: no X server running, starting one on vt7..."
+    # 9>&- : don't leak the transition lock fd into the X session
+    (cd "$HOME" && setsid -f startx -- vt7 >"$RUN_DIR/stream-startx.log" 2>&1 9>&-)
+    local i
+    for i in $(seq 1 40); do
+        if DISPLAY=:0 XAUTHORITY="$HOME/.Xauthority" xrandr --query >/dev/null 2>&1; then
+            export DISPLAY=:0 XAUTHORITY="$HOME/.Xauthority"
+            sleep 3   # let the initial modeset and session startup settle
+            return 0
+        fi
+        sleep 0.5
+    done
+    die "X did not come up within 20s (see $RUN_DIR/stream-startx.log; is /etc/X11/Xwrapper.config deployed?)"
+}
+
+signal_blocks() { pkill -RTMIN+12 i3blocks 2>/dev/null; return 0; }
+
+# --- profiles ---------------------------------------------------------------
+
+profile_value() {
+    [ -r "$PROFILES" ] || die "profiles file not found: $PROFILES"
+    sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*\([^#[:space:]]*\).*/\1/p" \
+        "$PROFILES" | head -n1
+}
+
+resolve_profile() {
+    local name="$1" value
+    value=$(profile_value "$name")
+    [ -n "$value" ] || die "unknown profile '$name' (see: stream list)"
+    if ! [[ "$value" =~ ^[0-9]+x[0-9]+@[0-9]+$ ]]; then
+        # one level of aliasing, e.g. default = qhd
+        value=$(profile_value "$value")
+        [[ "$value" =~ ^[0-9]+x[0-9]+@[0-9]+$ ]] \
+            || die "profile '$name' does not resolve to WxH@R"
+    fi
+    echo "$value"
+}
+
+mode_of() { echo "${1/@/_}"; }  # 1920x1080@60 -> 1920x1080_60
+
+mode_exists() {
+    xrandr --query | awk -v out="$VIRT" -v mode="$1" '
+        /^[A-Za-z]/ { in_out = ($1 == out) }
+        in_out && $1 == mode { found = 1 }
+        END { exit !found }'
+}
+
+# Print a usable mode name on $VIRT for WxH@R, in order of preference:
+# 1. exact "WxH_R" name (xorg.conf Monitor0 pool / previously added);
+# 2. an EDID or driver-builtin "WxH" mode (the EDID is ours — desired rates
+#    are requested with --rate; new resolutions are added to it as DTDs, see
+#    sunshine/virtual-edid.bin in the repo);
+# 3. created at runtime (cvt -> newmode -> addmode) — the nvidia driver
+#    rejects this on the HDMI head in practice, kept as a best effort.
+resolve_mode() {
+    local res="$1" mode
+    mode=$(mode_of "$res")
+    if mode_exists "$mode"; then echo "$mode"; return 0; fi
+    local w=${res%%x*} h=${res#*x} r=${res#*@} modeline
+    h=${h%@*}
+    if mode_exists "$w"x"$h"; then echo "${w}x${h}"; return 0; fi
+    local cvt_args=("$w" "$h" "$r")
+    [ "$r" = 60 ] && cvt_args=(-r "$w" "$h" 60)  # cvt supports -r only at 60Hz
+    modeline=$(cvt "${cvt_args[@]}" 2>/dev/null | sed -n 's/^Modeline "[^"]*"[[:space:]]*//p')
+    if [ -n "$modeline" ]; then
+        xrandr --rmmode "$mode" 2>/dev/null   # drop a stale detached mode
+        # shellcheck disable=SC2086 — modeline is a list of numbers/flags
+        xrandr --newmode "$mode" $modeline 2>/dev/null
+        if xrandr --addmode "$VIRT" "$mode" 2>/dev/null; then
+            echo "$mode"; return 0
+        fi
+    fi
+    die "no usable mode for $res on $VIRT — add a DTD for it to sunshine/virtual-edid.bin (see repo) and restart X"
+}
+
+# --- i3 workspace snapshot/restore -------------------------------------------
+
+save_workspaces() {
+    i3-msg -t get_workspaces > "$WS_STATE" 2>/dev/null || rm -f "$WS_STATE"
+}
+
+restore_workspaces() {
+    [ -r "$WS_STATE" ] || return 0
+    command -v jq >/dev/null || return 0
+    local name output i
+    # wait for i3 to register the restored outputs before moving workspaces
+    for i in $(seq 1 20); do
+        [ "$(i3-msg -t get_outputs 2>/dev/null \
+            | jq '[.[] | select(.active)] | length')" -ge "${#PHYS[@]}" ] && break
+        sleep 0.25
+    done
+    # move every workspace back to its original output (empty workspaces no
+    # longer exist by now — the error for those is harmless)
+    while IFS=$'\t' read -r name output; do
+        i3-msg "[workspace=\"^$(printf '%s' "$name" | sed 's/[][\\.^$*+?(){}|]/\\&/g')\$\"] \
+            move workspace to output $output" >/dev/null 2>&1
+    done < <(jq -r '.[] | [.name, .output] | @tsv' "$WS_STATE")
+    # re-show the workspace that was visible on each output, focused one last;
+    # focusing the output first recreates empty workspaces in the right place
+    while IFS=$'\t' read -r name output; do
+        i3-msg "focus output $output" >/dev/null 2>&1
+        i3-msg "workspace \"$name\"" >/dev/null 2>&1
+    done < <(jq -r 'sort_by(.focused) | .[] | select(.visible) | [.name, .output] | @tsv' "$WS_STATE")
+    rm -f "$WS_STATE"
+}
+
+# --- layout switching ---------------------------------------------------------
+
+restore_home_layout() {
+    # Plain xrandr only: the nvidia-settings CurrentMetaMode path (NV-CONTROL
+    # modeset) preceded both in-kernel driver deadlocks — avoid it entirely.
+    # Cost: ForceCompositionPipeline is lost until the next X start.
+    xrandr --output DP-2 --mode 2560x1440 --rate 143.97 --pos 0x0 \
+           --output DP-4 --mode 2560x1440 --rate 143.97 --pos 2560x0 \
+           --output DP-0 --mode 2560x1440 --rate 143.97 --pos 5120x0 \
+           --output "$VIRT" --off || return 1
+    xrandr --output "$HOME_PRIMARY" --primary >/dev/null 2>&1
+    sleep 1   # let the driver settle before any follow-up modeset
+    return 0
+}
+
+sunshine_ensure() {
+    systemctl --user is-active --quiet "$SUNSHINE_UNIT" \
+        || systemctl --user restart "$SUNSHINE_UNIT" \
+        || echo "stream: warning: could not start $SUNSHINE_UNIT" >&2
+}
+
+cmd_on() {
+    ensure_x
+    ensure_display
+    local profile="${1:-}"
+    if [ -z "$profile" ]; then
+        profile=$(cat "$LAST_PROFILE_FILE" 2>/dev/null || echo default)
+    fi
+    local res mode
+    res=$(resolve_profile "$profile") || exit 1
+    mode=$(resolve_mode "$res") || exit 1
+
+    # snapshot workspaces only on the home->away transition
+    [ -e "$ACTIVE_MARK" ] || save_workspaces
+
+    local rate=${res#*@} off_args=() switched=0
+    for out in "${PHYS[@]}"; do off_args+=(--output "$out" --off); done
+    # try with the exact refresh first, fall back to the mode's default rate;
+    # a switch right after an X start can fail transiently — retry once
+    for attempt in 1 2; do
+        if xrandr --output "$VIRT" --mode "$mode" --rate "$rate" --pos 0x0 --primary "${off_args[@]}" 2>/dev/null \
+            || xrandr --output "$VIRT" --mode "$mode" --pos 0x0 --primary "${off_args[@]}"; then
+            switched=1; break
+        fi
+        [ "$attempt" = 1 ] && { echo "stream: switch failed, retrying..." >&2; sleep 3; }
+    done
+    if [ "$switched" != 1 ]; then
+        echo "stream: xrandr failed, restoring home layout" >&2
+        cmd_panic
+        exit 1
+    fi
+    if ! xrandr --listmonitors | grep -q "$VIRT"; then
+        echo "stream: $VIRT did not come up, restoring home layout" >&2
+        cmd_panic
+        exit 1
+    fi
+
+    mkdir -p "$STATE_DIR"
+    echo "$profile" > "$LAST_PROFILE_FILE"
+    touch "$ACTIVE_MARK"
+    signal_blocks
+    sunshine_ensure
+    echo "away mode ON: $VIRT @ $res (profile '$profile')"
+}
+
+cmd_off() {
+    ensure_display
+    restore_home_layout || die "failed to restore home layout (try: stream panic)"
+    restore_workspaces
+    rm -f "$ACTIVE_MARK"
+    signal_blocks
+    # Sunshine stays running so the machine remains reachable remotely
+    echo "away mode OFF: home layout restored"
+}
+
+cmd_panic() {
+    ensure_display
+    restore_home_layout || die "xrandr restore failed"
+    restore_workspaces
+    rm -f "$ACTIVE_MARK"
+    signal_blocks
+    echo "home layout restored"
+}
+
+cmd_toggle() {
+    if [ -e "$ACTIVE_MARK" ]; then cmd_off; else cmd_on "${1:-}"; fi
+}
+
+cmd_status() {
+    if [ -e "$ACTIVE_MARK" ]; then
+        echo "away mode: ON (profile: $(cat "$LAST_PROFILE_FILE" 2>/dev/null || echo '?'))"
+    else
+        echo "away mode: OFF"
+    fi
+    local sstate
+    sstate=$(systemctl --user is-active "$SUNSHINE_UNIT" 2>/dev/null) || true
+    echo "sunshine:  ${sstate:-unknown}"
+    if x_running; then
+        ensure_display
+        xrandr --listmonitors | sed 's/^/  /'
+    else
+        echo "X server:  not running (stream on will start one)"
+    fi
+}
+
+cmd_list() {
+    [ -r "$PROFILES" ] || die "profiles file not found: $PROFILES"
+    grep -E '^[[:space:]]*[^#[:space:]]+[[:space:]]*=' "$PROFILES" | sed 's/^[[:space:]]*/  /'
+}
+
+# Serialize invocations: overlapping on/off transitions (e.g. Moonlight app
+# switch firing undo+do back to back) interleave modesets, which has
+# deadlocked the NVIDIA driver. One transition at a time.
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/stream.lock"
+flock -w 45 9 || die "another stream transition is still running"
+
+case "${1:-}" in
+    on)     cmd_on "${2:-}" ;;
+    off)    cmd_off ;;
+    toggle) cmd_toggle "${2:-}" ;;
+    status) cmd_status ;;
+    list)   cmd_list ;;
+    panic)  cmd_panic ;;
+    *)      echo "usage: stream on [profile] | off | toggle | status | list | panic" >&2
+            exit 2 ;;
+esac

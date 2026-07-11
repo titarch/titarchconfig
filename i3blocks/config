@@ -11,6 +11,12 @@ separator=true
 separator_block_width=15
 command=$BLOCK_NAME/$BLOCK_NAME
 markup=none
+
+# Sunshine streaming "away mode" indicator (refreshed by the `stream` script)
+[stream]
+interval=once
+signal=12
+
 #
 # This displays "ARTIST - SONG" if a music is playing.
 # Supported players are: spotify, vlc, audacious, xmms2, mplayer, and others.
