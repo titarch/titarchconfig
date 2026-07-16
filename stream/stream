@@ -154,12 +154,26 @@ restore_workspaces() {
 
 restore_home_layout() {
     # Plain xrandr only: the nvidia-settings CurrentMetaMode path (NV-CONTROL
-    # modeset) preceded both in-kernel driver deadlocks — avoid it entirely.
+    # modeset) preceded the in-kernel driver deadlocks — avoid it entirely.
     # Cost: ForceCompositionPipeline is lost until the next X start.
-    xrandr --output DP-2 --mode 2560x1440 --rate 143.97 --pos 0x0 \
-           --output DP-4 --mode 2560x1440 --rate 143.97 --pos 2560x0 \
-           --output DP-0 --mode 2560x1440 --rate 143.97 --pos 5120x0 \
-           --output "$VIRT" --off || return 1
+    if ! xrandr --output DP-2 --mode 2560x1440 --rate 143.97 --pos 0x0 \
+                --output DP-4 --mode 2560x1440 --rate 143.97 --pos 2560x0 \
+                --output DP-0 --mode 2560x1440 --rate 143.97 --pos 5120x0 \
+                --output "$VIRT" --off 2>/dev/null; then
+        # If X started while the monitors were asleep, DDC failed and the
+        # outputs only have basic fallback modes (should not happen once
+        # CustomEDID pins the panel EDIDs — kept as a safety net).
+        echo "stream: full layout unavailable (missing EDID?), waking monitors..." >&2
+        xrandr --output DP-2 --auto --pos 0x0 \
+               --output DP-4 --auto --pos 2560x0 \
+               --output DP-0 --auto --pos 5120x0 \
+               --output "$VIRT" --off || return 1
+        sleep 8   # give the panels time to wake and answer DDC
+        xrandr --output DP-2 --mode 2560x1440 --pos 0x0 \
+               --output DP-4 --mode 2560x1440 --pos 2560x0 \
+               --output DP-0 --mode 2560x1440 --pos 5120x0 2>/dev/null \
+            || echo "stream: some outputs stuck at fallback modes — rerun 'stream panic' with monitors awake, or restart X" >&2
+    fi
     xrandr --output "$HOME_PRIMARY" --primary >/dev/null 2>&1
     sleep 1   # let the driver settle before any follow-up modeset
     return 0
@@ -212,6 +226,9 @@ cmd_on() {
     touch "$ACTIVE_MARK"
     signal_blocks
     sunshine_ensure
+    # optional per-profile hook (e.g. hooks/phone sets up a touch-friendly layout)
+    local hook="${XDG_CONFIG_HOME:-$HOME/.config}/stream/hooks/$profile"
+    [ -x "$hook" ] && "$hook" >/dev/null 2>&1
     echo "away mode ON: $VIRT @ $res (profile '$profile')"
 }
 

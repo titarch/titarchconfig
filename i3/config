@@ -247,6 +247,10 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
+# Toggle Sunshine streaming "away mode" (virtual screen, real monitors off)
+# (absolute path: /usr/bin/stream is imagemagick's)
+bindsym $mod+Shift+s exec --no-startup-id ~/.local/bin/stream toggle
+
 # class                 border  bground text    indicator child_border
 client.focused          #6272A4 #6272A4 #F8F8F2 #6272A4   #6272A4
 client.focused_inactive #44475A #44475A #F8F8F2 #44475A   #44475A

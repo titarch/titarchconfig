@@ -114,6 +114,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     ln -sf $PWD/stream/stream ~/.local/bin/stream
     ln -sf $PWD/zshenv ~/.zshenv
     ln -sf $PWD/stream/profiles.conf ~/.config/stream/profiles.conf
+    ln -sfn $PWD/stream/hooks ~/.config/stream/hooks
     ln -sf $PWD/sunshine/sunshine.conf ~/.config/sunshine/sunshine.conf
     ln -sf $PWD/sunshine/apps.json ~/.config/sunshine/apps.json
     echo "Now install the xorg configs (adjust outputs to this machine first!):"

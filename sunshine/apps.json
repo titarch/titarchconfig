@@ -8,6 +8,16 @@
       "image-path": "desktop.png"
     },
     {
+      "name": "Desktop (phone)",
+      "image-path": "desktop.png",
+      "prep-cmd": [
+        {
+          "do": "/home/bparsy/.local/bin/stream on phone",
+          "undo": ""
+        }
+      ]
+    },
+    {
       "name": "Desktop (laptop 1080p)",
       "image-path": "desktop.png",
       "prep-cmd": [

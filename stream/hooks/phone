@@ -1,0 +1,10 @@
+#!/bin/sh
+# Post-switch hook for the "phone" profile: make i3 touch-friendly.
+# Tabbed layout = every window is a fullscreen tab with a tappable titlebar,
+# which works well with Moonlight sending taps as clicks.
+i3-msg 'workspace phone' >/dev/null
+i3-msg 'layout tabbed' >/dev/null
+# Launch something useful if the workspace is empty (adjust to taste)
+if [ "$(i3-msg -t get_tree | jq '[recurse(.nodes[]?) | select(.type=="workspace" and .name=="phone") | .nodes | length] | first')" = "0" ]; then
+    i3-msg 'exec firefox' >/dev/null
+fi
