@@ -49,6 +49,10 @@ plugins=(cp git docker pip python sudo z systemd autoswitch_virtualenv zsh-synta
 
 source $ZSH/oh-my-zsh.sh
 
+zstyle ':completion:*:*:make:*' call-command true
+zstyle ':completion:*:*:make:*' use-cache on
+zstyle ':completion:*:*:make:*' cache-path ~/.cache/zsh/make
+
 autoload -Uz compinit
 compinit
 # Completion for kitty
