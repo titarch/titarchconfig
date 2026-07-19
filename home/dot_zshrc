@@ -189,7 +189,7 @@ alias nj='ninja'
 alias cnj='cmake -G "Ninja"'
 alias cnjd='cnj -DCMAKE_BUILD_TYPE=Debug'
 alias cnjr='cnj -DCMAKE_BUILD_TYPE=Release'
-alias x='startx'
+alias x='hyprland'
 alias setclip="xclip -selection c"
 alias getclip="xclip -selection c -o"
 alias kdelps='kdelp --field-selector=status.phase==Succeeded'
