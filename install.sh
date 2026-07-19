@@ -61,66 +61,34 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     git clone https://github.com/superbrothers/zsh-kubectl-prompt.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-kubectl-prompt
     git clone https://github.com/hanjunlee/terragrunt-oh-my-zsh-plugin ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/terragrunt
     [ $? -ne 0 ] && exit 5
-    ln -sf $PWD/zshrc ~/.zshrc
-    [ $? -ne 0 ] && exit 6
-    cp -r "dracula"/* ~/.oh-my-zsh/themes
-    [ $? -ne 0 ] && exit 7
 fi
 
 read -p "Install vundle? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-    ln -sf $PWD/vimrc ~/.vimrc
 fi
 
 read -p "Install nvx? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     pip install nvx
-    mkdir -p ~/.config
-    ln -sf $PWD/nvx ~/.config/nvx
 fi
 
-read -p "Copy kitty config? " -n 1 -r
+read -p "Deploy dotfiles with chezmoi? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    mkdir -p ~/.config
-    ln -sf $PWD/kitty ~/.config/kitty
+    sudo pacman -S --needed chezmoi
+    # Prompts for per-machine data (primary monitor, feature flags) on first
+    # run; values land in ~/.config/chezmoi/chezmoi.toml. See home/.chezmoi.toml.tmpl.
+    chezmoi init --apply --source "$PWD"
 fi
 
-read -p "Copy graphic config? " -n 1 -r
+read -p "Install Sunshine system files (streaming machines only)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    ln -sf $PWD/xinitrc ~/.xinitrc
-    mkdir -p ~/.config/i3/
-    ln -sf $PWD/i3/config ~/.config/i3/config
-    ln -sf $PWD/i3blocks ~/.config/i3blocks
-    cp i3/background.png ~/.config/i3
-    ln -sf $PWD/Xresources ~/.Xresources
-    ln -sf $PWD/XCompose ~/.XCompose
-    mkdir -p ~/.config/dunst/
-    ln -sf $PWD/dunstrc ~/.config/dunst/dunstrc
-    ln -sf $PWD/gitconfig ~/.gitconfig
-    ln -sf $PWD/rofi ~/.config/rofi
-    mkdir -p ~/.local/bin/
-    ln -sf $PWD/nvinit ~/.local/bin/nvinit
-fi
-
-read -p "Install Sunshine streaming setup? " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    mkdir -p ~/.local/bin ~/.config/stream ~/.config/sunshine
-    ln -sf $PWD/stream/stream ~/.local/bin/stream
-    ln -sf $PWD/zshenv ~/.zshenv
-    ln -sf $PWD/stream/profiles.conf ~/.config/stream/profiles.conf
-    ln -sfn $PWD/stream/hooks ~/.config/stream/hooks
-    ln -sf $PWD/sunshine/sunshine.conf ~/.config/sunshine/sunshine.conf
-    ln -sf $PWD/sunshine/apps.json ~/.config/sunshine/apps.json
-    echo "Now install the xorg configs (adjust outputs to this machine first!):"
-    echo "  sudo cp $PWD/sunshine/xorg.conf /etc/X11/xorg.conf"
-    echo "  sudo cp $PWD/sunshine/virtual-edid.bin /etc/X11/sunshine-virtual-edid.bin"
-    echo "  sudo cp $PWD/sunshine/Xwrapper.config /etc/X11/Xwrapper.config"
+    echo "xorg.conf outputs/EDIDs are machine-specific — review system/sunshine/ first!"
+    sudo system/install-system.sh
     echo "then restart X once."
 fi
 

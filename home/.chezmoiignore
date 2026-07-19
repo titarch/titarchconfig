@@ -1,0 +1,12 @@
+# Files only deployed on machines with the matching feature flags
+# (set in ~/.config/chezmoi/chezmoi.toml [data], see .chezmoi.toml.tmpl)
+{{ if not .features.streaming }}
+.config/stream/**
+.config/sunshine/**
+.config/systemd/user/app-dev.lizardbyte.app.Sunshine.service.d/**
+.local/bin/stream
+{{ end }}
+{{ if not .features.nvidia_x11 }}
+.config/nvx/**
+.local/bin/nvinit
+{{ end }}

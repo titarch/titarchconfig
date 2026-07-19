@@ -1,0 +1,17 @@
+export PATH=$PATH:$HOME/.local/bin:$HOME/.cabal/bin:$HOME/.ghcup/bin:$HOME/.npm-global/bin:$HOME/.cargo/bin
+pasystray &
+eval `ssh-agent`
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+export GTK_IM_MODULE=ibus
+export GTK_THEME=Dracula
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+systemctl --user import-environment DISPLAY XAUTHORITY
+# Sunshine is started on demand by `stream on` (not at session start); stop
+# any stale instance so a later start always matches the current X session.
+# --no-block: don't delay i3 (the unit has ExecStartPre=sleep 5).
+systemctl --user --no-block stop app-dev.lizardbyte.app.Sunshine.service
+# X defaults primary to the (inactive) virtual HDMI-0, which breaks Sunshine's
+# display indexing (output_name); the middle monitor is the real primary
+xrandr --output {{ .x11.primary }} --primary
+xrdb -merge .Xresources && exec i3
