@@ -28,8 +28,8 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo pacman -S hyprland dms-shell-hyprland xdg-desktop-portal-hyprland \
         xdg-desktop-portal-gtk qt5-wayland qt6-wayland wl-clipboard cliphist \
-        grim slurp greetd hypridle ydotool fcitx5-im fcitx5-mozc kitty \
-        playerctl pavucontrol thunar tumbler chezmoi jq otf-fira-sans \
+        grim slurp satty greetd hypridle ydotool fcitx5-im fcitx5-mozc kitty \
+        networkmanager brightnessctl moonlight-qt playerctl pavucontrol thunar tumbler chezmoi jq otf-fira-sans \
         otf-fira-mono ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
         feh vlc chromium qrencode rofimoji rofi wtype xclip light \
         papirus-icon-theme qt6ct pamixer acpi htop iotop tig sysstat bc \

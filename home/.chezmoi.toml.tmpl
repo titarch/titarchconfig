@@ -1,6 +1,8 @@
 # generates ~/.config/chezmoi/chezmoi.toml on chezmoi init,
 # promptOnce reuses existing values so re-init never re-asks
 {{- $streaming := promptBoolOnce . "features.streaming" "Deploy Sunshine streaming config" false -}}
+{{- $nvidia := promptBoolOnce . "features.nvidia" "Nvidia GPU (driver env vars)" false -}}
+{{- $fancyFx := promptBoolOnce . "features.fancyFx" "Costly visual effects (blur, shadows, animated border)" false -}}
 {{- $legacySource := joinPath .chezmoi.homeDir "titarchconfig" -}}
 {{- if stat (joinPath $legacySource ".chezmoiroot") }}
 # historical repo location
@@ -9,3 +11,5 @@ sourceDir = {{ $legacySource | quote }}
 
 [data.features]
     streaming = {{ $streaming }}
+    nvidia = {{ $nvidia }}
+    fancyFx = {{ $fancyFx }}

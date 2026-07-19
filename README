@@ -22,7 +22,11 @@ Personal Arch Linux config, managed with chezmoi.
 ## New machine
     sudo pacman -S chezmoi git
     chezmoi init --apply <repo-url>     # prompts for per-machine data
-or run `./install.sh` for the full guided setup.
+or run `./install.sh` for the full guided setup (packages, AUR themes,
+oh-my-zsh). Feature prompts: streaming (sunshine host), nvidia (driver env),
+fancyFx (blur/shadows/animated border, say no on weak iGPUs).
+Greeter: sudo pacman -S greetd, then `dms greeter install` from a session.
+Migrating an old x11/i3 machine: also run `./cleanup-x11.sh`.
 
 On this machine (grodarch) the source dir is pinned to `~/titarchconfig`
 via `sourceDir` in `~/.config/chezmoi/chezmoi.toml`.

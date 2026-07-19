@@ -1,0 +1,6 @@
+# machine-dependent effects, included last so it overrides kitty.conf
+{{- if .features.fancyFx }}
+background_opacity 0.88
+{{- else }}
+background_opacity 1.0
+{{- end }}
