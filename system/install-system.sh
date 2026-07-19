@@ -16,4 +16,12 @@ udevadm control --reload
 # old in-repo EDID compat copies no longer needed
 rm -rf ../sunshine
 
+# greeter monitor layout; dms greeter sync/install rewrites config.toml and
+# drops the -C flag, rerun this script if greeter monitor order regresses
+if [ -d /etc/greetd ]; then
+    install -m644 greetd/dms-greeter-hypr.conf /etc/greetd/dms-greeter-hypr.conf
+    grep -q 'dms-greeter-hypr.conf' /etc/greetd/config.toml 2>/dev/null \
+        || sed -i 's|--command hyprland|--command hyprland -C /etc/greetd/dms-greeter-hypr.conf|' /etc/greetd/config.toml
+fi
+
 echo "system files installed; xorg.conf now reads EDIDs from /etc/X11/edid/"
