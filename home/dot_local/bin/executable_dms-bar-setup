@@ -18,6 +18,9 @@ d = json.load(open(p)) if os.path.exists(p) else {}
 d.update(json.load(open(os.path.join(base, "defaults.json"))))
 for c in d.get("barConfigs", []):
     c["position"] = 1
+    # bar background scroll misfires with hovered vs focused screen (dms
+    # 1.5.2), widget scroll still works; retry after dms updates
+    c["scrollEnabled"] = False
     rw = [w for w in c.get("rightWidgets", []) if w != "netspeed"]
     rw.insert(0, "netspeed")
     if "idleInhibitor" not in rw:
