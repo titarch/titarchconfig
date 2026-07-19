@@ -133,7 +133,7 @@ bind = $mod CTRL SHIFT, R, exec, reboot
 bind = $mod CTRL, J, exec, jetbrains-toolbox
 # region select then annotate/copy/save (dms screenshot mode is niri-only)
 bind = $mod, F12, exec, sh -c 'grim -g "$(slurp)" - | satty --filename - --output-filename ~/Pictures/Screenshots/shot-$(date +%Y%m%d-%H%M%S).png --early-exit --copy-command wl-copy'
-bind = $mod, grave, exec, rofimoji
+bind = $mod, grave, exec, dms ipc call spotlight openQuery ":e "
 bind = $mod, Insert, exec, notify-send "Clipboard" "$(wl-paste)"
 bind = $mod, Pause, exec, sh -c 'qrencode -s 50 -o /tmp/qr.png "$(wl-paste)" && feh --auto-zoom --fullscreen /tmp/qr.png || notify-send "QR Code Failure" "Error code $?"'
 {{- if .features.streaming }}
@@ -150,6 +150,7 @@ bind = CTRL, grave, exec, dms ipc call notifications toggle
 bind = CTRL, space, exec, dms ipc call notifications dismissAllPopups
 bind = CTRL SHIFT, space, exec, dms ipc call notifications clearAll
 bind = $mod SHIFT, E, exec, dms ipc call powermenu toggle
+bind = $mod, X, exec, dms ipc call spotlight openQuery "= "
 
 # focus / move
 bind = $mod, J, movefocus, l

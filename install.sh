@@ -32,7 +32,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         pipewire wireplumber pipewire-pulse pipewire-alsa \
         networkmanager brightnessctl moonlight-qt playerctl pavucontrol thunar tumbler chezmoi jq otf-fira-sans \
         otf-fira-mono ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
-        feh vlc chromium qrencode rofimoji rofi wtype xclip \
+        feh vlc chromium qrencode wtype xclip libqalculate \
         papirus-icon-theme qt6ct pamixer acpi htop iotop tig sysstat bc \
         alsa-utils pacman-contrib zoxide fzf upower power-profiles-daemon
     [ $? -ne 0 ] && exit 1
@@ -75,6 +75,11 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     ~/.local/bin/dms-bar-setup
     [ -f ~/.face ] && dms ipc call profile setImage ~/.face
+    dms plugins install Calculator
+    dms plugins install emojiLauncher
+    dms ipc call plugin-scan scan; sleep 2
+    dms ipc call plugins enable calculator
+    dms ipc call plugins enable emojiLauncher
 fi
 
 read -p "Install oh-my-zsh? " -n 1 -r
