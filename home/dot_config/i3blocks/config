@@ -33,7 +33,8 @@ label=
 
 # Guess the weather hourly
 [weather]
-command=curl -Ss 'https://wttr.in?0&T' | cut -c 16- | head -4 | xargs echo
+#command=curl -Ss 'https://wttr.in/75015?0&T' | cut -c 16- | head -4 | xargs echo
+command=curl -Ss 'https://wttr.in/Paris?format=%l:+%c+%t+%w+%m\n'
 interval=3600
 
 # Query my default IP address only on startup
@@ -42,9 +43,9 @@ command=hostname -i | awk '{ print "IP:" $1 }'
 interval=once
 color=#91E78B
 
-[volume-pulseaudio]
-interval=5
-signal=10
+#[volume-pipewire]
+#interval=5
+#signal=10
 #STEP=5%
 
 # Memory usage
@@ -81,7 +82,7 @@ separator=false
 
 [bandwidth]
 #INTERFACE=eth0
-interval=1
+interval=1.1
 min_width=II 00.0K OO 0.00K
 
 # The script may be called with -w and -c switches to specify thresholds,
@@ -97,9 +98,9 @@ label=
 interval=1
 
 # The battery instance defaults to 0.
-[battery]
-label=⚡ 
-interval=30
+#[battery]
+#label=⚡ 
+#interval=30
 # Support multiple chips, though lm-sensors.
 # The script may be called with -w and -c switches to specify thresholds,
 # see the script for details.
