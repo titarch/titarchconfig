@@ -228,10 +228,10 @@ if [ -f '/home/bparsy/SDKs/google-cloud-sdk/completion.zsh.inc' ]; then . '/home
 
 if [ -f '/usr/bin/direnv' ]; then eval "$(direnv hook zsh)"; fi
 
-eval "$(zoxide init zsh)"
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
 
-. "/home/bparsy/.wasmedge/env"
+[ -f "/home/bparsy/.wasmedge/env" ] && . "/home/bparsy/.wasmedge/env"
 
 # bun completions
 [ -s "/home/bparsy/.bun/_bun" ] && source "/home/bparsy/.bun/_bun"

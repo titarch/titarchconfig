@@ -3,11 +3,15 @@
 {{- $streaming := promptBoolOnce . "features.streaming" "Deploy Sunshine streaming config" false -}}
 {{- $nvidia := promptBoolOnce . "features.nvidia" "Nvidia GPU (driver env vars)" false -}}
 {{- $fancyFx := promptBoolOnce . "features.fancyFx" "Costly visual effects (blur, shadows, animated border)" false -}}
+{{- $composeKey := promptStringOnce . "composeKey" "Compose key xkb option (rwin, menu, prsc, ralt)" "rwin" -}}
 {{- $legacySource := joinPath .chezmoi.homeDir "titarchconfig" -}}
 {{- if stat (joinPath $legacySource ".chezmoiroot") }}
 # historical repo location
 sourceDir = {{ $legacySource | quote }}
 {{- end }}
+
+[data]
+    composeKey = {{ $composeKey | quote }}
 
 [data.features]
     streaming = {{ $streaming }}
