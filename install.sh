@@ -19,19 +19,21 @@ fi
 read -p "Install core packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S git gvim curl zsh rxvt-unicode openssh python python-pip
+    sudo pacman -S git gvim curl zsh openssh python python-pip
     [ $? -ne 0 ] && exit 1
 fi
 
 read -p "Install extra packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium \
-        feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray \
-        cmake lxappearance pulseaudio sysstat pamixer acpi htop bashtop \
-        awesome-terminal-fonts ttf-font-awesome otf-font-awesome iotop tig \
-        papirus-icon-theme xdotool xsel xclip rofimoji qrencode rofi-calc \
-        polkit-gnome alsa-utils bc tumbler pacman-contrib
+    sudo pacman -S hyprland dms-shell-hyprland xdg-desktop-portal-hyprland \
+        xdg-desktop-portal-gtk qt5-wayland qt6-wayland wl-clipboard cliphist \
+        grim slurp greetd hypridle ydotool fcitx5-im fcitx5-mozc kitty \
+        playerctl pavucontrol thunar tumbler chezmoi jq otf-fira-sans \
+        otf-fira-mono ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
+        feh vlc chromium qrencode rofimoji rofi wtype xclip light \
+        papirus-icon-theme qt6ct pamixer acpi htop iotop tig sysstat bc \
+        alsa-utils pacman-contrib
     [ $? -ne 0 ] && exit 1
 fi
 
@@ -46,6 +48,13 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     makepkg -si
     [ $? -ne 0 ] && exit 3
     cd "$cfg_path"
+fi
+
+read -p "Install AUR packages (cursors, folder colors)? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    yay -S catppuccin-cursors-mocha papirus-folders
+    sudo papirus-folders -C violet --theme Papirus-Dark
 fi
 
 read -p "Install oh-my-zsh? " -n 1 -r
@@ -67,12 +76,6 @@ read -p "Install vundle? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-fi
-
-read -p "Install nvx? " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    pip install nvx
 fi
 
 read -p "Deploy dotfiles with chezmoi? " -n 1 -r

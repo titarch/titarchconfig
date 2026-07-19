@@ -6,7 +6,7 @@ Personal Arch Linux config, managed with chezmoi.
 - `home/` - chezmoi source state (`.chezmoiroot` points here). Filenames use
   chezmoi's encoding: `dot_` = leading dot, `executable_` = exec bit,
   `.tmpl` = Go template (per-machine values from `~/.config/chezmoi/chezmoi.toml`).
-- `system/` - root-owned files (X11/sunshine/udev); deploy with
+- `system/` - root-owned files (udev/greetd/firefox); deploy with
   `sudo system/install-system.sh`.
 - `gpg/` - public key material.
 - `install.sh` - interactive bootstrap for a new machine (packages, oh-my-zsh,

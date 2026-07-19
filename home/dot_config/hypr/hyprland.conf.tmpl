@@ -21,16 +21,17 @@ env = NVD_BACKEND,direct
 env = ELECTRON_OZONE_PLATFORM_HINT,auto
 env = GTK_THEME,Dracula
 env = QT_QPA_PLATFORMTHEME,qt6ct
-env = GTK_IM_MODULE,ibus
-env = QT_IM_MODULE,ibus
-env = XMODIFIERS,@im=ibus
+# fcitx5: GTK apps use wayland text-input directly, no GTK_IM_MODULE
+env = QT_IM_MODULE,fcitx
+env = XMODIFIERS,@im=fcitx
+env = SDL_IM_MODULE,fcitx
 
 # autostart
 exec-once = systemctl --user import-environment WAYLAND_DISPLAY DISPLAY HYPRLAND_INSTANCE_SIGNATURE && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP
 exec-once = dms run
 exec-once = wl-paste --type text --watch cliphist store
 exec-once = wl-paste --type image --watch cliphist store
-exec-once = ibus-daemon -rxRd
+exec-once = fcitx5 -d
 # random cursor accent at login, drifts to the next every 20min
 exec-once = ~/.local/bin/cursor-drift daemon
 {{- if .features.streaming }}
@@ -128,6 +129,8 @@ bind = $mod, Pause, exec, sh -c 'qrencode -s 50 -o /tmp/qr.png "$(wl-paste)" && 
 bind = $mod SHIFT, S, exec, ~/.local/bin/stream toggle
 # toggle idle inhibition (mod+P)
 bind = $mod, P, exec, ~/.local/bin/presence toggle
+bind = $mod, N, exec, dms ipc call notepad toggle
+bind = $mod, Escape, exec, dms ipc call processlist toggle
 bind = CTRL, grave, exec, dms ipc call notifications toggle
 bind = CTRL, space, exec, dms ipc call notifications dismissAllPopups
 bind = CTRL SHIFT, space, exec, dms ipc call notifications clearAll

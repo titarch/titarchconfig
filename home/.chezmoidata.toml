@@ -1,21 +1,17 @@
 # per-host data, template lookup: index .hosts .chezmoi.hostname
-# wayland = DRM connector name (hyprland), x11 = nvidia Xorg name
 # grodarch mapping verified against panel serials 2026-07-19
 [[hosts.grodarch.monitors]]
 wayland = "DP-2"
-x11 = "DP-2"
 mode = "2560x1440@144"
 pos = "0x0"
 
 [[hosts.grodarch.monitors]]
 wayland = "DP-3"
-x11 = "DP-4"
 mode = "2560x1440@144"
 pos = "2560x0"
 primary = true
 
 [[hosts.grodarch.monitors]]
 wayland = "DP-1"
-x11 = "DP-0"
 mode = "2560x1440@144"
 pos = "5120x0"

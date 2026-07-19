@@ -6,7 +6,3 @@
 .config/hypr/monitors-runtime.conf
 .local/bin/stream
 {{ end }}
-{{ if not .features.nvidia_x11 }}
-.config/nvx/**
-.local/bin/nvinit
-{{ end }}
