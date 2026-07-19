@@ -54,23 +54,37 @@ general {
     gaps_in = 4
     gaps_out = 8
     border_size = 2
-    col.active_border = rgb(6272A4)
-    col.inactive_border = rgb(282A36)
+    col.active_border = rgb(bd93f9) rgb(ff79c6) 45deg
+    col.inactive_border = rgb(44475a)
     layout = dwindle
 }
 decoration {
     rounding = 8
+    dim_inactive = true
+    dim_strength = 0.08
+    blur {
+        enabled = true
+        size = 6
+        passes = 3
+        popups = true
+    }
+    shadow {
+        enabled = true
+        range = 18
+        render_power = 3
+        color = rgba(1e2029b0)
+    }
 }
 dwindle {
     preserve_split = true
 }
 group {
-    col.border_active = rgb(6272A4)
-    col.border_inactive = rgb(282A36)
+    col.border_active = rgb(ff79c6) rgb(bd93f9) 45deg
+    col.border_inactive = rgb(44475a)
     groupbar {
-        col.active = rgb(44475A)
-        col.inactive = rgb(282A36)
-        text_color = rgb(F8F8F2)
+        col.active = rgb(503d80)
+        col.inactive = rgb(282a36)
+        text_color = rgb(f8f8f2)
     }
 }
 misc {
