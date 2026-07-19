@@ -31,7 +31,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         grim slurp satty greetd hypridle ydotool fcitx5-im fcitx5-mozc kitty \
         networkmanager brightnessctl moonlight-qt playerctl pavucontrol thunar tumbler chezmoi jq otf-fira-sans \
         otf-fira-mono ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
-        feh vlc chromium qrencode rofimoji rofi wtype xclip light \
+        feh vlc chromium qrencode rofimoji rofi wtype xclip \
         papirus-icon-theme qt6ct pamixer acpi htop iotop tig sysstat bc \
         alsa-utils pacman-contrib
     [ $? -ne 0 ] && exit 1
@@ -55,6 +55,18 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     yay -S catppuccin-cursors-mocha papirus-folders
     sudo papirus-folders -C violet --theme Papirus-Dark
+fi
+
+read -p "Setup DMS greeter (run this from inside a hyprland session)? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    dms greeter install
+    read -p "Enable auto-login + lock-on-boot (desktops only)? " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        dms ipc call settings set greeterAutoLogin true
+        dms greeter sync --autologin
+    fi
 fi
 
 read -p "Install oh-my-zsh? " -n 1 -r

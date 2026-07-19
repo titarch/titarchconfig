@@ -1,5 +1,7 @@
 {
   "showWorkspaceIndex": true,
   "showWorkspacePadding": false,
-  "acMonitorTimeout": 300
+  "acMonitorTimeout": 300,
+  "batteryMonitorTimeout": 120,
+  "batterySuspendTimeout": 900
 }

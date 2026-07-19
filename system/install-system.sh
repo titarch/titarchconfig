@@ -20,7 +20,9 @@ fi
 if [ -d /usr/lib/firefox ]; then
     install -m644 firefox/config.js /usr/lib/firefox/config.js
     install -m644 firefox/config-prefs.js /usr/lib/firefox/defaults/pref/config-prefs.js
-    install -Dm644 firefox/firefox-autoconfig.hook /etc/pacman.d/hooks/firefox-autoconfig.hook
+    # hook regenerated with this repo's actual path
+    sed "s|/home/bparsy/titarchconfig|$(cd .. && pwd)|g" firefox/firefox-autoconfig.hook \
+        | install -Dm644 /dev/stdin /etc/pacman.d/hooks/firefox-autoconfig.hook
 fi
 
 echo "system files installed"

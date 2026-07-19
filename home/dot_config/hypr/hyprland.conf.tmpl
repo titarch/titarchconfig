@@ -39,8 +39,8 @@ exec-once = ~/.local/bin/cursor-drift daemon
 {{- if .features.streaming }}
 exec-once = ~/.local/bin/stream init-virt
 {{- end }}
-# greeter auto-logs-in, so lock immediately; unlock locally or via moonlight
-exec-once = sh -c 'for i in $(seq 1 60); do dms ipc call lock lock >/dev/null 2>&1 && exit; sleep 0.5; done'
+# lock on boot only when greetd auto-logs-in (else the greeter already asked)
+exec-once = sh -c 'grep -q "^\[initial_session\]" /etc/greetd/config.toml 2>/dev/null || exit 0; for i in $(seq 1 60); do dms ipc call lock lock >/dev/null 2>&1 && exit; sleep 0.5; done'
 
 input {
     kb_layout = fr
@@ -217,8 +217,8 @@ bindm = $mod, mouse:273, resizewindow
 bindl = , XF86AudioRaiseVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%
 bindl = , XF86AudioLowerVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindl = , XF86AudioMute, exec, pactl set-sink-mute @DEFAULT_SINK@ toggle
-bindl = , XF86MonBrightnessUp, exec, light -A 5 && notify-send "Brightness (Up)" "$(light)%"
-bindl = , XF86MonBrightnessDown, exec, light -U 5 && notify-send "Brightness (Down)" "$(light)%"
+bindl = , XF86MonBrightnessUp, exec, dms ipc call brightness increment 5
+bindl = , XF86MonBrightnessDown, exec, dms ipc call brightness decrement 5
 bindl = , XF86AudioPlay, exec, playerctl play-pause
 bindl = , XF86AudioPause, exec, playerctl pause
 bindl = , XF86AudioNext, exec, playerctl next
