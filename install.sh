@@ -73,9 +73,7 @@ fi
 read -p "Configure bar layout + widgets (run from inside a session)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    ~/.local/bin/dms-bar-setup
-    ~/.local/bin/dms-plugins-setup
-    [ -f ~/.face ] && dms ipc call profile setImage ~/.face
+    ~/.local/bin/config-sync
 fi
 
 read -p "Install oh-my-zsh? " -n 1 -r

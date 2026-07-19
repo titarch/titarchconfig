@@ -38,8 +38,9 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   sees it; monitor switching writes `~/.config/hypr/monitors-runtime.conf`
   + `hyprctl reload`. Never restart sunshine from its own prep-cmd.
 - `presence`: idle inhibit + ydotool jiggler (mod+P). `cursor-drift`:
-  catppuccin cursor accent rotation. `dms-bar-setup` / `dms-plugins-setup`:
-  rerunnable session-side setup, called by install.sh.
+  catppuccin cursor accent rotation. `config-sync`: non-interactive pull +
+  apply + dms refresh (calls dms-bar-setup / dms-plugins-setup), the normal
+  way to sync a machine.
 - DMS plugins in `home/dot_config/DankMaterialShell/plugins/`: netspeed is
   homegrown (fixed-width rates + vpn toggle popout); registry plugins are
   installed by dms-plugins-setup (list lives in that script).

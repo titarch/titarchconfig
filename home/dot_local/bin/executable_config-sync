@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# non-interactive config sync, rerun anytime; assumes install.sh bootstrapped
+# the machine. Pulls the repo, applies chezmoi, refreshes dms plugins/bar and
+# reloads hyprland. Stops on chezmoi conflicts (resolve with chezmoi re-add
+# or apply --force on the conflicting target).
+set -eu
+
+repo="$(dirname "$(chezmoi source-path)")"
+git -C "$repo" pull --ff-only
+chezmoi apply
+
+# session-side, skipped over ssh without a compositor or before first login
+if command -v dms >/dev/null && ls "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr" >/dev/null 2>&1; then
+    export HYPRLAND_INSTANCE_SIGNATURE="${HYPRLAND_INSTANCE_SIGNATURE:-$(ls -t "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr" | head -1)}"
+    ~/.local/bin/dms-plugins-setup
+    ~/.local/bin/dms-bar-setup
+    sleep 3
+    [ -f ~/.face ] && dms ipc call profile setImage ~/.face >/dev/null 2>&1 || true
+    hyprctl reload >/dev/null 2>&1 || true
+fi
+echo "config-sync done (env var changes need a relogin)"
