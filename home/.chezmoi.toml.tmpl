@@ -4,6 +4,7 @@
 {{- $nvidia := promptBoolOnce . "features.nvidia" "Nvidia GPU (driver env vars)" false -}}
 {{- $fancyFx := promptBoolOnce . "features.fancyFx" "Costly visual effects (blur, shadows, animated border)" false -}}
 {{- $composeKey := promptStringOnce . "composeKey" "Compose key xkb option (rwin, menu, prsc, ralt)" "rwin" -}}
+{{- $capsSwap := promptBoolOnce . "capsSwapEscape" "Swap caps and escape in xkb (no if caps2esc handles it)" false -}}
 {{- $legacySource := joinPath .chezmoi.homeDir "titarchconfig" -}}
 {{- if stat (joinPath $legacySource ".chezmoiroot") }}
 # historical repo location
@@ -12,6 +13,7 @@ sourceDir = {{ $legacySource | quote }}
 
 [data]
     composeKey = {{ $composeKey | quote }}
+    capsSwapEscape = {{ $capsSwap }}
 
 [data.features]
     streaming = {{ $streaming }}

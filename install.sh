@@ -73,6 +73,7 @@ read -p "Enable netspeed bar widget (run from inside a session)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     dms ipc call plugins enable netspeed
+    dms ipc call bar setPosition id default bottom
     echo "widget placement: Settings > Dank Bar > Widgets, drag netspeed into the bar"
 fi
 

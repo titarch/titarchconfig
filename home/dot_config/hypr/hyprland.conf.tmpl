@@ -45,7 +45,7 @@ exec-once = sh -c 'grep -q "^\[initial_session\]" /etc/greetd/config.toml 2>/dev
 input {
     kb_layout = fr
     kb_variant = us
-    kb_options = compose:{{ .composeKey }}
+    kb_options = compose:{{ .composeKey }}{{ if .capsSwapEscape }},caps:swapescape{{ end }}
     follow_mouse = 1
 }
 {{- if .features.streaming }}
