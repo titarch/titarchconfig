@@ -232,3 +232,12 @@ bind = $mod $alt, right, exec, playerctl next
 # window rules
 windowrule = float on, match:title ^(float-.*)
 windowrule = float on, match:title ^(sfml-.*)
+windowrule = fullscreen on, match:class ^(com\.moonlight_stream\.Moonlight)$
+
+# stream client passthrough: mod+F11 sends everything (incl mod) to the
+# focused window, press again to leave
+bind = $mod, F11, exec, notify-send -t 2500 "Passthrough" "all keys go to the focused window, mod+F11 to exit"
+bind = $mod, F11, submap, passthrough
+submap = passthrough
+bind = $mod, F11, submap, reset
+submap = reset
