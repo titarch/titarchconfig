@@ -30,6 +30,8 @@ exec-once = dms run
 exec-once = wl-paste --type text --watch cliphist store
 exec-once = wl-paste --type image --watch cliphist store
 exec-once = ibus-daemon -rxRd
+# random cursor accent at login, drifts to the next every 20min
+exec-once = ~/.local/bin/cursor-drift daemon
 {{- if .features.streaming }}
 exec-once = ~/.local/bin/stream init-virt
 {{- end }}

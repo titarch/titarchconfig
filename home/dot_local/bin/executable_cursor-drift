@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# cursor-drift: slowly cycle catppuccin cursor accents around the color wheel
+# usage: cursor-drift random|next|set <accent>|daemon|list
+set -u
+ACCENTS=(mauve lavender blue sapphire sky teal green yellow peach red pink flamingo)
+SIZE=24
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/cursor-drift"
+INTERVAL=1200
+
+apply() {
+    local theme="catppuccin-mocha-$1-cursors"
+    [ -d "/usr/share/icons/$theme" ] || [ -d "$HOME/.local/share/icons/$theme" ] || return 1
+    hyprctl setcursor "$theme" "$SIZE" >/dev/null 2>&1
+    gsettings set org.gnome.desktop.interface cursor-theme "$theme" 2>/dev/null
+    mkdir -p "$(dirname "$STATE")"
+    echo "$1" > "$STATE"
+}
+
+idx_of() {
+    local i
+    for i in "${!ACCENTS[@]}"; do
+        [ "${ACCENTS[$i]}" = "$1" ] && { echo "$i"; return; }
+    done
+    echo 0
+}
+
+cur() { cat "$STATE" 2>/dev/null || echo mauve; }
+
+case "${1:-next}" in
+    set)    apply "${2:?accent}" ;;
+    random) apply "${ACCENTS[RANDOM % ${#ACCENTS[@]}]}" ;;
+    next)   i=$(idx_of "$(cur)"); apply "${ACCENTS[(i + 1) % ${#ACCENTS[@]}]}" ;;
+    daemon) apply "${ACCENTS[RANDOM % ${#ACCENTS[@]}]}"
+            while sleep "$INTERVAL"; do "$0" next; done ;;
+    list)   printf '%s\n' "${ACCENTS[@]}"; echo "current: $(cur)" ;;
+    *)      echo "usage: cursor-drift random|next|set <accent>|daemon|list" >&2; exit 2 ;;
+esac
