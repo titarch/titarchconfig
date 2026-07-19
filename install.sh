@@ -28,7 +28,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo pacman -S go rofi otf-fira-sans otf-fira-mono ttf-dejavu chromium \
         feh vlc flameshot kitty playerctl pavucontrol thunar arandr pasystray \
-        cmake dunst lxappearance pulseaudio sysstat pamixer acpi htop bashtop \
+        cmake lxappearance pulseaudio sysstat pamixer acpi htop bashtop \
         awesome-terminal-fonts ttf-font-awesome otf-font-awesome iotop tig \
         papirus-icon-theme xdotool xsel xclip rofimoji qrencode rofi-calc \
         polkit-gnome alsa-utils bc tumbler pacman-contrib
