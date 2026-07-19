@@ -1,6 +1,0 @@
-# toggle fr <-> mozc on Super+space (ctrl+space is notification dismiss)
-[Hotkey/TriggerKeys]
-0=Super+space
-
-[Hotkey]
-EnumerateWithTriggerKeys=True
