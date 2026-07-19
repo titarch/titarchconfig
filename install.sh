@@ -87,7 +87,7 @@ fi
 read -p "Install Sunshine system files (streaming machines only)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "xorg.conf outputs/EDIDs are machine-specific — review system/sunshine/ first!"
+    echo "xorg.conf outputs/EDIDs are machine-specific - review system/sunshine/ first!"
     sudo system/install-system.sh
     echo "then restart X once."
 fi

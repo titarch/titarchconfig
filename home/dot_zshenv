@@ -1,5 +1,3 @@
-# Read by every zsh (login, interactive, and non-interactive — including
-# one-shot `ssh host <command>`), unlike .zshrc.
-# ~/.local/bin must come FIRST: imagemagick owns /usr/bin/stream, which
-# would otherwise shadow the streaming toggle script.
+# read by every zsh unlike zshrc; .local/bin first or imagemagick's
+# /usr/bin/stream shadows the streaming script
 export PATH="$HOME/.local/bin:$PATH"

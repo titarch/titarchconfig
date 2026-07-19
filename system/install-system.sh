@@ -1,10 +1,5 @@
 #!/bin/sh
-# Root-owned system files for the Sunshine/X11 streaming setup (grodarch).
-# Run as root from the repo root: sudo system/install-system.sh
-#
-# Idempotent. After this has been run once, the untracked compat copies in
-# ./sunshine/ (EDIDs at the path the pre-2026 xorg.conf referenced) can be
-# deleted — this script removes them itself when the new xorg.conf is in.
+# root-owned sunshine/x11 files, idempotent, run: sudo system/install-system.sh
 set -eu
 cd "$(dirname "$0")"
 
@@ -18,7 +13,7 @@ install -Dm644 sunshine/30-sunshine-keyboard.conf /etc/X11/xorg.conf.d/30-sunshi
 install -m644 sunshine/61-sunshine-uinput.rules   /etc/udev/rules.d/61-sunshine-uinput.rules
 udevadm control --reload
 
-# old in-repo EDID path no longer referenced -> drop the compat copies
+# old in-repo EDID compat copies no longer needed
 rm -rf ../sunshine
 
 echo "system files installed; xorg.conf now reads EDIDs from /etc/X11/edid/"

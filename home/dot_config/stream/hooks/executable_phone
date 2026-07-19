@@ -1,16 +1,14 @@
 #!/bin/sh
-# Post-switch hook for the "phone" profile: make the session touch-friendly
-# (Moonlight sends taps as clicks) and land on a dedicated workspace.
+# phone profile hook: touch-friendly layout on a dedicated workspace
 if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && hyprctl monitors >/dev/null 2>&1; then
     hyprctl dispatch workspace name:phone >/dev/null
     if [ "$(hyprctl -j workspaces | jq '[.[] | select(.name=="phone")] | first.windows // 0')" = "0" ]; then
         hyprctl dispatch exec firefox >/dev/null
     fi
 else
-    # i3: tabbed layout = every window is a fullscreen tab with a tappable titlebar
+    # tabbed = tappable titlebars
     i3-msg 'workspace phone' >/dev/null
     i3-msg 'layout tabbed' >/dev/null
-    # Launch something useful if the workspace is empty (adjust to taste)
     if [ "$(i3-msg -t get_tree | jq '[recurse(.nodes[]?) | select(.type=="workspace" and .name=="phone") | .nodes | length] | first')" = "0" ]; then
         i3-msg 'exec firefox' >/dev/null
     fi

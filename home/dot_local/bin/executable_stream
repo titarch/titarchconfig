@@ -1,20 +1,10 @@
 #!/usr/bin/env bash
-# stream — toggle Sunshine "away mode": a single virtual screen matching the
-# Moonlight client, real monitors off. Works in both session types:
-#   - Hyprland: persistent parked headless output + `capture = wlr`
-#   - X11/i3:   force-connected HDMI-0 head + xrandr + `capture = x11`
-# The Sunshine capture/output_name config lines are rewritten at runtime to
-# match the session; no sudo, no session restart.
-#
-# Usage: stream on [profile] | off | toggle | status | list | panic | init-virt
-# Profiles: ~/.config/stream/profiles.conf — any WxH@R works (on X11 modes are
-# generated on demand with cvt; on Hyprland headless outputs take any mode).
-# init-virt is run by Hyprland exec-once: it creates the headless output early
-# so Sunshine sees it whenever it starts, and parks it out of cursor reach.
+# stream: toggle Sunshine away mode (virtual screen on, real monitors off)
+# usage: stream on [profile] | off | toggle | status | list | panic | init-virt
 set -uo pipefail
 
-VIRT="HDMI-0"                # X11 only; the Hyprland headless name is discovered
-PHYS=(DP-2 DP-4 DP-0)        # X11 names; Hyprland disables all-but-virtual dynamically
+VIRT="HDMI-0"                # x11 only, hyprland name is discovered
+PHYS=(DP-2 DP-4 DP-0)        # x11 only
 SUNSHINE_UNIT="app-dev.lizardbyte.app.Sunshine.service"
 SUNSHINE_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/sunshine/sunshine.conf"
 PROFILES="${XDG_CONFIG_HOME:-$HOME/.config}/stream/profiles.conf"
@@ -25,24 +15,21 @@ ACTIVE_MARK="$RUN_DIR/stream-active"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/stream"
 LAST_PROFILE_FILE="$STATE_DIR/last-profile"
 
-# Where the headless output sits while at home: diagonal offset shares no edge
-# with any real monitor, so the cursor can never wander onto it.
+# diagonal park pos shares no edge with real monitors, cursor cannot reach
 PARK_MODE="1920x1080@60"
 PARK_POS="20000x20000"
-# Runtime monitor overrides, sourced by hyprland.conf. `hyprctl keyword
-# monitor` and wlr-output-management are both silently ignored by Hyprland
-# 0.55, but rules from a sourced file + `hyprctl reload` apply reliably —
-# same mechanism nwg-displays uses. This file is owned by this script
-# (deployed once by chezmoi as create_, never overwritten).
+# hyprctl keyword monitor and wlr-output-management are no-ops at runtime
+# (hyprland 0.55); writing rules to this sourced file + hyprctl reload works.
+# All monitor ops silently no-op while the hyprland VT is not active.
 RUNTIME_MON_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/monitors-runtime.conf"
 
-# Canonical X11 home layout — keep in sync with MetaModes in /etc/X11/xorg.conf
+# keep in sync with MetaModes in /etc/X11/xorg.conf
 HOME_METAMODE="DP-2: 2560x1440_144 +0+0 {ForceCompositionPipeline=On}, DP-4: 2560x1440_144 +2560+0 {ForceCompositionPipeline=On}, DP-0: 2560x1440_144 +5120+0 {ForceCompositionPipeline=On}"
 HOME_PRIMARY="DP-4"
 
 die() { echo "stream: $*" >&2; exit 1; }
 
-# Set a key in sunshine.conf. Returns 0 if the file changed, 1 if already set.
+# returns 0 if the file changed
 set_sunshine_key() {
     local key="$1" val="$2" cur
     cur=$(sed -n "s/^$key = //p" "$SUNSHINE_CONF" 2>/dev/null | head -n1)
@@ -67,8 +54,6 @@ finish_on() {  # <profile> <description>
     echo "away mode ON: $2 (profile '$1')"
 }
 
-# --- profiles ---------------------------------------------------------------
-
 profile_value() {
     [ -r "$PROFILES" ] || die "profiles file not found: $PROFILES"
     sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*\([^#[:space:]]*\).*/\1/p" \
@@ -88,11 +73,8 @@ resolve_profile() {
     echo "$value"
 }
 
-# =============================================================================
-# X11 backend (unchanged legacy path; see git history for full context)
-# =============================================================================
+# ---- X11 backend ------------------------------------------------------------
 
-# Make DISPLAY/XAUTHORITY available when invoked over SSH or from systemd
 ensure_display() {
     if [ -z "${DISPLAY:-}" ]; then
         eval "$(systemctl --user show-environment 2>/dev/null \
@@ -106,20 +88,17 @@ ensure_display() {
 
 x_running() { pgrep -x Xorg >/dev/null 2>&1; }
 
-# Headless/SSH support: if no session at all is running (tty-only machine),
-# start X on a spare VT. Requires /etc/X11/Xwrapper.config with
-# allowed_users=anybody + needs_root_rights=yes. The session comes up via
-# ~/.xinitrc (i3, env import, Sunshine restart) exactly like a console start.
+# cold-start X over SSH, needs /etc/X11/Xwrapper.config (allowed_users=anybody)
 ensure_x() {
     x_running && return 0
     echo "stream: no X server running, starting one on vt7..."
-    # 9>&- : don't leak the transition lock fd into the X session
+    # 9>&- : do not leak the transition lock fd into the X session
     (cd "$HOME" && setsid -f startx -- vt7 >"$RUN_DIR/stream-startx.log" 2>&1 9>&-)
     local i
     for i in $(seq 1 40); do
         if DISPLAY=:0 XAUTHORITY="$HOME/.Xauthority" xrandr --query >/dev/null 2>&1; then
             export DISPLAY=:0 XAUTHORITY="$HOME/.Xauthority"
-            sleep 3   # let the initial modeset and session startup settle
+            sleep 3
             return 0
         fi
         sleep 0.5
@@ -136,13 +115,8 @@ mode_exists() {
         END { exit !found }'
 }
 
-# Print a usable mode name on $VIRT for WxH@R, in order of preference:
-# 1. exact "WxH_R" name (xorg.conf Monitor0 pool / previously added);
-# 2. an EDID or driver-builtin "WxH" mode (the EDID is ours — desired rates
-#    are requested with --rate; new resolutions are added to it as DTDs, see
-#    system/sunshine/virtual-edid.bin in the repo);
-# 3. created at runtime (cvt -> newmode -> addmode) — the nvidia driver
-#    rejects this on the HDMI head in practice, kept as a best effort.
+# nvidia rejects runtime cvt modes on the HDMI head, new resolutions must be
+# added as DTDs to system/sunshine/virtual-edid.bin (then restart X)
 resolve_mode() {
     local res="$1" mode
     mode=$(mode_of "$res")
@@ -151,17 +125,17 @@ resolve_mode() {
     h=${h%@*}
     if mode_exists "$w"x"$h"; then echo "${w}x${h}"; return 0; fi
     local cvt_args=("$w" "$h" "$r")
-    [ "$r" = 60 ] && cvt_args=(-r "$w" "$h" 60)  # cvt supports -r only at 60Hz
+    [ "$r" = 60 ] && cvt_args=(-r "$w" "$h" 60)  # cvt -r only supports 60Hz
     modeline=$(cvt "${cvt_args[@]}" 2>/dev/null | sed -n 's/^Modeline "[^"]*"[[:space:]]*//p')
     if [ -n "$modeline" ]; then
-        xrandr --rmmode "$mode" 2>/dev/null   # drop a stale detached mode
-        # shellcheck disable=SC2086 — modeline is a list of numbers/flags
+        xrandr --rmmode "$mode" 2>/dev/null
+        # shellcheck disable=SC2086
         xrandr --newmode "$mode" $modeline 2>/dev/null
         if xrandr --addmode "$VIRT" "$mode" 2>/dev/null; then
             echo "$mode"; return 0
         fi
     fi
-    die "no usable mode for $res on $VIRT — add a DTD for it to system/sunshine/virtual-edid.bin (see repo) and restart X"
+    die "no usable mode for $res on $VIRT, add a DTD to system/sunshine/virtual-edid.bin and restart X"
 }
 
 x11_save_workspaces() {
@@ -172,20 +146,16 @@ x11_restore_workspaces() {
     [ -r "$WS_STATE" ] || return 0
     command -v jq >/dev/null || return 0
     local name output i
-    # wait for i3 to register the restored outputs before moving workspaces
     for i in $(seq 1 20); do
         [ "$(i3-msg -t get_outputs 2>/dev/null \
             | jq '[.[] | select(.active)] | length')" -ge "${#PHYS[@]}" ] && break
         sleep 0.25
     done
-    # move every workspace back to its original output (empty workspaces no
-    # longer exist by now — the error for those is harmless)
     while IFS=$'\t' read -r name output; do
         i3-msg "[workspace=\"^$(printf '%s' "$name" | sed 's/[][\\.^$*+?(){}|]/\\&/g')\$\"] \
             move workspace to output $output" >/dev/null 2>&1
     done < <(jq -r '.[] | [.name, .output] | @tsv' "$WS_STATE")
-    # re-show the workspace that was visible on each output, focused one last;
-    # focusing the output first recreates empty workspaces in the right place
+    # focused one last, focusing the output first recreates empty workspaces
     while IFS=$'\t' read -r name output; do
         i3-msg "focus output $output" >/dev/null 2>&1
         i3-msg "workspace \"$name\"" >/dev/null 2>&1
@@ -194,29 +164,26 @@ x11_restore_workspaces() {
 }
 
 restore_home_layout() {
-    # Plain xrandr only: the nvidia-settings CurrentMetaMode path (NV-CONTROL
-    # modeset) preceded the in-kernel driver deadlocks — avoid it entirely.
-    # Cost: ForceCompositionPipeline is lost until the next X start.
+    # plain xrandr only, the nvidia-settings NV-CONTROL path deadlocked the
+    # driver; cost: ForceCompositionPipeline lost until next X start
     if ! xrandr --output DP-2 --mode 2560x1440 --rate 143.97 --pos 0x0 \
                 --output DP-4 --mode 2560x1440 --rate 143.97 --pos 2560x0 \
                 --output DP-0 --mode 2560x1440 --rate 143.97 --pos 5120x0 \
                 --output "$VIRT" --off 2>/dev/null; then
-        # If X started while the monitors were asleep, DDC failed and the
-        # outputs only have basic fallback modes (should not happen once
-        # CustomEDID pins the panel EDIDs — kept as a safety net).
+        # DDC fallback for monitors asleep at X start (CustomEDID makes this rare)
         echo "stream: full layout unavailable (missing EDID?), waking monitors..." >&2
         xrandr --output DP-2 --auto --pos 0x0 \
                --output DP-4 --auto --pos 2560x0 \
                --output DP-0 --auto --pos 5120x0 \
                --output "$VIRT" --off || return 1
-        sleep 8   # give the panels time to wake and answer DDC
+        sleep 8
         xrandr --output DP-2 --mode 2560x1440 --pos 0x0 \
                --output DP-4 --mode 2560x1440 --pos 2560x0 \
                --output DP-0 --mode 2560x1440 --pos 5120x0 2>/dev/null \
-            || echo "stream: some outputs stuck at fallback modes — rerun 'stream panic' with monitors awake, or restart X" >&2
+            || echo "stream: some outputs stuck at fallback modes, rerun 'stream panic' with monitors awake, or restart X" >&2
     fi
     xrandr --output "$HOME_PRIMARY" --primary >/dev/null 2>&1
-    sleep 1   # let the driver settle before any follow-up modeset
+    sleep 1
     return 0
 }
 
@@ -233,7 +200,7 @@ x11_on() {
     res=$(resolve_profile "$profile") || exit 1
     mode=$(resolve_mode "$res") || exit 1
 
-    # X11 capture: virtual head is the only active monitor, always index 0
+    # virtual head is the only active monitor, always x11 index 0
     local changed=0
     set_sunshine_key capture x11 && changed=1
     set_sunshine_key output_name 0 && changed=1
@@ -242,13 +209,11 @@ x11_on() {
         systemctl --user restart "$SUNSHINE_UNIT" || true
     fi
 
-    # snapshot workspaces only on the home->away transition
     [ -e "$ACTIVE_MARK" ] || x11_save_workspaces
 
     local rate=${res#*@} off_args=() switched=0
     for out in "${PHYS[@]}"; do off_args+=(--output "$out" --off); done
-    # try with the exact refresh first, fall back to the mode's default rate;
-    # a switch right after an X start can fail transiently — retry once
+    # switches right after an X start can fail transiently, retry once
     for attempt in 1 2; do
         if xrandr --output "$VIRT" --mode "$mode" --rate "$rate" --pos 0x0 --primary "${off_args[@]}" 2>/dev/null \
             || xrandr --output "$VIRT" --mode "$mode" --pos 0x0 --primary "${off_args[@]}"; then
@@ -277,7 +242,6 @@ x11_off() {
     x11_restore_workspaces
     rm -f "$ACTIVE_MARK"
     signal_blocks
-    # Sunshine stays running so the machine remains reachable remotely
     echo "away mode OFF: home layout restored"
 }
 
@@ -299,19 +263,13 @@ x11_status() {
     fi
 }
 
-# =============================================================================
-# Hyprland backend
-# =============================================================================
-# Design: a headless output is created once per session (init-virt, exec-once)
-# and parked out of cursor reach while at home. Sunshine's wlr backend
-# enumerates wayland outputs when it starts, so the output existing early
-# means Sunshine can be (re)started at any point and still see it — and
-# `stream on` never has to restart Sunshine while a Moonlight client is
-# mid-connection (prep-cmd). Away = write "virtual gets the client mode,
-# physicals disabled" into $RUNTIME_MON_CONF and `hyprctl reload`
-# (workspaces auto-migrate to the last enabled output); home = write the
-# park rule back and reload (the main config rules re-enable the panels),
-# then workspaces are put back from the snapshot.
+# ---- Hyprland backend ---------------------------------------------------------
+# A headless output is created once per session (init-virt) and parked while
+# home. Sunshine's wlr backend enumerates outputs at startup, so the output
+# existing early means no Sunshine restart is ever needed mid-connection.
+# Away: virtual gets the client mode, physicals disabled, workspaces
+# auto-migrate. Home: park rule restores config rules, snapshot puts
+# workspaces back.
 
 hypr_ensure() {
     [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && hyprctl monitors >/dev/null 2>&1 && return 0
@@ -336,7 +294,6 @@ hypr_headless_name() {
 
 hypr_enabled_monitors() { hyprctl -j monitors 2>/dev/null | jq -r '.[].name'; }
 
-# Print the headless output name, creating it if missing.
 hypr_virt() {
     local name i
     name=$(hypr_headless_name)
@@ -351,15 +308,11 @@ hypr_virt() {
     [ -n "$name" ] && echo "$name"
 }
 
-# Write the "home" runtime rules (headless parked, physicals from main
-# config) and apply. Everything not mentioned falls back to the config rules.
-# Every enabled monitor must hold a workspace, so pin a named one (out of
-# mod+N reach) to the parked output — otherwise it steals a numeric one and
-# that mod+N binding warps focus to the invisible monitor.
+# stream-park keeps the mandatory workspace of the parked output out of mod+N
 hypr_park_virt() {
     local m
     {
-        echo "# written by \`stream\` — home state (headless parked)"
+        echo "# written by stream, home state"
         for m in $(hyprctl -j monitors all 2>/dev/null \
             | jq -r '.[].name | select(startswith("HEADLESS-"))'); do
             echo "monitor = $m, $PARK_MODE, $PARK_POS, 1"
@@ -377,7 +330,6 @@ hypr_save_state() {
 hypr_restore_workspaces() {
     command -v jq >/dev/null || return 0
     local want cur i id mon
-    # wait for the physical outputs (from the snapshot if available) to be back
     if [ -r "$MON_STATE" ]; then
         want=$(jq -r '.[].name' "$MON_STATE" | grep -v '^HEADLESS-' | sort)
         for i in $(seq 1 40); do
@@ -391,15 +343,13 @@ hypr_restore_workspaces() {
             sleep 0.25
         done
     fi
-    # move real workspaces (id >= 1) back to their original monitor
     if [ -r "$WS_STATE" ]; then
         while IFS=$'\t' read -r id mon; do
             case "$mon" in HEADLESS-*) continue ;; esac
             hyprctl dispatch moveworkspacetomonitor "$id" "$mon" >/dev/null 2>&1
         done < <(jq -r '.[] | select(.id >= 1) | [.id, .monitor] | @tsv' "$WS_STATE")
     fi
-    # sweep anything still stranded on a headless output (workspaces created
-    # while away, or ones missing from the snapshot) to a physical monitor
+    # sweep workspaces created while away off the headless output
     local first_phys
     first_phys=$(hyprctl -j monitors 2>/dev/null \
         | jq -r '[.[].name | select(startswith("HEADLESS-") | not)] | first // empty')
@@ -410,15 +360,12 @@ hypr_restore_workspaces() {
             hyprctl dispatch moveworkspacetomonitor "$id" "$first_phys" >/dev/null 2>&1
         done
     fi
-    # give the parked headless output its named workspace explicitly (the
-    # default:true workspace rule is not honored for auto-created ones) so it
-    # never holds a numeric mod+N workspace
+    # explicit, the default:true workspace rule is ignored for auto-created ones
     local hm
     for hm in $(hypr_enabled_monitors | grep '^HEADLESS-'); do
         hyprctl dispatch focusmonitor "$hm" >/dev/null 2>&1
         hyprctl dispatch workspace name:stream-park >/dev/null 2>&1
     done
-    # re-show the workspace that was visible on each monitor, focused one last
     if [ -r "$MON_STATE" ]; then
         while IFS=$'\t' read -r mon id; do
             hyprctl dispatch focusmonitor "$mon" >/dev/null 2>&1
@@ -427,8 +374,7 @@ hypr_restore_workspaces() {
             | select(.name | startswith("HEADLESS-") | not)
             | [.name, .activeWorkspace.id] | @tsv' "$MON_STATE")
     fi
-    # land focus and the cursor on a real monitor — after away mode both sit
-    # on the parked headless output, which looks like a dead session
+    # focus and cursor otherwise stay stranded on the invisible parked output
     local focus_mon center
     focus_mon=$(jq -r '[.[] | select(.focused)] | first.name // empty' "$MON_STATE" 2>/dev/null)
     case "$focus_mon" in ""|HEADLESS-*) focus_mon="$first_phys" ;; esac
@@ -442,7 +388,7 @@ hypr_restore_workspaces() {
 }
 
 hypr_restore() {
-    hypr_park_virt          # writes home rules + reload: panels back, headless parked
+    hypr_park_virt
     hypr_restore_workspaces
 }
 
@@ -458,11 +404,10 @@ hypr_on() {
     set_sunshine_key capture wlr && changed=1
     set_sunshine_key output_name "$virt" && changed=1
 
-    # away rules: virtual gets the client mode, every non-headless output is
-    # disabled ("monitors all" so an away->away profile switch keeps them off)
+    # monitors all so an away to away profile switch keeps physicals off
     local m
     {
-        echo "# written by \`stream\` — away mode (profile '$profile')"
+        echo "# written by stream, away mode ($profile)"
         echo "monitor = $virt, ${w}x${h}@${r}, 0x0, 1"
         for m in $(hyprctl -j monitors all 2>/dev/null \
             | jq -r '.[].name | select(startswith("HEADLESS-") | not)'); do
@@ -482,9 +427,7 @@ hypr_on() {
         exit 1
     fi
 
-    # Start Sunshine if it isn't running. If it IS running, only restart when
-    # its config changed AND we weren't invoked by Sunshine itself (prep-cmd:
-    # SUNSHINE_CLIENT_* set) — restarting then would kill the connection.
+    # never restart sunshine from its own prep-cmd, it kills the connection
     if systemctl --user is-active --quiet "$SUNSHINE_UNIT"; then
         if [ "$changed" = 1 ] && [ -z "${SUNSHINE_CLIENT_WIDTH:-}" ]; then
             systemctl --user restart "$SUNSHINE_UNIT" || true
@@ -503,7 +446,7 @@ hypr_off() {
     hypr_restore
     rm -f "$ACTIVE_MARK"
     signal_blocks
-    # Sunshine stays running so the machine remains reachable remotely
+    # sunshine stays running so the machine remains reachable
     echo "away mode OFF: home layout restored"
 }
 
@@ -520,11 +463,9 @@ hypr_status() {
         | "  \(.name): \(.width)x\(.height)@\(.refreshRate | round) +\(.x)+\(.y)\(if .disabled then " (disabled)" else "" end)"'
 }
 
-# Run from Hyprland exec-once on streaming machines: make the headless output
-# exist before Sunshine can ever start, and point sunshine.conf at it.
+# hyprland exec-once: headless must exist before sunshine ever starts
 cmd_init_virt() {
     hypr_ensure || die "init-virt: no hyprland session"
-    # a Sunshine left over from a previous session has stale env/output state
     systemctl --user --no-block stop "$SUNSHINE_UNIT" 2>/dev/null
     local virt="" i
     for i in $(seq 1 10); do
@@ -538,12 +479,8 @@ cmd_init_virt() {
     echo "virtual output $virt ready (parked at $PARK_POS)"
 }
 
-# =============================================================================
-# dispatch
-# =============================================================================
+# ---- dispatch -----------------------------------------------------------------
 
-# Prefer the session we were invoked from; fall back to discovery. With no
-# session at all, the X11 path can still cold-start one (ensure_x/startx).
 detect_backend() {
     if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && hyprctl monitors >/dev/null 2>&1; then
         echo hypr; return
@@ -590,9 +527,7 @@ cmd_list() {
     grep -E '^[[:space:]]*[^#[:space:]]+[[:space:]]*=' "$PROFILES" | sed 's/^[[:space:]]*/  /'
 }
 
-# Serialize invocations: overlapping on/off transitions (e.g. Moonlight app
-# switch firing undo+do back to back) interleave modesets, which has
-# deadlocked the NVIDIA driver. One transition at a time.
+# serialize transitions, overlapping modesets have deadlocked the nvidia driver
 exec 9>"${XDG_RUNTIME_DIR:-/tmp}/stream.lock"
 flock -w 45 9 || die "another stream transition is still running"
 

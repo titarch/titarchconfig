@@ -1,12 +1,6 @@
-# Shared template data, tracked in the repo.
-# Per-host hardware facts live here (they're config, not secrets); templates
-# look them up with: index .hosts .chezmoi.hostname
-
-# grodarch: 3x ASUS VG27A 2560x1440@144.
-# wayland = DRM connector name (Hyprland), x11 = nvidia Xorg name.
-# Mapping verified 2026-07-19 against `hyprctl monitors` (real panel serials
-# are visible under KMS): DP-2=left/M1LMQS109598, DP-3=middle/L6LMQS143616,
-# DP-1=right/KCLMQS100054.
+# per-host data, template lookup: index .hosts .chezmoi.hostname
+# wayland = DRM connector name (hyprland), x11 = nvidia Xorg name
+# grodarch mapping verified against panel serials 2026-07-19
 [[hosts.grodarch.monitors]]
 wayland = "DP-2"
 x11 = "DP-2"

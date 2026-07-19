@@ -1,12 +1,11 @@
-# Generates ~/.config/chezmoi/chezmoi.toml on `chezmoi init`.
-# prompt*Once functions reuse values from an existing config, so re-running
-# init never re-asks on an already-configured machine.
+# generates ~/.config/chezmoi/chezmoi.toml on chezmoi init,
+# promptOnce reuses existing values so re-init never re-asks
 {{- $primary := promptStringOnce . "x11.primary" "Primary X11 monitor output" "DP-4" -}}
 {{- $streaming := promptBoolOnce . "features.streaming" "Deploy Sunshine streaming config" false -}}
 {{- $nvidiaX11 := promptBoolOnce . "features.nvidia_x11" "Deploy nvidia X11 helpers (nvx/nvinit)" false -}}
 {{- $legacySource := joinPath .chezmoi.homeDir "titarchconfig" -}}
 {{- if stat (joinPath $legacySource ".chezmoiroot") }}
-# source lives in the historical repo location on this machine
+# historical repo location
 sourceDir = {{ $legacySource | quote }}
 {{- end }}
 

@@ -1,8 +1,7 @@
-# Hyprland config — port of the i3 setup (same keybinds), DankMaterialShell
-# as bar/launcher/notifications/lock. See https://wiki.hypr.land/
+# Hyprland + DankMaterialShell, i3 keybind port
 {{- $host := index .hosts .chezmoi.hostname }}
 
-# --- monitors ---------------------------------------------------------------
+# monitors
 {{- if $host }}
 {{- range $host.monitors }}
 monitor = {{ .wayland }}, {{ .mode }}, {{ .pos }}, 1
@@ -11,12 +10,11 @@ monitor = {{ .wayland }}, {{ .mode }}, {{ .pos }}, 1
 monitor = , preferred, auto, 1
 {{- end }}
 {{- if .features.streaming }}
-# runtime overrides owned by the `stream` script (away-mode + parked headless
-# output); rules here win over the ones above on `hyprctl reload`
+# owned by the stream script, wins over rules above on reload
 source = ~/.config/hypr/monitors-runtime.conf
 {{- end }}
 
-# --- env (nvidia + IME, from xinitrc) ---------------------------------------
+# env
 env = LIBVA_DRIVER_NAME,nvidia
 env = __GLX_VENDOR_LIBRARY_NAME,nvidia
 env = NVD_BACKEND,direct
@@ -26,18 +24,16 @@ env = GTK_IM_MODULE,ibus
 env = QT_IM_MODULE,ibus
 env = XMODIFIERS,@im=ibus
 
-# --- autostart ---------------------------------------------------------------
+# autostart
 exec-once = systemctl --user import-environment WAYLAND_DISPLAY DISPLAY HYPRLAND_INSTANCE_SIGNATURE && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP
 exec-once = dms run
 exec-once = wl-paste --type text --watch cliphist store
 exec-once = wl-paste --type image --watch cliphist store
 exec-once = ibus-daemon -rxRd
 {{- if .features.streaming }}
-# persistent headless output for Sunshine away-mode (also stops stale Sunshine)
 exec-once = ~/.local/bin/stream init-virt
 {{- end }}
 
-# --- input (fr-us, compose on right win, like X) ------------------------------
 input {
     kb_layout = fr
     kb_variant = us
@@ -45,9 +41,7 @@ input {
     follow_mouse = 1
 }
 {{- if .features.streaming }}
-# Sunshine's virtual keyboard gets raw scancodes from Moonlight clients,
-# bypassing the physical keyboard's caps2esc — swap here for this device
-# only (options don't merge, so compose:rwin must be repeated)
+# sunshine virtual kbd bypasses caps2esc; options override, not merge
 device {
     name = keyboard-passthrough
     kb_layout = fr
@@ -56,7 +50,6 @@ device {
 }
 {{- end }}
 
-# --- look: Dracula borders, light gaps ---------------------------------------
 general {
     gaps_in = 4
     gaps_out = 8
@@ -84,7 +77,7 @@ misc {
     disable_hyprland_logo = true
 }
 
-# --- animations: keep them, but snappy (durations in 100ms units) -------------
+# durations in 100ms units
 animations {
     enabled = true
     bezier = quick, 0.23, 1, 0.32, 1
@@ -100,13 +93,11 @@ animations {
 $mod = SUPER
 $alt = ALT
 
-# --- apps & tools (i3 muscle memory) ------------------------------------------
+# apps
 bind = $mod, Return, exec, kitty
 bind = $mod SHIFT, Q, killactive
 bind = $mod, D, exec, dms ipc call spotlight toggle
-# window/workspace overview (i3 "rofi -show window" equivalent)
 bind = $mod, slash, exec, dms ipc call hypr toggleOverview
-# keybind cheatsheet
 bind = $mod, F1, exec, dms ipc call keybinds toggle
 bind = $mod SHIFT, V, exec, dms ipc call clipboard toggle
 bind = $mod CTRL SHIFT, L, exec, systemctl suspend
@@ -115,19 +106,16 @@ bind = $mod CTRL SHIFT, A, exec, systemctl poweroff
 bind = $mod CTRL SHIFT, R, exec, reboot
 bind = $mod CTRL, J, exec, jetbrains-toolbox
 bind = $mod, F12, exec, dms ipc call screenshot begin
-# raw region-to-clipboard fallback: grim -g "$(slurp)" - | wl-copy
 bind = $mod, grave, exec, rofimoji
 bind = $mod, Insert, exec, notify-send "Clipboard" "$(wl-paste)"
 bind = $mod, Pause, exec, sh -c 'qrencode -s 50 -o /tmp/qr.png "$(wl-paste)" && feh --auto-zoom --fullscreen /tmp/qr.png || notify-send "QR Code Failure" "Error code $?"'
-# Sunshine away-mode toggle (virtual screen on, real monitors off)
 bind = $mod SHIFT, S, exec, ~/.local/bin/stream toggle
-# notifications (dunstctl equivalents: history-pop / close / close-all)
 bind = CTRL, grave, exec, dms ipc call notifications toggle
 bind = CTRL, space, exec, dms ipc call notifications dismissAllPopups
 bind = CTRL SHIFT, space, exec, dms ipc call notifications clearAll
 bind = $mod SHIFT, E, exec, dms ipc call powermenu toggle
 
-# --- focus / move (j k l ; like i3) -------------------------------------------
+# focus / move
 bind = $mod, J, movefocus, l
 bind = $mod, K, movefocus, d
 bind = $mod, L, movefocus, u
@@ -136,8 +124,7 @@ bind = $mod, left, movefocus, l
 bind = $mod, down, movefocus, d
 bind = $mod, up, movefocus, u
 bind = $mod, right, movefocus, r
-# movewindoworgroup = movewindow, but pushing into a group joins it as a tab
-# (and pushing outward leaves the group) — closest to i3 tabbed semantics
+# movewindow variant that joins a group when pushed into one
 bind = $mod SHIFT, J, movewindoworgroup, l
 bind = $mod SHIFT, K, movewindoworgroup, d
 bind = $mod SHIFT, L, movewindoworgroup, u
@@ -147,7 +134,7 @@ bind = $mod SHIFT, down, movewindoworgroup, d
 bind = $mod SHIFT, up, movewindoworgroup, u
 bind = $mod SHIFT, right, movewindoworgroup, r
 
-# splits ($mod+h/v like i3), tabbed -> group, toggle split
+# splits, group = i3 tabbed
 bind = $mod, H, layoutmsg, preselect r
 bind = $mod, V, layoutmsg, preselect d
 bind = $mod, F, fullscreen, 0
@@ -157,7 +144,7 @@ bind = $mod SHIFT, TAB, changegroupactive, b
 bind = $mod, E, layoutmsg, togglesplit
 bind = $mod SHIFT, space, togglefloating
 
-# --- workspaces: 1-12 plus a primed set 13-24 on $mod+$alt --------------------
+# workspaces 1-12, primed set 13-24 on $mod+$alt
 bind = $mod, 1, workspace, 1
 bind = $mod, 2, workspace, 2
 bind = $mod, 3, workspace, 3
@@ -207,14 +194,13 @@ bind = $mod SHIFT $alt, 0, movetoworkspace, 22
 bind = $mod SHIFT $alt, minus, movetoworkspace, 23
 bind = $mod SHIFT $alt, equal, movetoworkspace, 24
 
-# move whole workspace between monitors (i3 $mod+Ctrl+arrows)
 bind = $mod CTRL, right, movecurrentworkspacetomonitor, r
 bind = $mod CTRL, left, movecurrentworkspacetomonitor, l
 
 bind = $mod SHIFT, C, exec, hyprctl reload
 bind = $mod SHIFT, R, exec, hyprctl reload
 
-# --- resize submap ($mod+r, same keys as i3) ----------------------------------
+# resize submap
 bind = $mod, R, submap, resize
 submap = resize
 binde = , J, resizeactive, -40 0
@@ -230,11 +216,10 @@ bind = , escape, submap, reset
 bind = $mod, R, submap, reset
 submap = reset
 
-# mouse: drag/resize with $mod
 bindm = $mod, mouse:272, movewindow
 bindm = $mod, mouse:273, resizewindow
 
-# --- media / volume / brightness ----------------------------------------------
+# media / volume / brightness
 bindl = , XF86AudioRaiseVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%
 bindl = , XF86AudioLowerVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindl = , XF86AudioMute, exec, pactl set-sink-mute @DEFAULT_SINK@ toggle
@@ -248,6 +233,6 @@ bind = $mod $alt, down, exec, playerctl play-pause
 bind = $mod $alt, left, exec, playerctl previous
 bind = $mod $alt, right, exec, playerctl next
 
-# --- window rules (from i3 for_window) -----------------------------------------
+# window rules
 windowrule = float on, match:title ^(float-.*)
 windowrule = float on, match:title ^(sfml-.*)

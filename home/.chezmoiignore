@@ -1,5 +1,4 @@
-# Files only deployed on machines with the matching feature flags
-# (set in ~/.config/chezmoi/chezmoi.toml [data], see .chezmoi.toml.tmpl)
+# feature flags come from ~/.config/chezmoi/chezmoi.toml [data]
 {{ if not .features.streaming }}
 .config/stream/**
 .config/sunshine/**

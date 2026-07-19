@@ -3,20 +3,20 @@
 Personal Arch Linux config, managed with chezmoi.
 
 ## Layout
-- `home/` — chezmoi source state (`.chezmoiroot` points here). Filenames use
+- `home/` - chezmoi source state (`.chezmoiroot` points here). Filenames use
   chezmoi's encoding: `dot_` = leading dot, `executable_` = exec bit,
   `.tmpl` = Go template (per-machine values from `~/.config/chezmoi/chezmoi.toml`).
-- `system/` — root-owned files (X11/sunshine/udev); deploy with
+- `system/` - root-owned files (X11/sunshine/udev); deploy with
   `sudo system/install-system.sh`.
-- `gpg/` — public key material.
-- `install.sh` — interactive bootstrap for a new machine (packages, oh-my-zsh,
+- `gpg/` - public key material.
+- `install.sh` - interactive bootstrap for a new machine (packages, oh-my-zsh,
   chezmoi deploy).
-- `_legacy/` — untracked graveyard for retired configs.
+- `_legacy/` - untracked graveyard for retired configs.
 
 ## Daily use
 - Edit files here (or `chezmoi edit <target>`), then `chezmoi apply`.
-- `chezmoi diff` — what would change on this machine.
-- `chezmoi status` / `chezmoi managed` — sync state.
+- `chezmoi diff` - what would change on this machine.
+- `chezmoi status` / `chezmoi managed` - sync state.
 - After editing a live file directly under `$HOME`: `chezmoi re-add <target>`.
 
 ## New machine
