@@ -54,14 +54,12 @@ general {
     gaps_in = 4
     gaps_out = 8
     border_size = 2
-    col.active_border = rgb(bd93f9) rgb(ff79c6) 45deg
+    col.active_border = rgb(a184d6) rgb(d673ab) 45deg
     col.inactive_border = rgb(44475a)
     layout = dwindle
 }
 decoration {
     rounding = 8
-    dim_inactive = true
-    dim_strength = 0.08
     blur {
         enabled = true
         size = 6
@@ -102,6 +100,7 @@ animations {
     animation = layers, 1, 1.2, quick
     animation = workspaces, 1, 2, quick, slide
     animation = border, 1, 2, quick
+    animation = borderangle, 1, 50, linear, loop
 }
 
 $mod = SUPER
