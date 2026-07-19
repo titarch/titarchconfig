@@ -133,7 +133,9 @@ bind = $mod SHIFT, S, exec, ~/.local/bin/stream toggle
 # toggle idle inhibition (mod+P)
 bind = $mod, P, exec, ~/.local/bin/presence toggle
 bind = $mod, N, exec, dms ipc call notepad toggle
-bind = $mod, B, exec, dms ipc call dock toggle
+# dock toggle disabled, dms 1.5.2 ignores dockPosition and shoves windows
+# from the top edge; retry after a dms update
+# bind = $mod, B, exec, dms ipc call dock toggle
 bind = $mod, Escape, exec, dms ipc call processlist toggle
 bind = CTRL, grave, exec, dms ipc call notifications toggle
 bind = CTRL, space, exec, dms ipc call notifications dismissAllPopups
