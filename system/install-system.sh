@@ -25,4 +25,11 @@ if [ -d /etc/greetd ]; then
         || sed -i 's|--command hyprland|--command hyprland -C /etc/greetd/dms-greeter-hypr.conf|' /etc/greetd/config.toml
 fi
 
+# firefox autoconfig (tab wheel fix), pacman hook survives firefox upgrades
+if [ -d /usr/lib/firefox ]; then
+    install -m644 firefox/config.js /usr/lib/firefox/config.js
+    install -m644 firefox/config-prefs.js /usr/lib/firefox/defaults/pref/config-prefs.js
+    install -Dm644 firefox/firefox-autoconfig.hook /etc/pacman.d/hooks/firefox-autoconfig.hook
+fi
+
 echo "system files installed; xorg.conf now reads EDIDs from /etc/X11/edid/"
