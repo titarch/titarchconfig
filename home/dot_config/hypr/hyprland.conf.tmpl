@@ -37,6 +37,8 @@ exec-once = ~/.local/bin/cursor-drift daemon
 {{- if .features.streaming }}
 exec-once = ~/.local/bin/stream init-virt
 {{- end }}
+# greeter auto-logs-in, so lock immediately; unlock locally or via moonlight
+exec-once = sh -c 'for i in $(seq 1 60); do dms ipc call lock lock >/dev/null 2>&1 && exit; sleep 0.5; done'
 
 input {
     kb_layout = fr
@@ -117,6 +119,7 @@ bind = $mod, D, exec, dms ipc call spotlight toggle
 bind = $mod, slash, exec, dms ipc call hypr toggleOverview
 bind = $mod, F1, exec, dms ipc call keybinds toggle hyprland
 bind = $mod SHIFT, V, exec, dms ipc call clipboard toggle
+bind = $mod CTRL, L, exec, dms ipc call lock lock
 bind = $mod CTRL SHIFT, L, exec, systemctl suspend
 bind = $mod CTRL SHIFT, P, exec, systemctl hibernate
 bind = $mod CTRL SHIFT, A, exec, systemctl poweroff
