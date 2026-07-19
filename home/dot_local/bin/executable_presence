@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# presence: prevent the session going idle/locking while call apps run
+set -u
+PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/presence.pid"
+INTERVAL=240
+
+running() { [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; }
+
+start() {
+    running && { echo "presence: already on"; exit 0; }
+    command -v ydotool >/dev/null || { notify-send "Presence" "ydotool not installed"; exit 1; }
+    if ! systemctl --user start ydotool.service 2>/dev/null; then
+        pgrep -x ydotoold >/dev/null || setsid -f ydotoold >/dev/null 2>&1
+    fi
+    dms ipc call inhibit enable >/dev/null 2>&1
+    (
+        trap 'exit 0' TERM
+        while :; do
+            sleep "$INTERVAL"
+            ydotool mousemove -x 1 -y 0 2>/dev/null
+            sleep 1
+            ydotool mousemove -x -1 -y 0 2>/dev/null
+        done
+    ) &
+    echo $! > "$PIDFILE"
+    disown
+    notify-send "Presence" "on"
+    echo "presence: ON"
+}
+
+stop() {
+    running && kill "$(cat "$PIDFILE")" 2>/dev/null
+    rm -f "$PIDFILE"
+    dms ipc call inhibit disable >/dev/null 2>&1
+    notify-send "Presence" "off"
+    echo "presence: OFF"
+}
+
+case "${1:-toggle}" in
+    on)     start ;;
+    off)    stop ;;
+    toggle) if running; then stop; else start; fi ;;
+    status) if running; then echo "presence: ON"; else echo "presence: OFF"; fi
+            dms ipc call inhibit status 2>/dev/null ;;
+    *)      echo "usage: presence [on|off|toggle|status]" >&2; exit 2 ;;
+esac

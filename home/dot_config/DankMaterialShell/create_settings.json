@@ -1,4 +1,5 @@
 {
   "showWorkspaceIndex": true,
-  "showWorkspacePadding": false
+  "showWorkspacePadding": false,
+  "acMonitorTimeout": 300
 }

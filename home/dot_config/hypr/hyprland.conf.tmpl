@@ -110,6 +110,8 @@ bind = $mod, grave, exec, rofimoji
 bind = $mod, Insert, exec, notify-send "Clipboard" "$(wl-paste)"
 bind = $mod, Pause, exec, sh -c 'qrencode -s 50 -o /tmp/qr.png "$(wl-paste)" && feh --auto-zoom --fullscreen /tmp/qr.png || notify-send "QR Code Failure" "Error code $?"'
 bind = $mod SHIFT, S, exec, ~/.local/bin/stream toggle
+# toggle idle inhibition (mod+P)
+bind = $mod, P, exec, ~/.local/bin/presence toggle
 bind = CTRL, grave, exec, dms ipc call notifications toggle
 bind = CTRL, space, exec, dms ipc call notifications dismissAllPopups
 bind = CTRL SHIFT, space, exec, dms ipc call notifications clearAll
