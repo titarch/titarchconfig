@@ -49,7 +49,6 @@ decoration {
     rounding = 8
 }
 dwindle {
-    pseudotile = true
     preserve_split = true
 }
 group {
@@ -72,24 +71,27 @@ $alt = ALT
 bind = $mod, Return, exec, kitty
 bind = $mod SHIFT, Q, killactive
 bind = $mod, D, exec, dms ipc call spotlight toggle
-# TODO(first-login): check `dms ipc` for a window-switcher target; spotlight for now
-bind = $mod, slash, exec, dms ipc call spotlight toggle
+# window/workspace overview (i3 "rofi -show window" equivalent)
+bind = $mod, slash, exec, dms ipc call hypr toggleOverview
+# keybind cheatsheet
+bind = $mod, F1, exec, dms ipc call keybinds toggle
 bind = $mod SHIFT, V, exec, dms ipc call clipboard toggle
 bind = $mod CTRL SHIFT, L, exec, systemctl suspend
 bind = $mod CTRL SHIFT, P, exec, systemctl hibernate
 bind = $mod CTRL SHIFT, A, exec, systemctl poweroff
 bind = $mod CTRL SHIFT, R, exec, reboot
 bind = $mod CTRL, J, exec, jetbrains-toolbox
-bind = $mod, F12, exec, grim -g "$(slurp)" - | wl-copy
+bind = $mod, F12, exec, dms ipc call screenshot begin
+# raw region-to-clipboard fallback: grim -g "$(slurp)" - | wl-copy
 bind = $mod, grave, exec, rofimoji
 bind = $mod, Insert, exec, notify-send "Clipboard" "$(wl-paste)"
 bind = $mod, Pause, exec, sh -c 'qrencode -s 50 -o /tmp/qr.png "$(wl-paste)" && feh --auto-zoom --fullscreen /tmp/qr.png || notify-send "QR Code Failure" "Error code $?"'
 # away-mode: ported in phase 3 — placeholder so muscle memory gets a message
 bind = $mod SHIFT, S, exec, notify-send "stream" "away-mode not yet ported to Hyprland"
-# notifications (dunstctl equivalents)
+# notifications (dunstctl equivalents: history-pop / close / close-all)
 bind = CTRL, grave, exec, dms ipc call notifications toggle
-bind = CTRL, space, exec, dms ipc call notifications dismissLatest
-bind = CTRL SHIFT, space, exec, dms ipc call notifications dismissAll
+bind = CTRL, space, exec, dms ipc call notifications dismissAllPopups
+bind = CTRL SHIFT, space, exec, dms ipc call notifications clearAll
 bind = $mod SHIFT, E, exec, dms ipc call powermenu toggle
 
 # --- focus / move (j k l ; like i3) -------------------------------------------
@@ -116,7 +118,7 @@ bind = $mod, V, layoutmsg, preselect d
 bind = $mod, F, fullscreen, 0
 bind = $mod, W, togglegroup
 bind = $mod, TAB, changegroupactive, f
-bind = $mod, E, togglesplit
+bind = $mod, E, layoutmsg, togglesplit
 bind = $mod SHIFT, space, togglefloating
 
 # --- workspaces: 1-12 plus a primed set 13-24 on $mod+$alt --------------------
@@ -211,5 +213,5 @@ bind = $mod $alt, left, exec, playerctl previous
 bind = $mod $alt, right, exec, playerctl next
 
 # --- window rules (from i3 for_window) -----------------------------------------
-windowrule = float, title:^(float-.*)
-windowrule = float, title:^(sfml-.*)
+windowrule = float on, match:title ^(float-.*)
+windowrule = float on, match:title ^(sfml-.*)

@@ -4,9 +4,9 @@
 
 # grodarch: 3x ASUS VG27A 2560x1440@144.
 # wayland = DRM connector name (Hyprland), x11 = nvidia Xorg name.
-# NOTE: all three panels share one EDID so the wayland<->x11 mapping below is
-# the port-order guess (X DP-2/DP-4/DP-0 -> DRM DP-2/DP-3/DP-1); verify at
-# first Hyprland login with `hyprctl monitors` and fix here if swapped.
+# Mapping verified 2026-07-19 against `hyprctl monitors` (real panel serials
+# are visible under KMS): DP-2=left/M1LMQS109598, DP-3=middle/L6LMQS143616,
+# DP-1=right/KCLMQS100054.
 [[hosts.grodarch.monitors]]
 wayland = "DP-2"
 x11 = "DP-2"
