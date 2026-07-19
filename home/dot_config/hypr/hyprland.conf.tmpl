@@ -27,6 +27,8 @@ env = QT_QPA_PLATFORMTHEME,qt6ct
 env = QT_IM_MODULE,fcitx
 env = XMODIFIERS,@im=fcitx
 env = SDL_IM_MODULE,fcitx
+# kitty has no wayland text-input, it does IME via the ibus protocol
+env = GLFW_IM_MODULE,ibus
 
 # autostart
 exec-once = systemctl --user import-environment WAYLAND_DISPLAY DISPLAY HYPRLAND_INSTANCE_SIGNATURE && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP
