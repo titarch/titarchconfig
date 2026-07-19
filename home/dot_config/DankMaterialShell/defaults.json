@@ -1,0 +1,11 @@
+{
+  "showWorkspaceIndex": false,
+  "showWorkspacePadding": false,
+  "showWorkspaceName": true,
+  "acMonitorTimeout": 300,
+  "batteryMonitorTimeout": 120,
+  "batterySuspendTimeout": 900,
+  "currentThemeName": "custom",
+  "customThemeFile": "~/.config/DankMaterialShell/themes/dracula.json",
+  "iconThemeDark": "Papirus-Dark"
+}

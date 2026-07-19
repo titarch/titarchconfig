@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# one-shot bar layout, run from inside a session: bottom bar, netspeed first,
-# idle inhibitor, battery when one exists; restarts the shell
+# idempotent dms setup, run from inside a session: merges defaults.json into
+# settings.json (keys that must match on all machines live there), bottom bar,
+# netspeed first, idle inhibitor, battery when one exists; restarts the shell
 set -u
 command -v dms >/dev/null || { echo "dms not installed" >&2; exit 1; }
 dms ipc call plugins enable netspeed >/dev/null 2>&1
@@ -11,8 +12,10 @@ dms kill >/dev/null 2>&1
 sleep 2
 python3 - <<'EOF'
 import json, glob, os
-p = os.path.expanduser("~/.config/DankMaterialShell/settings.json")
-d = json.load(open(p))
+base = os.path.expanduser("~/.config/DankMaterialShell")
+p = os.path.join(base, "settings.json")
+d = json.load(open(p)) if os.path.exists(p) else {}
+d.update(json.load(open(os.path.join(base, "defaults.json"))))
 for c in d.get("barConfigs", []):
     c["position"] = 1
     rw = [w for w in c.get("rightWidgets", []) if w != "netspeed"]
@@ -28,4 +31,4 @@ for c in d.get("barConfigs", []):
 json.dump(d, open(p, "w"), indent=2)
 EOF
 setsid -f dms run >/dev/null 2>&1
-echo "bar configured, shell restarted"
+echo "dms configured, shell restarted"
