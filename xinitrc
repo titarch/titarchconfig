@@ -7,8 +7,10 @@ export GTK_THEME=Dracula
 export QT_IM_MODULE=ibus
 export XMODIFIERS=@im=ibus
 systemctl --user import-environment DISPLAY XAUTHORITY
-# restart (not start): a stale instance must pick up the fresh X auth cookie
-systemctl --user restart app-dev.lizardbyte.app.Sunshine.service
+# Sunshine is started on demand by `stream on` (not at session start); stop
+# any stale instance so a later start always matches the current X session.
+# --no-block: don't delay i3 (the unit has ExecStartPre=sleep 5).
+systemctl --user --no-block stop app-dev.lizardbyte.app.Sunshine.service
 # X defaults primary to the (inactive) virtual HDMI-0, which breaks Sunshine's
 # display indexing (output_name); the middle monitor is the real primary
 xrandr --output DP-4 --primary

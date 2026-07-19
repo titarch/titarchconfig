@@ -45,7 +45,7 @@ ZSH_THEME="dracula"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(cp git docker pip python sudo z systemd autoswitch_virtualenv zsh-syntax-highlighting zsh-completions zsh-autosuggestions kubectl aws minikube history web-search zsh-kubectl-prompt terraform terragrunt)
+plugins=(cp git docker pip python sudo systemd autoswitch_virtualenv zsh-syntax-highlighting zsh-completions zsh-autosuggestions kubectl aws minikube history web-search zsh-kubectl-prompt terraform terragrunt zoxide fzf)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -59,6 +59,9 @@ compinit
 kitty + complete setup zsh | source /dev/stdin
 
 # User configuration
+ HISTFILE=~/.zsh_history
+HISTSIZE=999999999
+SAVEHIST=$HISTSIZE
 
 export RPROMPT='%{$fg[blue]%}($ZSH_KUBECTL_PROMPT)%{$reset_color%}'
 export EDITOR='vim'
@@ -71,6 +74,21 @@ makewatch() {
     [[ -n "$1" ]] && texfile="$1" || texfile=(*.tex(N[1]))
     echo "Selected file: $texfile"
     while true; do inotifywait -e modify "$texfile"; date; make; done
+}
+
+dcka() {
+    active_containers=$(docker ps -q)
+    if [[ -n "$active_containers" ]]; then
+        docker kill `docker ps -q`
+    else
+        echo "No active containers"
+    fi
+    exited_containers=$(docker ps -aq)
+    if [[ -n "$exited_containers" ]]; then
+        docker rm `docker ps -aq`
+    else
+        echo "No exited containers"
+    fi
 }
 
 zstyle ':completion:*:*:docker:*' option-stacking yes
@@ -112,3 +130,5 @@ alias kgcert='kubectl get certificates'
 alias kdcert='kubectl describe certificates'
 alias krr='kubectl rollout restart'
 alias krrd='kubectl rollout restart deployment'
+
+eval "$(zoxide init zsh)"
