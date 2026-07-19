@@ -125,7 +125,8 @@ bind = $mod CTRL SHIFT, P, exec, systemctl hibernate
 bind = $mod CTRL SHIFT, A, exec, systemctl poweroff
 bind = $mod CTRL SHIFT, R, exec, reboot
 bind = $mod CTRL, J, exec, jetbrains-toolbox
-bind = $mod, F12, exec, dms ipc call screenshot begin
+# region select then annotate/copy/save (dms screenshot mode is niri-only)
+bind = $mod, F12, exec, sh -c 'grim -g "$(slurp)" - | satty --filename - --output-filename ~/Pictures/Screenshots/shot-$(date +%Y%m%d-%H%M%S).png --early-exit --copy-command wl-copy'
 bind = $mod, grave, exec, rofimoji
 bind = $mod, Insert, exec, notify-send "Clipboard" "$(wl-paste)"
 bind = $mod, Pause, exec, sh -c 'qrencode -s 50 -o /tmp/qr.png "$(wl-paste)" && feh --auto-zoom --fullscreen /tmp/qr.png || notify-send "QR Code Failure" "Error code $?"'
