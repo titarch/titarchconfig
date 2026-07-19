@@ -1,0 +1,215 @@
+# Hyprland config — port of the i3 setup (same keybinds), DankMaterialShell
+# as bar/launcher/notifications/lock. See https://wiki.hypr.land/
+{{- $host := index .hosts .chezmoi.hostname }}
+
+# --- monitors ---------------------------------------------------------------
+{{- if $host }}
+{{- range $host.monitors }}
+monitor = {{ .wayland }}, {{ .mode }}, {{ .pos }}, 1
+{{- end }}
+{{- else }}
+monitor = , preferred, auto, 1
+{{- end }}
+
+# --- env (nvidia + IME, from xinitrc) ---------------------------------------
+env = LIBVA_DRIVER_NAME,nvidia
+env = __GLX_VENDOR_LIBRARY_NAME,nvidia
+env = NVD_BACKEND,direct
+env = ELECTRON_OZONE_PLATFORM_HINT,auto
+env = GTK_THEME,Dracula
+env = GTK_IM_MODULE,ibus
+env = QT_IM_MODULE,ibus
+env = XMODIFIERS,@im=ibus
+
+# --- autostart ---------------------------------------------------------------
+exec-once = systemctl --user import-environment WAYLAND_DISPLAY DISPLAY HYPRLAND_INSTANCE_SIGNATURE && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP
+exec-once = dms run
+exec-once = wl-paste --type text --watch cliphist store
+exec-once = wl-paste --type image --watch cliphist store
+exec-once = ibus-daemon -rxRd
+
+# --- input (fr-us, compose on right win, like X) ------------------------------
+input {
+    kb_layout = fr
+    kb_variant = us
+    kb_options = compose:rwin
+    follow_mouse = 1
+}
+
+# --- look: Dracula borders, light gaps ---------------------------------------
+general {
+    gaps_in = 4
+    gaps_out = 8
+    border_size = 2
+    col.active_border = rgb(6272A4)
+    col.inactive_border = rgb(282A36)
+    layout = dwindle
+}
+decoration {
+    rounding = 8
+}
+dwindle {
+    pseudotile = true
+    preserve_split = true
+}
+group {
+    col.border_active = rgb(6272A4)
+    col.border_inactive = rgb(282A36)
+    groupbar {
+        col.active = rgb(44475A)
+        col.inactive = rgb(282A36)
+        text_color = rgb(F8F8F2)
+    }
+}
+misc {
+    disable_hyprland_logo = true
+}
+
+$mod = SUPER
+$alt = ALT
+
+# --- apps & tools (i3 muscle memory) ------------------------------------------
+bind = $mod, Return, exec, kitty
+bind = $mod SHIFT, Q, killactive
+bind = $mod, D, exec, dms ipc call spotlight toggle
+# TODO(first-login): check `dms ipc` for a window-switcher target; spotlight for now
+bind = $mod, slash, exec, dms ipc call spotlight toggle
+bind = $mod SHIFT, V, exec, dms ipc call clipboard toggle
+bind = $mod CTRL SHIFT, L, exec, systemctl suspend
+bind = $mod CTRL SHIFT, P, exec, systemctl hibernate
+bind = $mod CTRL SHIFT, A, exec, systemctl poweroff
+bind = $mod CTRL SHIFT, R, exec, reboot
+bind = $mod CTRL, J, exec, jetbrains-toolbox
+bind = $mod, F12, exec, grim -g "$(slurp)" - | wl-copy
+bind = $mod, grave, exec, rofimoji
+bind = $mod, Insert, exec, notify-send "Clipboard" "$(wl-paste)"
+bind = $mod, Pause, exec, sh -c 'qrencode -s 50 -o /tmp/qr.png "$(wl-paste)" && feh --auto-zoom --fullscreen /tmp/qr.png || notify-send "QR Code Failure" "Error code $?"'
+# away-mode: ported in phase 3 — placeholder so muscle memory gets a message
+bind = $mod SHIFT, S, exec, notify-send "stream" "away-mode not yet ported to Hyprland"
+# notifications (dunstctl equivalents)
+bind = CTRL, grave, exec, dms ipc call notifications toggle
+bind = CTRL, space, exec, dms ipc call notifications dismissLatest
+bind = CTRL SHIFT, space, exec, dms ipc call notifications dismissAll
+bind = $mod SHIFT, E, exec, dms ipc call powermenu toggle
+
+# --- focus / move (j k l ; like i3) -------------------------------------------
+bind = $mod, J, movefocus, l
+bind = $mod, K, movefocus, d
+bind = $mod, L, movefocus, u
+bind = $mod, semicolon, movefocus, r
+bind = $mod, left, movefocus, l
+bind = $mod, down, movefocus, d
+bind = $mod, up, movefocus, u
+bind = $mod, right, movefocus, r
+bind = $mod SHIFT, J, movewindow, l
+bind = $mod SHIFT, K, movewindow, d
+bind = $mod SHIFT, L, movewindow, u
+bind = $mod SHIFT, semicolon, movewindow, r
+bind = $mod SHIFT, left, movewindow, l
+bind = $mod SHIFT, down, movewindow, d
+bind = $mod SHIFT, up, movewindow, u
+bind = $mod SHIFT, right, movewindow, r
+
+# splits ($mod+h/v like i3), tabbed -> group, toggle split
+bind = $mod, H, layoutmsg, preselect r
+bind = $mod, V, layoutmsg, preselect d
+bind = $mod, F, fullscreen, 0
+bind = $mod, W, togglegroup
+bind = $mod, TAB, changegroupactive, f
+bind = $mod, E, togglesplit
+bind = $mod SHIFT, space, togglefloating
+
+# --- workspaces: 1-12 plus a primed set 13-24 on $mod+$alt --------------------
+bind = $mod, 1, workspace, 1
+bind = $mod, 2, workspace, 2
+bind = $mod, 3, workspace, 3
+bind = $mod, 4, workspace, 4
+bind = $mod, 5, workspace, 5
+bind = $mod, 6, workspace, 6
+bind = $mod, 7, workspace, 7
+bind = $mod, 8, workspace, 8
+bind = $mod, 9, workspace, 9
+bind = $mod, 0, workspace, 10
+bind = $mod, minus, workspace, 11
+bind = $mod, equal, workspace, 12
+bind = $mod $alt, 1, workspace, 13
+bind = $mod $alt, 2, workspace, 14
+bind = $mod $alt, 3, workspace, 15
+bind = $mod $alt, 4, workspace, 16
+bind = $mod $alt, 5, workspace, 17
+bind = $mod $alt, 6, workspace, 18
+bind = $mod $alt, 7, workspace, 19
+bind = $mod $alt, 8, workspace, 20
+bind = $mod $alt, 9, workspace, 21
+bind = $mod $alt, 0, workspace, 22
+bind = $mod $alt, minus, workspace, 23
+bind = $mod $alt, equal, workspace, 24
+bind = $mod SHIFT, 1, movetoworkspace, 1
+bind = $mod SHIFT, 2, movetoworkspace, 2
+bind = $mod SHIFT, 3, movetoworkspace, 3
+bind = $mod SHIFT, 4, movetoworkspace, 4
+bind = $mod SHIFT, 5, movetoworkspace, 5
+bind = $mod SHIFT, 6, movetoworkspace, 6
+bind = $mod SHIFT, 7, movetoworkspace, 7
+bind = $mod SHIFT, 8, movetoworkspace, 8
+bind = $mod SHIFT, 9, movetoworkspace, 9
+bind = $mod SHIFT, 0, movetoworkspace, 10
+bind = $mod SHIFT, minus, movetoworkspace, 11
+bind = $mod SHIFT, equal, movetoworkspace, 12
+bind = $mod SHIFT $alt, 1, movetoworkspace, 13
+bind = $mod SHIFT $alt, 2, movetoworkspace, 14
+bind = $mod SHIFT $alt, 3, movetoworkspace, 15
+bind = $mod SHIFT $alt, 4, movetoworkspace, 16
+bind = $mod SHIFT $alt, 5, movetoworkspace, 17
+bind = $mod SHIFT $alt, 6, movetoworkspace, 18
+bind = $mod SHIFT $alt, 7, movetoworkspace, 19
+bind = $mod SHIFT $alt, 8, movetoworkspace, 20
+bind = $mod SHIFT $alt, 9, movetoworkspace, 21
+bind = $mod SHIFT $alt, 0, movetoworkspace, 22
+bind = $mod SHIFT $alt, minus, movetoworkspace, 23
+bind = $mod SHIFT $alt, equal, movetoworkspace, 24
+
+# move whole workspace between monitors (i3 $mod+Ctrl+arrows)
+bind = $mod CTRL, right, movecurrentworkspacetomonitor, r
+bind = $mod CTRL, left, movecurrentworkspacetomonitor, l
+
+bind = $mod SHIFT, C, exec, hyprctl reload
+bind = $mod SHIFT, R, exec, hyprctl reload
+
+# --- resize submap ($mod+r, same keys as i3) ----------------------------------
+bind = $mod, R, submap, resize
+submap = resize
+binde = , J, resizeactive, -40 0
+binde = , K, resizeactive, 0 40
+binde = , L, resizeactive, 0 -40
+binde = , semicolon, resizeactive, 40 0
+binde = , left, resizeactive, -40 0
+binde = , down, resizeactive, 0 40
+binde = , up, resizeactive, 0 -40
+binde = , right, resizeactive, 40 0
+bind = , Return, submap, reset
+bind = , escape, submap, reset
+bind = $mod, R, submap, reset
+submap = reset
+
+# mouse: drag/resize with $mod
+bindm = $mod, mouse:272, movewindow
+bindm = $mod, mouse:273, resizewindow
+
+# --- media / volume / brightness ----------------------------------------------
+bindl = , XF86AudioRaiseVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindl = , XF86AudioLowerVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindl = , XF86AudioMute, exec, pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindl = , XF86MonBrightnessUp, exec, light -A 5 && notify-send "Brightness (Up)" "$(light)%"
+bindl = , XF86MonBrightnessDown, exec, light -U 5 && notify-send "Brightness (Down)" "$(light)%"
+bindl = , XF86AudioPlay, exec, playerctl play-pause
+bindl = , XF86AudioPause, exec, playerctl pause
+bindl = , XF86AudioNext, exec, playerctl next
+bindl = , XF86AudioPrev, exec, playerctl previous
+bind = $mod $alt, down, exec, playerctl play-pause
+bind = $mod $alt, left, exec, playerctl previous
+bind = $mod $alt, right, exec, playerctl next
+
+# --- window rules (from i3 for_window) -----------------------------------------
+windowrule = float, title:^(float-.*)
+windowrule = float, title:^(sfml-.*)
