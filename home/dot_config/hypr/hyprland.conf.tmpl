@@ -181,13 +181,13 @@ bind = $mod SHIFT, TAB, changegroupactive, b
 bind = $mod, E, layoutmsg, togglesplit
 bind = $mod SHIFT, space, togglefloating
 
-# workspaces 1-12, primed set 13-24 on $mod+$alt; only one example of each
-# pattern here, the other 44 live in the sourced file to keep the DMS
-# cheatsheet readable
+# workspaces: N on $mod, primed N' on $mod+$alt, ids interleaved so the
+# switcher sorts 1 1' 2 2'; one example of each pattern here, the rest in
+# the sourced file to keep the DMS cheatsheet readable
 bind = $mod, 1, workspace, 1
-bind = $mod $alt, 1, workspace, 13
+bind = $mod $alt, 1, workspace, 2
 bind = $mod SHIFT, 1, movetoworkspace, 1
-bind = $mod SHIFT $alt, 1, movetoworkspace, 13
+bind = $mod SHIFT $alt, 1, movetoworkspace, 2
 
 source = ~/.config/hypr/binds-workspaces.conf
 
