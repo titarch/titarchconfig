@@ -191,8 +191,9 @@ bind = $mod SHIFT $alt, 1, movetoworkspace, 2
 
 source = ~/.config/hypr/binds-workspaces.conf
 
-bind = $mod CTRL, right, movecurrentworkspacetomonitor, r
-bind = $mod CTRL, left, movecurrentworkspacetomonitor, l
+# wraps at the edges like i3
+bind = $mod CTRL, right, exec, ~/.local/bin/ws-move r
+bind = $mod CTRL, left, exec, ~/.local/bin/ws-move l
 
 bind = $mod SHIFT, C, exec, hyprctl reload
 bind = $mod SHIFT, R, exec, hyprctl reload
