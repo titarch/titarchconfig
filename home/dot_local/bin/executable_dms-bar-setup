@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# one-shot bar layout, run from inside a session: bottom bar, netspeed first,
+# idle inhibitor, battery when one exists; restarts the shell
+set -u
+command -v dms >/dev/null || { echo "dms not installed" >&2; exit 1; }
+dms ipc call plugins enable netspeed >/dev/null 2>&1
+# setPosition also makes dms persist barConfigs into settings.json
+dms ipc call bar setPosition id default bottom >/dev/null 2>&1
+sleep 1
+dms kill >/dev/null 2>&1
+sleep 2
+python3 - <<'EOF'
+import json, glob, os
+p = os.path.expanduser("~/.config/DankMaterialShell/settings.json")
+d = json.load(open(p))
+for c in d.get("barConfigs", []):
+    c["position"] = 1
+    rw = [w for w in c.get("rightWidgets", []) if w != "netspeed"]
+    rw.insert(0, "netspeed")
+    if "idleInhibitor" not in rw:
+        i = rw.index("notificationButton") if "notificationButton" in rw else len(rw)
+        rw.insert(i, "idleInhibitor")
+    if glob.glob("/sys/class/power_supply/BAT*") and "battery" not in rw:
+        i = rw.index("controlCenterButton") if "controlCenterButton" in rw else len(rw)
+        rw.insert(i, "battery")
+    c["rightWidgets"] = rw
+    print("bar widgets:", rw)
+json.dump(d, open(p, "w"), indent=2)
+EOF
+setsid -f dms run >/dev/null 2>&1
+echo "bar configured, shell restarted"

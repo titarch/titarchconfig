@@ -33,7 +33,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         otf-fira-mono ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
         feh vlc chromium qrencode rofimoji rofi wtype xclip \
         papirus-icon-theme qt6ct pamixer acpi htop iotop tig sysstat bc \
-        alsa-utils pacman-contrib zoxide fzf
+        alsa-utils pacman-contrib zoxide fzf upower power-profiles-daemon
     [ $? -ne 0 ] && exit 1
 fi
 
@@ -69,12 +69,10 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     fi
 fi
 
-read -p "Enable netspeed bar widget (run from inside a session)? " -n 1 -r
+read -p "Configure bar layout + widgets (run from inside a session)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    dms ipc call plugins enable netspeed
-    dms ipc call bar setPosition id default bottom
-    echo "widget placement: Settings > Dank Bar > Widgets, drag netspeed into the bar"
+    ~/.local/bin/dms-bar-setup
 fi
 
 read -p "Install oh-my-zsh? " -n 1 -r
