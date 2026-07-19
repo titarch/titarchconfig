@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# install and enable the standard plugin set, rerunnable, run from a session
+set -u
+command -v dms >/dev/null || { echo "dms not installed" >&2; exit 1; }
+
+# registry id -> installed directory name
+declare -A REGISTRY=(
+    [Calculator]=calculator
+    [emojiLauncher]=emojiLauncher
+)
+# plugin ids to enable (netspeed ships in this repo)
+ENABLE=(netspeed calculator emojiLauncher)
+
+for reg in "${!REGISTRY[@]}"; do
+    dir="$HOME/.config/DankMaterialShell/plugins/${REGISTRY[$reg]}"
+    [ -d "$dir" ] || dms plugins install "$reg" 2>&1 | tail -1
+done
+
+dms ipc call plugin-scan scan >/dev/null 2>&1
+sleep 2
+for p in "${ENABLE[@]}"; do
+    dms ipc call plugins enable "$p"
+done

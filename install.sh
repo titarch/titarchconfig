@@ -74,12 +74,8 @@ read -p "Configure bar layout + widgets (run from inside a session)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     ~/.local/bin/dms-bar-setup
+    ~/.local/bin/dms-plugins-setup
     [ -f ~/.face ] && dms ipc call profile setImage ~/.face
-    dms plugins install Calculator
-    dms plugins install emojiLauncher
-    dms ipc call plugin-scan scan; sleep 2
-    dms ipc call plugins enable calculator
-    dms ipc call plugins enable emojiLauncher
 fi
 
 read -p "Install oh-my-zsh? " -n 1 -r
