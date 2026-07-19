@@ -9,6 +9,18 @@ try {
     const tabs = win.gBrowser && win.gBrowser.tabContainer;
     if (!tabs || tabs._accumWheelPatched) return;
     tabs._accumWheelPatched = true;
+    // dblclick on empty strip space makes a new tab (tabs live in the
+    // titlebar on wayland, so the default action is a maximize request)
+    tabs.addEventListener("dblclick", e => {
+      if (e.button !== 0) return;
+      if (e.target.closest && e.target.closest("tab.tabbrowser-tab, toolbarbutton")) return;
+      if (win.BrowserCommands && win.BrowserCommands.openTab)
+        win.BrowserCommands.openTab();
+      else if (win.BrowserOpenTab)
+        win.BrowserOpenTab();
+      e.preventDefault();
+      e.stopPropagation();
+    }, { capture: true });
     let acc = 0;
     tabs.addEventListener("wheel", e => {
       if (e.deltaX) return; // thumb wheel: leave to default strip scrolling
