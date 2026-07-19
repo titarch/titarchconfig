@@ -1,0 +1,9 @@
+{
+  "id": "netspeed",
+  "name": "NetSpeed",
+  "version": "1.0.0",
+  "author": "bparsy",
+  "description": "Fixed-width network up/down rates, click opens the control center",
+  "type": "widget",
+  "component": "NetSpeed.qml"
+}
