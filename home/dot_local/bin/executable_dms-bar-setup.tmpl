@@ -10,14 +10,19 @@ dms ipc call bar setPosition id default bottom >/dev/null 2>&1
 sleep 1
 dms kill >/dev/null 2>&1
 sleep 2
+# transparency only reads well with blur behind it, so gate on fancyFx
+export BAR_ALPHA={{ if .features.fancyFx }}0.78{{ else }}1.0{{ end }}
+export POPUP_ALPHA={{ if .features.fancyFx }}0.8{{ else }}1.0{{ end }}
 python3 - <<'EOF'
 import json, glob, os
 base = os.path.expanduser("~/.config/DankMaterialShell")
 p = os.path.join(base, "settings.json")
 d = json.load(open(p)) if os.path.exists(p) else {}
 d.update(json.load(open(os.path.join(base, "defaults.json"))))
+d["popupTransparency"] = float(os.environ["POPUP_ALPHA"])
 for c in d.get("barConfigs", []):
     c["position"] = 1
+    c["transparency"] = float(os.environ["BAR_ALPHA"])
     # bar background scroll misfires with hovered vs focused screen (dms
     # 1.5.2), widget scroll still works; retry after dms updates
     c["scrollEnabled"] = False
