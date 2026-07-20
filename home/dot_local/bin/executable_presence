@@ -45,9 +45,10 @@ watch() {
     while :; do
         pgrep -x 'slack|teams-for-linux' >/dev/null 2>&1 && cur=on || cur=off
         if [ "$cur" != "$prev" ]; then
-            # first poll: only act if an app is already up, else just seed
+            # first poll: only act if an app is already up, else just seed.
+            # run as a subprocess so start/stop's exit never kills the watcher
             if [ -n "$prev" ] || [ "$cur" = on ]; then
-                [ "$cur" = on ] && start || stop
+                if [ "$cur" = on ]; then "$0" on >/dev/null 2>&1; else "$0" off >/dev/null 2>&1; fi
             fi
             prev="$cur"
         fi
