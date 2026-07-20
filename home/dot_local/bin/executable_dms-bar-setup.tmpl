@@ -11,8 +11,8 @@ sleep 1
 dms kill >/dev/null 2>&1
 sleep 2
 # transparency only reads well with blur behind it, so gate on fancyFx
-export BAR_ALPHA={{ if .features.fancyFx }}0.82{{ else }}1.0{{ end }}
-export POPUP_ALPHA={{ if .features.fancyFx }}0.85{{ else }}1.0{{ end }}
+export BAR_ALPHA={{ if .features.fancyFx }}0.72{{ else }}1.0{{ end }}
+export POPUP_ALPHA={{ if .features.fancyFx }}0.75{{ else }}1.0{{ end }}
 python3 - <<'EOF'
 import json, glob, os
 base = os.path.expanduser("~/.config/DankMaterialShell")
