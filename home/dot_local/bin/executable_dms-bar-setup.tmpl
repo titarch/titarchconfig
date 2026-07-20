@@ -36,6 +36,13 @@ for c in d.get("barConfigs", []):
     apps = ["claudeCodeUsage"]
     if shutil.which("docker") or shutil.which("podman"):
         apps.append("dockerManager")
+    # hass only where it's configured (else it shows an empty widget)
+    try:
+        ps = json.load(open(os.path.join(base, "plugin_settings.json")))
+        if ps.get("homeAssistantMonitor", {}).get("hassUrl"):
+            apps.append("homeAssistantMonitor")
+    except Exception:
+        pass
     rw = ["netspeed"] + mons + apps + ["systemTray", "clipboard",
           "privacyIndicator", "idleInhibitor", "notificationButton",
           "systemUpdate"]
