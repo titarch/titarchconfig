@@ -17,6 +17,7 @@ start() {
         trap 'exit 0' TERM
         while :; do
             sleep "$INTERVAL"
+            # tiny cursor nudge resets the idle timer
             ydotool mousemove -x 1 -y 0 2>/dev/null
             sleep 1
             ydotool mousemove -x -1 -y 0 2>/dev/null
@@ -36,9 +37,9 @@ stop() {
     echo "presence: OFF"
 }
 
-# auto-enable while a call app is running. Edge-triggered: acts only when an app
-# starts (->on) or the last one exits (->off), so a manual toggle in between
-# is respected. Manual on/off always work regardless.
+# auto-enable while a call app is running. Edge-triggered: acts only when an
+# app starts (->on) or the last one exits (->off), so a manual toggle in
+# between is respected. Manual on/off always work regardless.
 watch() {
     command -v slack >/dev/null || command -v teams-for-linux >/dev/null || exit 0
     local prev="" cur
