@@ -243,6 +243,9 @@ windowrule = suppress_event maximize, match:class .*
 # blur the bar and panels (layer surfaces, window blur does not cover them)
 layerrule = blur on, match:namespace ^(dms:).*
 layerrule = ignore_alpha 0.3, match:namespace ^(dms:).*
+# frost dms toplevel windows (settings etc); opacity affects text too, so
+# keep it high. dms hardcodes their bg opaque, so this is the only lever
+windowrule = opacity 0.92 0.92, match:class ^(com.danklinux.dms)$
 {{- end }}
 windowrule = fullscreen on, match:class ^(com\.moonlight_stream\.Moonlight)$
 
