@@ -163,7 +163,6 @@ grb-list() {
 zstyle ':completion:*:*:docker:*' option-stacking yes
 zstyle ':completion:*:*:docker-*:*' option-stacking yes
 
-command -v syay >/dev/null && alias yay='syay'
 alias rm='rm -I'
 alias grep='grep --color -n'
 alias i3lock='i3lock -c 420042'
