@@ -54,13 +54,15 @@ fi
 read -p "Install AUR packages (cursors, folder colors)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    yay -S catppuccin-cursors-mocha papirus-folders
+    # -bin is the versioned greeter launcher; -git tracks master and churns
+    yay -S catppuccin-cursors-mocha papirus-folders greetd-dms-greeter-bin
     sudo papirus-folders -C violet --theme Papirus-Dark
 fi
 
 read -p "Setup DMS greeter (run this from inside a hyprland session)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # binary already installed above, this just writes the greetd config
     dms greeter install
     read -p "Enable auto-login + lock-on-boot (desktops only)? " -n 1 -r
     echo
