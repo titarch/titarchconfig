@@ -7,5 +7,6 @@
   "batterySuspendTimeout": 900,
   "currentThemeName": "custom",
   "customThemeFile": "~/.config/DankMaterialShell/themes/dracula.json",
-  "iconThemeDark": "Papirus-Dark"
+  "iconThemeDark": "Papirus-Dark",
+  "updaterCheckOnStart": true
 }
