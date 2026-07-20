@@ -2,20 +2,30 @@
 # install and enable the standard plugin set, rerunnable, run from a session
 set -u
 command -v dms >/dev/null || { echo "dms not installed" >&2; exit 1; }
+pdir="$HOME/.config/DankMaterialShell/plugins"
 
-# registry id -> installed directory name
+# registry install name -> installed directory name
 declare -A REGISTRY=(
     [Calculator]=calculator
     [emojiLauncher]=emojiLauncher
+    [dockerManager]=dockerManager
+    [homeAssistantMonitor]=homeAssistantMonitor
 )
-# plugin ids to enable (netspeed ships in this repo)
-ENABLE=(netspeed diskmon calculator emojiLauncher)
+# non-registry plugins: installed dir -> git repo
+declare -A GIT=(
+    [claudeCodeUsage]=https://github.com/titeya/dms-claudecode.git
+)
+# plugin ids to enable (netspeed/gpumon/diskmon ship in this repo)
+ENABLE=(netspeed diskmon calculator emojiLauncher claudeCodeUsage
+        dockerManager homeAssistantMonitor)
 # gpumon needs nvidia-smi; harmless to enable elsewhere (self-hides)
 command -v nvidia-smi >/dev/null && ENABLE+=(gpumon)
 
 for reg in "${!REGISTRY[@]}"; do
-    dir="$HOME/.config/DankMaterialShell/plugins/${REGISTRY[$reg]}"
-    [ -d "$dir" ] || dms plugins install "$reg" 2>&1 | tail -1
+    [ -d "$pdir/${REGISTRY[$reg]}" ] || dms plugins install "$reg" 2>&1 | tail -1
+done
+for dir in "${!GIT[@]}"; do
+    [ -d "$pdir/$dir" ] || git clone --depth 1 "${GIT[$dir]}" "$pdir/$dir" 2>&1 | tail -1
 done
 
 dms ipc call plugin-scan scan >/dev/null 2>&1
