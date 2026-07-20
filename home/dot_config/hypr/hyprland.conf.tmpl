@@ -42,7 +42,7 @@ exec-once = ~/.local/bin/cursor-drift daemon
 exec-once = ~/.local/bin/stream init-virt
 {{- end }}
 # lock on boot only when greetd auto-logs-in (else the greeter already asked)
-exec-once = sh -c 'grep -q "^\[initial_session\]" /etc/greetd/config.toml 2>/dev/null || exit 0; for i in $(seq 1 60); do dms ipc call lock lock >/dev/null 2>&1 && exit; sleep 0.5; done'
+exec-once = sh -c 'grep -q "^\[initial_session\]" /etc/greetd/config.toml 2>/dev/null || exit 0; for i in $(seq 1 60); do [ "$(dms ipc call lock isLocked 2>/dev/null)" = "true" ] && exit; dms ipc call lock lock >/dev/null 2>&1; sleep 0.5; done'
 
 input {
     kb_layout = fr
@@ -151,6 +151,9 @@ bind = CTRL, space, exec, dms ipc call notifications dismissAllPopups
 bind = CTRL SHIFT, space, exec, dms ipc call notifications clearAll
 bind = $mod SHIFT, E, exec, dms ipc call powermenu toggle
 bind = $mod, X, exec, dms ipc call spotlight openQuery "= "
+# ime toggle fr <-> mozc; hyprland owns the key, fcitx's own wayland hotkey
+# is unreliable so we drive it via fcitx5-remote
+bind = $mod, space, exec, fcitx5-remote -t
 
 # focus / move
 bind = $mod, J, movefocus, l
