@@ -42,11 +42,18 @@ PluginComponent {
                     color: Theme.widgetTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
+                StyledTextMetrics {
+                    id: pbase
+                    font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+                    text: "100%"
+                }
                 StyledText {
                     text: root.pctNum(root.rootMount()) + "%"
                     font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
                     color: root.pctNum(root.rootMount()) >= 90 ? Theme.error : Theme.widgetTextColor
                     anchors.verticalCenter: parent.verticalCenter
+                    horizontalAlignment: Text.AlignRight
+                    width: pbase.width
                 }
             }
         }

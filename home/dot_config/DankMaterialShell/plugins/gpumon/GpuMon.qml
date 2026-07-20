@@ -54,6 +54,11 @@ PluginComponent {
                 font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
                 text: "100%"
             }
+            StyledTextMetrics {
+                id: tbase
+                font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+                text: "100°"
+            }
             Row {
                 id: row
                 anchors.centerIn: parent
@@ -77,6 +82,8 @@ PluginComponent {
                     font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
                     color: root.temp >= 80 ? Theme.error : Theme.surfaceVariantText
                     anchors.verticalCenter: parent.verticalCenter
+                    horizontalAlignment: Text.AlignRight
+                    width: tbase.width
                 }
             }
         }
