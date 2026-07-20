@@ -4,22 +4,28 @@ set -u
 command -v dms >/dev/null || { echo "dms not installed" >&2; exit 1; }
 pdir="$HOME/.config/DankMaterialShell/plugins"
 
-# registry install name -> installed directory name
+have_docker() { command -v docker >/dev/null || command -v podman >/dev/null; }
+hass_configured() {
+    python3 -c "import json,os,sys; d=json.load(open(os.path.expanduser('~/.config/DankMaterialShell/plugin_settings.json'))); sys.exit(0 if d.get('homeAssistantMonitor',{}).get('hassUrl') else 1)" 2>/dev/null
+}
+
+# registry install name -> installed directory name. hass installed everywhere
+# (so it can be configured), docker only where a runtime exists
 declare -A REGISTRY=(
     [Calculator]=calculator
     [emojiLauncher]=emojiLauncher
-    [dockerManager]=dockerManager
     [homeAssistantMonitor]=homeAssistantMonitor
 )
+have_docker && REGISTRY[dockerManager]=dockerManager
 # non-registry plugins: installed dir -> git repo
 declare -A GIT=(
     [claudeCodeUsage]=https://github.com/titeya/dms-claudecode.git
 )
-# plugin ids to enable (netspeed/gpumon/diskmon ship in this repo)
-ENABLE=(netspeed diskmon calculator emojiLauncher claudeCodeUsage
-        dockerManager homeAssistantMonitor)
-# gpumon needs nvidia-smi; harmless to enable elsewhere (self-hides)
+# enable per relevance: gpu->nvidia, docker->runtime, hass->configured
+ENABLE=(netspeed diskmon calculator emojiLauncher claudeCodeUsage)
 command -v nvidia-smi >/dev/null && ENABLE+=(gpumon)
+have_docker && ENABLE+=(dockerManager)
+hass_configured && ENABLE+=(homeAssistantMonitor)
 
 for reg in "${!REGISTRY[@]}"; do
     [ -d "$pdir/${REGISTRY[$reg]}" ] || dms plugins install "$reg" 2>&1 | tail -1
