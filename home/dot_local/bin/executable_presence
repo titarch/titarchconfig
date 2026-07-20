@@ -36,11 +36,31 @@ stop() {
     echo "presence: OFF"
 }
 
+# auto-enable while a call app is running. Edge-triggered: acts only when an app
+# starts (->on) or the last one exits (->off), so a manual toggle in between
+# is respected. Manual on/off always work regardless.
+watch() {
+    command -v slack >/dev/null || command -v teams-for-linux >/dev/null || exit 0
+    local prev="" cur
+    while :; do
+        pgrep -x 'slack|teams-for-linux' >/dev/null 2>&1 && cur=on || cur=off
+        if [ "$cur" != "$prev" ]; then
+            # first poll: only act if an app is already up, else just seed
+            if [ -n "$prev" ] || [ "$cur" = on ]; then
+                [ "$cur" = on ] && start || stop
+            fi
+            prev="$cur"
+        fi
+        sleep 5
+    done
+}
+
 case "${1:-toggle}" in
     on)     start ;;
     off)    stop ;;
     toggle) if running; then stop; else start; fi ;;
+    watch)  watch ;;
     status) if running; then echo "presence: ON"; else echo "presence: OFF"; fi
             dms ipc call inhibit status 2>/dev/null ;;
-    *)      echo "usage: presence [on|off|toggle|status]" >&2; exit 2 ;;
+    *)      echo "usage: presence [on|off|toggle|watch|status]" >&2; exit 2 ;;
 esac

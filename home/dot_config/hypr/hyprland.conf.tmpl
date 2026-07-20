@@ -38,6 +38,8 @@ exec-once = wl-paste --type image --watch cliphist store
 exec-once = fcitx5 -d
 # random cursor accent at login, drifts to the next every 20min
 exec-once = ~/.local/bin/cursor-drift daemon
+# prevent idle/lock while call apps run (self-gates if not installed)
+exec-once = ~/.local/bin/presence watch
 {{- if .features.streaming }}
 exec-once = ~/.local/bin/stream init-virt
 {{- end }}
