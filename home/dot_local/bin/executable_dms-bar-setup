@@ -29,6 +29,9 @@ for c in d.get("barConfigs", []):
     if glob.glob("/sys/class/power_supply/BAT*") and "battery" not in rw:
         i = rw.index("controlCenterButton") if "controlCenterButton" in rw else len(rw)
         rw.insert(i, "battery")
+    if "systemUpdate" not in rw:
+        i = rw.index("controlCenterButton") if "controlCenterButton" in rw else len(rw)
+        rw.insert(i, "systemUpdate")
     c["rightWidgets"] = rw
     print("bar widgets:", rw)
 json.dump(d, open(p, "w"), indent=2)
