@@ -122,13 +122,13 @@ PluginComponent {
                     }
                     Rectangle {
                         width: parent.width
-                        height: 6
-                        radius: 3
-                        color: Theme.surfaceVariantAlpha
+                        height: 10
+                        radius: 5
+                        color: Theme.surfaceVariant
                         Rectangle {
-                            width: parent.width * Math.max(0, Math.min(1, modelData.val / modelData.max))
+                            width: parent.width * Math.max(0.02, Math.min(1, modelData.val / modelData.max))
                             height: parent.height
-                            radius: 3
+                            radius: 5
                             color: Theme.primary
                         }
                     }

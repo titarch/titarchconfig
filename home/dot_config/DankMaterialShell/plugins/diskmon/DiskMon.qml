@@ -89,14 +89,16 @@ PluginComponent {
                     }
                     Rectangle {
                         width: parent.width
-                        height: 6
-                        radius: 3
-                        color: Theme.surfaceVariantAlpha
+                        height: 10
+                        radius: 5
+                        color: Theme.surfaceVariant
                         Rectangle {
-                            width: parent.width * Math.max(0, Math.min(1, root.pctNum(modelData) / 100))
+                            property real pct: root.pctNum(modelData)
+                            width: parent.width * Math.max(0.02, Math.min(1, pct / 100))
                             height: parent.height
-                            radius: 3
-                            color: root.pctNum(modelData) >= 90 ? Theme.error : Theme.primary
+                            radius: 5
+                            // green (low) -> red (full): hue 120 down to 0
+                            color: Qt.hsva((120 * (1 - pct / 100)) / 360, 0.55, 0.9, 1)
                         }
                     }
                 }
