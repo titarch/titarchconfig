@@ -239,5 +239,10 @@ windowrule = float on, match:title ^(float-.*)
 windowrule = float on, match:title ^(sfml-.*)
 # maximize requests are meaningless when tiling (firefox titlebar dblclick)
 windowrule = suppress_event maximize, match:class .*
+{{- if .features.fancyFx }}
+# blur the bar and panels (layer surfaces, window blur does not cover them)
+layerrule = blur on, match:namespace ^(dms:).*
+layerrule = ignore_alpha 0.3, match:namespace ^(dms:).*
+{{- end }}
 windowrule = fullscreen on, match:class ^(com\.moonlight_stream\.Moonlight)$
 
