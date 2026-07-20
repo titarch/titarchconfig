@@ -26,17 +26,15 @@ for c in d.get("barConfigs", []):
     # bar background scroll misfires with hovered vs focused screen (dms
     # 1.5.2), widget scroll still works; retry after dms updates
     c["scrollEnabled"] = False
-    rw = [w for w in c.get("rightWidgets", []) if w != "netspeed"]
-    rw.insert(0, "netspeed")
-    if "idleInhibitor" not in rw:
-        i = rw.index("notificationButton") if "notificationButton" in rw else len(rw)
-        rw.insert(i, "idleInhibitor")
-    if glob.glob("/sys/class/power_supply/BAT*") and "battery" not in rw:
-        i = rw.index("controlCenterButton") if "controlCenterButton" in rw else len(rw)
-        rw.insert(i, "battery")
-    if "systemUpdate" not in rw:
-        i = rw.index("controlCenterButton") if "controlCenterButton" in rw else len(rw)
-        rw.insert(i, "systemUpdate")
+    # canonical right side: net + system-monitor cluster (cpu/gpu/mem/disk
+    # grouped), then status/action icons. battery only on machines with one
+    mons = ["cpuUsage", "cpuTemp", "gpuTemp", "memUsage", "diskUsage"]
+    rw = ["netspeed"] + mons + ["systemTray", "clipboard",
+          "privacyIndicator", "idleInhibitor", "notificationButton",
+          "systemUpdate"]
+    if glob.glob("/sys/class/power_supply/BAT*"):
+        rw.append("battery")
+    rw.append("controlCenterButton")
     c["rightWidgets"] = rw
     print("bar widgets:", rw)
 json.dump(d, open(p, "w"), indent=2)
