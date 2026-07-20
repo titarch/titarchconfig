@@ -8,21 +8,25 @@ import qs.Widgets
 PluginComponent {
     id: root
 
-    function fmtGiB(kb) {
-        return (kb / 1048576).toFixed(0);
+    // dgop diskmounts objects: {device, mount, fstype, size, used, avail, percent}
+    // all human-readable strings, e.g. percent "76%", size "1.7T"
+    function pctNum(m) {
+        return m && m.percent ? parseInt(String(m.percent).replace("%", "")) || 0 : 0;
     }
-    // dgop diskMounts: {mount, percent, used, total} (used/total in KB)
     function rootMount() {
         const m = DgopService.diskMounts || [];
         return m.find(x => x.mount === "/") || m[0] || null;
     }
-    // real mounts only: skip pseudo/huge network fs (gcsfuse reports petabytes)
+    // real local filesystems only (drop fuse/gcsfuse, tmpfs, efivars, overlay)
     function realMounts() {
-        return (DgopService.diskMounts || []).filter(x => x.total > 0 && x.total < 1e11);
+        return (DgopService.diskMounts || []).filter(x => {
+            const fs = String(x.fstype || "");
+            return !/^(fuse|tmpfs|devtmpfs|overlay|squashfs|efivarfs|ramfs)/.test(fs);
+        });
     }
 
-    Component.onCompleted: DgopService.addRef(["disk"])
-    Component.onDestruction: DgopService.removeRef(["disk"])
+    Component.onCompleted: DgopService.addRef(["diskmounts"])
+    Component.onDestruction: DgopService.removeRef(["diskmounts"])
 
     horizontalBarPill: Component {
         Item {
@@ -39,9 +43,9 @@ PluginComponent {
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 StyledText {
-                    text: (root.rootMount()?.percent ?? 0).toFixed(0) + "%"
+                    text: root.pctNum(root.rootMount()) + "%"
                     font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                    color: (root.rootMount()?.percent ?? 0) >= 90 ? Theme.error : Theme.widgetTextColor
+                    color: root.pctNum(root.rootMount()) >= 90 ? Theme.error : Theme.widgetTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -76,7 +80,7 @@ PluginComponent {
                             elide: Text.ElideMiddle
                         }
                         StyledText {
-                            text: root.fmtGiB(modelData.used) + " / " + root.fmtGiB(modelData.total) + " GiB"
+                            text: (modelData.used || "?") + " / " + (modelData.size || "?")
                             font.pixelSize: Theme.fontSizeMedium
                             color: Theme.surfaceVariantText
                             horizontalAlignment: Text.AlignRight
@@ -89,10 +93,10 @@ PluginComponent {
                         radius: 3
                         color: Theme.surfaceVariantAlpha
                         Rectangle {
-                            width: parent.width * Math.max(0, Math.min(1, (modelData.percent || 0) / 100))
+                            width: parent.width * Math.max(0, Math.min(1, root.pctNum(modelData) / 100))
                             height: parent.height
                             radius: 3
-                            color: (modelData.percent || 0) >= 90 ? Theme.error : Theme.primary
+                            color: root.pctNum(modelData) >= 90 ? Theme.error : Theme.primary
                         }
                     }
                 }
