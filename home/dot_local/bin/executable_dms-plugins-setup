@@ -9,7 +9,9 @@ declare -A REGISTRY=(
     [emojiLauncher]=emojiLauncher
 )
 # plugin ids to enable (netspeed ships in this repo)
-ENABLE=(netspeed calculator emojiLauncher)
+ENABLE=(netspeed diskmon calculator emojiLauncher)
+# gpumon needs nvidia-smi; harmless to enable elsewhere (self-hides)
+command -v nvidia-smi >/dev/null && ENABLE+=(gpumon)
 
 for reg in "${!REGISTRY[@]}"; do
     dir="$HOME/.config/DankMaterialShell/plugins/${REGISTRY[$reg]}"

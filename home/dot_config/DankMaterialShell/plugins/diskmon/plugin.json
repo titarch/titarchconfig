@@ -1,0 +1,9 @@
+{
+  "id": "diskmon",
+  "name": "DiskMon",
+  "version": "1.0.0",
+  "author": "bparsy",
+  "description": "Disk usage with a per-mount breakdown panel and a launch button for gdu",
+  "type": "widget",
+  "component": "DiskMon.qml"
+}

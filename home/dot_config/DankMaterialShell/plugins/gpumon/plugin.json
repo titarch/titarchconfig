@@ -1,0 +1,9 @@
+{
+  "id": "gpumon",
+  "name": "GpuMon",
+  "version": "1.0.0",
+  "author": "bparsy",
+  "description": "Nvidia GPU usage + temp in the bar, click for VRAM/power/clock detail",
+  "type": "widget",
+  "component": "GpuMon.qml"
+}

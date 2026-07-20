@@ -28,7 +28,9 @@ for c in d.get("barConfigs", []):
     c["scrollEnabled"] = False
     # canonical right side: net + system-monitor cluster (cpu/gpu/mem/disk
     # grouped), then status/action icons. battery only on machines with one
-    mons = ["cpuUsage", "cpuTemp", "gpuTemp", "memUsage", "diskUsage"]
+    import shutil
+    gpu = "gpumon" if shutil.which("nvidia-smi") else "gpuTemp"
+    mons = ["cpuUsage", "cpuTemp", gpu, "memUsage", "diskmon"]
     rw = ["netspeed"] + mons + ["systemTray", "clipboard",
           "privacyIndicator", "idleInhibitor", "notificationButton",
           "systemUpdate"]
