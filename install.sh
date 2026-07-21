@@ -31,7 +31,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         grim slurp satty greetd hypridle ydotool fcitx5-im fcitx5-mozc kitty \
         pipewire wireplumber pipewire-pulse pipewire-alsa \
         networkmanager brightnessctl moonlight-qt playerctl pavucontrol thunar tumbler chezmoi jq otf-fira-sans \
-        otf-fira-mono ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
+        otf-fira-mono ttf-fira-code ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
         feh vlc chromium qrencode wtype xclip libqalculate \
         papirus-icon-theme qt6ct pamixer acpi htop iotop tig sysstat bc \
         alsa-utils pacman-contrib zoxide fzf atuin eza upower power-profiles-daemon
