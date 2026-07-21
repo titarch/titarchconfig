@@ -9,6 +9,9 @@ repo="$(dirname "$(chezmoi source-path)")"
 git -C "$repo" pull --ff-only
 chezmoi apply
 
+# install any newly-added neovim plugins (no-op when all present)
+command -v nvim >/dev/null && nvim --headless "+Lazy! install" +qa >/dev/null 2>&1 || true
+
 # session-side, skipped over ssh without a compositor or before first login
 if command -v dms >/dev/null && ls "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr" >/dev/null 2>&1; then
     export HYPRLAND_INSTANCE_SIGNATURE="${HYPRLAND_INSTANCE_SIGNATURE:-$(ls -t "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr" | head -1)}"

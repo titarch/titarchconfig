@@ -19,7 +19,7 @@ fi
 read -p "Install core packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S git gvim curl zsh openssh python python-pip
+    sudo pacman -S git neovim curl zsh openssh python python-pip
     [ $? -ne 0 ] && exit 1
 fi
 
@@ -34,7 +34,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         otf-fira-mono ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
         feh vlc chromium qrencode wtype xclip libqalculate \
         papirus-icon-theme qt6ct pamixer acpi htop iotop tig sysstat bc \
-        alsa-utils pacman-contrib zoxide fzf upower power-profiles-daemon
+        alsa-utils pacman-contrib zoxide fzf atuin eza upower power-profiles-daemon
     [ $? -ne 0 ] && exit 1
 fi
 
@@ -90,13 +90,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone https://github.com/superbrothers/zsh-kubectl-prompt.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-kubectl-prompt
     git clone https://github.com/hanjunlee/terragrunt-oh-my-zsh-plugin ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/terragrunt
+    git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-tab
     [ $? -ne 0 ] && exit 5
-fi
-
-read -p "Install vundle? " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 fi
 
 read -p "Deploy dotfiles with chezmoi? " -n 1 -r
@@ -106,6 +101,13 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     # Prompts for per-machine data (primary monitor, feature flags) on first
     # run; values land in ~/.config/chezmoi/chezmoi.toml. See home/.chezmoi.toml.tmpl.
     chezmoi init --apply --source "$PWD"
+fi
+
+read -p "Bootstrap neovim plugins (needs init.lua deployed above)? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # lazy.nvim self-installs from init.lua, then clones every plugin
+    nvim --headless "+Lazy! sync" +qa
 fi
 
 read -p "Install Sunshine system files (streaming machines only)? " -n 1 -r
