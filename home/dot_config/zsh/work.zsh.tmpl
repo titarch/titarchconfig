@@ -16,3 +16,8 @@ alias krr='kubectl rollout restart'
 alias krrd='kubectl rollout restart deployment'
 alias estag='export $(xargs <envs/staging.env) REDIS_PORT=6380'
 alias wcelery='watchmedo auto-restart --directory=./ --pattern="*.py" --recursive -- celery'
+
+# red PROD marker in the prompt while a prod cluster context is active. kprod
+# touches ~/.prod; ktest/kstag/kdemo remove it. relies on prompt_subst (on).
+_prod_prompt() { [[ -f "$HOME/.prod" ]] && print -n '%K{red}%F{white} PROD %f%k '; }
+RPROMPT='$(_prod_prompt)'"$RPROMPT"
