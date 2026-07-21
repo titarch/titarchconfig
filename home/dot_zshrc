@@ -46,8 +46,9 @@ ZSH_THEME="dracula"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-# zsh-syntax-highlighting must be last (omz requirement)
-plugins=(cp git docker pip python sudo systemd autoswitch_virtualenv zsh-completions zsh-autosuggestions kubectl minikube history zsh-kubectl-prompt terraform terragrunt zoxide fzf uv deno zsh-syntax-highlighting)
+# order matters at the tail: fzf-tab after fzf (it rebinds Tab), then the
+# widget-wrappers zsh-autosuggestions and zsh-syntax-highlighting last
+plugins=(cp git docker pip python sudo systemd autoswitch_virtualenv zsh-completions kubectl minikube history zsh-kubectl-prompt terraform terragrunt zoxide uv deno fzf fzf-tab zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -192,6 +193,12 @@ alias kdelpf='kdelp --field-selector=status.phase==Failed'
 alias kdelpa='kdelps && kdelpf'
 alias watcha='watch -n 1 '
 alias lsgpu='nvidia-smi'
+# eza replaces ls/ll/la when installed (icons/git-status only in a real tty)
+if command -v eza >/dev/null; then
+    alias ls='eza --group-directories-first'
+    alias ll='eza -lh --group-directories-first --git --icons=auto'
+    alias la='eza -lah --group-directories-first --git --icons=auto'
+fi
 
 alias '??'='/home/bparsy/Scripts/suggest.sh'
 
@@ -222,3 +229,11 @@ command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# fzf-tab: switch result groups with , / . and preview dirs when cd-completing
+zstyle ':fzf-tab:*' switch-group ',' '.'
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath 2>/dev/null || ls -1 $realpath'
+
+# atuin owns ctrl-r (full-text search over all history); keep up-arrow as the
+# plain zsh default. loaded last so its ^R binding wins over the fzf plugin's.
+command -v atuin >/dev/null && eval "$(atuin init zsh --disable-up-arrow)"

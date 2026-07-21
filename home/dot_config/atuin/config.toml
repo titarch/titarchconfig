@@ -1,0 +1,7 @@
+# atuin: ctrl-r history search. https://docs.atuin.sh/configuration/config/
+# put the selected command on the line for review instead of running it right
+# away (matches zsh hist_verify)
+enter_accept = false
+# search all history regardless of dir/session by default (revisit old problems)
+filter_mode = "global"
+style = "compact"
