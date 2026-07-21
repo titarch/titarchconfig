@@ -1,0 +1,6 @@
+[Unit]
+Description=Back up zsh history (dedup'd union archive + rotated snapshots)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/zsh-history-backup

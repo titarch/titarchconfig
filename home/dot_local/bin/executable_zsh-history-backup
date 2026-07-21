@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# zsh-history-backup: guard the zsh history against truncation/corruption.
+# keeps a dedup'd union archive that only ever grows (so a truncated live
+# history can never lose old entries) plus a few rotated daily snapshots.
+# run by a systemd user timer. restore with: cp <archive> ~/.zsh_history
+set -u
+HIST="${HISTFILE:-$HOME/.zsh_history}"
+DIR="${XDG_STATE_HOME:-$HOME/.local/state}/zsh"
+ARCHIVE="$DIR/history-archive"
+SNAPDIR="$DIR/history-snapshots"
+KEEP=14
+
+[ -f "$HIST" ] || exit 0
+mkdir -p "$SNAPDIR"
+
+# union archive: every unique history ENTRY ever seen, archive order preserved
+# and new entries appended. never shrinks, so a truncated live history loses
+# nothing. dedup at entry (not line) granularity so multi-line commands, whose
+# continuation lines may repeat across commands, are never corrupted.
+tmp="$(mktemp "$DIR/.archive.XXXXXX")"
+cat "$ARCHIVE" "$HIST" 2>/dev/null | awk '
+    function flush() { if (e != "" && !(e in seen)) { seen[e] = 1; printf "%s", e } }
+    /^: [0-9]+:[0-9]+;/ { flush(); e = $0 "\n"; next }   # new extended-history entry
+    { e = e $0 "\n" }                                    # continuation line
+    END { flush() }
+' > "$tmp"
+mv -f "$tmp" "$ARCHIVE"
+
+# dated snapshot of the live file as a second, independent safety net
+gzip -c "$HIST" > "$SNAPDIR/zsh_history-$(date +%Y%m%d).gz"
+ls -1t "$SNAPDIR"/zsh_history-*.gz 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm -f
