@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# screenprivacy: hide sensitive UI while a screen is shared.
+#   - Do Not Disturb: no notification popups + redact notification content
+#   - now-playing widget removed from the bar (shows the track title/artist)
+#   - focused-window widget removed (shows the window title: browser tab,
+#     editor session name, etc. -- compact mode still leaks the title, so we
+#     drop the whole widget instead)
+# usage: screenprivacy on|off|toggle|watch|status
+# auto-triggered by xdg-desktop-portal screencasts. sunshine away-mode uses
+# wlr-screencopy (not the pipewire portal) so it does NOT trigger this.
+set -u
+STATE="${XDG_RUNTIME_DIR:-/tmp}"
+MARK="$STATE/screenprivacy-active"
+SETTINGS="$HOME/.config/DankMaterialShell/settings.json"
+# widgets to pull from the bar while sharing (they render sensitive text)
+HIDE_WIDGETS="music focusedWindow"
+
+setk() { dms ipc call settings set "$1" "$2" >/dev/null 2>&1; }
+
+# a real screen share = a pipewire Stream/Output/Video node exists.
+# cameras are Video/Source, so they never match.
+sharing() {
+    pw-dump 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if any('Stream/Output/Video' in str(n.get('info',{}).get('props',{}).get('media.class','')) for n in d) else 1)"
+}
+
+# These bar widgets have no live "hide" setting (showMusic/compactMode either
+# do nothing or still leak the title), so the only way to hide them live is to
+# drop them from the bar's widget lists. DMS watches settings.json and
+# re-renders on external edits. We stash each widget's side+index so off
+# restores it exactly, and only re-add ones we actually removed.
+widget_hide() { # $1 = widget name
+    python3 - "$SETTINGS" "$STATE/screenprivacy-w-$1" "$1" <<'PY'
+import json, sys
+sf, stf, name = sys.argv[1], sys.argv[2], sys.argv[3]
+d = json.load(open(sf)); bar = d["barConfigs"][0]
+for side in ("leftWidgets", "centerWidgets", "rightWidgets"):
+    lst = bar.get(side, [])
+    if name in lst:
+        i = lst.index(name)
+        open(stf, "w").write("%s:%d" % (side, i))
+        lst.pop(i)
+        json.dump(d, open(sf, "w"), indent=2)
+        break
+PY
+}
+widget_show() { # $1 = widget name
+    local stf="$STATE/screenprivacy-w-$1"
+    [ -f "$stf" ] || return 0
+    python3 - "$SETTINGS" "$stf" "$1" <<'PY'
+import json, sys
+sf, stf, name = sys.argv[1], sys.argv[2], sys.argv[3]
+side, i = open(stf).read().strip().split(":"); i = int(i)
+d = json.load(open(sf)); lst = d["barConfigs"][0].get(side, [])
+if name not in lst:
+    lst.insert(min(i, len(lst)), name)
+    json.dump(d, open(sf, "w"), indent=2)
+PY
+    rm -f "$stf"
+}
+
+on() {
+    [ -e "$MARK" ] && return 0
+    touch "$MARK"
+    # notify before DND, else the popup is suppressed by the DND we just set
+    notify-send "Screen privacy" "on: notifications, now-playing and window title hidden" 2>/dev/null || true
+    dms ipc call notifications enableDoNotDisturbIndefinitely >/dev/null 2>&1
+    setk notificationPopupPrivacyMode true
+    for w in $HIDE_WIDGETS; do widget_hide "$w"; done
+    echo "screenprivacy: ON"
+}
+off() {
+    [ -e "$MARK" ] || return 0
+    rm -f "$MARK"
+    dms ipc call notifications disableDoNotDisturb >/dev/null 2>&1
+    setk notificationPopupPrivacyMode false
+    for w in $HIDE_WIDGETS; do widget_show "$w"; done
+    notify-send "Screen privacy" "off" 2>/dev/null || true
+    echo "screenprivacy: OFF"
+}
+
+# edge-triggered so a manual toggle mid-session is respected; on startup,
+# reconcile once so the settings match reality (clears stale privacy left by
+# a crash, or arms it if a share is somehow already up).
+watch() {
+    command -v pw-dump >/dev/null || exit 0
+    local prev cur
+    sharing && cur=on || cur=off
+    if [ "$cur" = on ]; then on; else off; fi
+    prev="$cur"
+    while sleep 4; do
+        sharing && cur=on || cur=off
+        if [ "$cur" != "$prev" ]; then
+            # subprocess so on/off's exit never kills the watcher
+            "$0" "$cur" >/dev/null 2>&1
+            prev="$cur"
+        fi
+    done
+}
+
+case "${1:-toggle}" in
+    on)     on ;;
+    off)    off ;;
+    toggle) if [ -e "$MARK" ]; then off; else on; fi ;;
+    watch)  watch ;;
+    status) [ -e "$MARK" ] && echo "screenprivacy: ON" || echo "screenprivacy: OFF"
+            echo "sharing: $(sharing && echo yes || echo no)" ;;
+    *)      echo "usage: screenprivacy on|off|toggle|watch|status" >&2; exit 2 ;;
+esac

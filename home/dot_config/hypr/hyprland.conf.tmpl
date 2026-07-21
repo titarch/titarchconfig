@@ -40,6 +40,8 @@ exec-once = fcitx5 -d
 exec-once = ~/.local/bin/cursor-drift daemon
 # prevent idle/lock while call apps run (self-gates if not installed)
 exec-once = ~/.local/bin/presence watch
+# hide sensitive UI (notifications/now-playing/titles) while sharing a screen
+exec-once = ~/.local/bin/screenprivacy watch
 {{- if .features.streaming }}
 exec-once = ~/.local/bin/stream init-virt
 {{- end }}
@@ -143,6 +145,8 @@ bind = $mod SHIFT, S, exec, ~/.local/bin/stream toggle
 {{- end }}
 # toggle idle inhibition (mod+P)
 bind = $mod, P, exec, ~/.local/bin/presence toggle
+# toggle screen-share privacy (hide notifications/now-playing/titles)
+bind = $mod SHIFT, P, exec, ~/.local/bin/screenprivacy toggle
 bind = $mod, N, exec, dms ipc call notepad toggle
 # dock toggle disabled, dms 1.5.2 ignores dockPosition and shoves windows
 # from the top edge; retry after a dms update
