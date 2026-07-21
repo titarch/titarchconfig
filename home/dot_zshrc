@@ -46,7 +46,8 @@ ZSH_THEME="dracula"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(cp git docker pip python sudo systemd autoswitch_virtualenv zsh-syntax-highlighting zsh-completions zsh-autosuggestions kubectl aws minikube history web-search zsh-kubectl-prompt terraform terragrunt zoxide fzf uv deno)
+# zsh-syntax-highlighting must be last (omz requirement)
+plugins=(cp git docker pip python sudo systemd autoswitch_virtualenv zsh-completions zsh-autosuggestions kubectl aws minikube history web-search zsh-kubectl-prompt terraform terragrunt zoxide fzf uv deno zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -56,8 +57,7 @@ zstyle ':completion:*:*:make:*' call-command true
 zstyle ':completion:*:*:make:*' use-cache on
 zstyle ':completion:*:*:make:*' cache-path ~/.cache/zsh/make
 
-autoload -Uz compinit
-compinit
+# omz already ran compinit in oh-my-zsh.sh above; no need to repeat it
 # Completion for kitty
 kitty + complete setup zsh | source /dev/stdin
 
@@ -165,23 +165,19 @@ zstyle ':completion:*:*:docker-*:*' option-stacking yes
 
 alias rm='rm -I'
 alias grep='grep --color -n'
-alias i3lock='i3lock -c 420042'
 alias p='vim -p'
 alias f='find -name'
 alias ccw='g++ -Wall -Werror -Wextra -pedantic -std=c++20'
 alias ccgdb='ccw -g'
 alias ccasan='ccgdb -fsanitize=address -lasan'
-alias fr='setxkbmap -option compose:menu'
 export PGDATA="$HOME/postgres_data"
 export PGHOST="/tmp"
 alias pgrun='postgres -k "$PGHOST"'
 alias eb='vim ~/.zshrc'
-alias ei='vim ~/.config/i3/config'
 alias sb='source ~/.zshrc'
 alias ebh='vim ~/.zsh_history'
 alias psh='pipenv shell'
 alias goodbye='systemctl poweroff'
-alias newalias='/home/bparsy/Scripts/newalias.sh'
 alias jn='jupyter notebook'
 alias makj='make -j8'
 alias nj='ninja'
@@ -189,8 +185,8 @@ alias cnj='cmake -G "Ninja"'
 alias cnjd='cnj -DCMAKE_BUILD_TYPE=Debug'
 alias cnjr='cnj -DCMAKE_BUILD_TYPE=Release'
 alias x='start-hyprland'
-alias setclip="xclip -selection c"
-alias getclip="xclip -selection c -o"
+alias setclip="wl-copy"
+alias getclip="wl-paste"
 alias kdelps='kdelp --field-selector=status.phase==Succeeded'
 alias kdelpf='kdelp --field-selector=status.phase==Failed'
 alias kdelpa='kdelps && kdelpf'
@@ -214,7 +210,6 @@ alias krrd='kubectl rollout restart deployment'
 alias estag='export $(xargs <envs/staging.env) REDIS_PORT=6380'
 alias wcelery='watchmedo auto-restart --directory=./ --pattern="*.py" --recursive -- celery'
 
-export SKIP_NIX_PATH=true
 export PATH=$PATH:/home/bparsy/SDKs/az/bin:/opt/cuda/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.local/share/gem/ruby/3.0.0/bin
 export CUDA_HOME=/opt/cuda
 if [ -f '/home/bparsy/SDKs/az/lib/az.completion' ]; then . '/home/bparsy/SDKs/az/lib/az.completion'; fi
