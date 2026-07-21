@@ -3,6 +3,13 @@
 {{- $streaming := promptBoolOnce . "features.streaming" "Deploy Sunshine streaming config" false -}}
 {{- $nvidia := promptBoolOnce . "features.nvidia" "Nvidia GPU (driver env vars)" false -}}
 {{- $fancyFx := promptBoolOnce . "features.fancyFx" "Costly visual effects (blur, shadows, animated border)" false -}}
+{{- $work := promptBoolOnce . "features.work" "Work machine (company kube/az/aws aliases)" false -}}
+{{- $ecrRegistry := "" -}}
+{{- $acrRegistry := "" -}}
+{{- if $work -}}
+{{-   $ecrRegistry = promptStringOnce . "work.ecrRegistry" "  Work ECR registry host (blank if n/a)" "" -}}
+{{-   $acrRegistry = promptStringOnce . "work.acrRegistry" "  Work ACR registry name (blank if n/a)" "" -}}
+{{- end -}}
 {{- $composeKey := promptStringOnce . "composeKey" "Compose key xkb option (rwin, menu, prsc, ralt)" "rwin" -}}
 {{- $capsSwap := promptBoolOnce . "capsSwapEscape" "Swap caps and escape in xkb (no if caps2esc handles it)" false -}}
 {{- $legacySource := joinPath .chezmoi.homeDir "titarchconfig" -}}
@@ -19,3 +26,8 @@ sourceDir = {{ $legacySource | quote }}
     streaming = {{ $streaming }}
     nvidia = {{ $nvidia }}
     fancyFx = {{ $fancyFx }}
+    work = {{ $work }}
+
+[data.work]
+    ecrRegistry = {{ $ecrRegistry | quote }}
+    acrRegistry = {{ $acrRegistry | quote }}

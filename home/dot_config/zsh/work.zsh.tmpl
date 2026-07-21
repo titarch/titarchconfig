@@ -1,0 +1,18 @@
+# work: company kube/az/aws aliases. gated by features.work in .chezmoiignore.
+# the two sensitive registry identifiers come from per-machine chezmoi data
+# (~/.config/chezmoi/chezmoi.toml [data.work]) so they stay out of the repo.
+alias akgc='az aks get-credentials'
+# ~/.prod marker + PROD flag mark a prod context (a prompt hook can read them)
+alias kprod='touch ~/.prod; export PROD=y; az aks get-credentials -g report -n report-prod'
+alias ktest='rm -f ~/.prod; export PROD=n; az aks get-credentials -g report -n report-testing'
+alias kstag='rm -f ~/.prod; export PROD=n; az aks get-credentials -g report -n report-staging'
+alias kdemo='rm -f ~/.prod; export PROD=n; az aks get-credentials -g report -n report-demo'
+alias kcatest='az aks get-credentials --resource-group cat --name cat-test'
+alias kdlog='az acr login --name {{ dig "work" "acrRegistry" "" . }}'
+alias kdloga='aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin {{ dig "work" "ecrRegistry" "" . }}'
+alias kgcert='kubectl get certificates'
+alias kdcert='kubectl describe certificates'
+alias krr='kubectl rollout restart'
+alias krrd='kubectl rollout restart deployment'
+alias estag='export $(xargs <envs/staging.env) REDIS_PORT=6380'
+alias wcelery='watchmedo auto-restart --directory=./ --pattern="*.py" --recursive -- celery'

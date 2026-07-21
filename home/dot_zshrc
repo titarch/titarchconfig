@@ -195,20 +195,9 @@ alias lsgpu='nvidia-smi'
 
 alias '??'='/home/bparsy/Scripts/suggest.sh'
 
-alias akgc='az aks get-credentials'
-alias kprod='export PS1="$PS1_PROD" PROD=y; touch ~/.prod; az aks get-credentials -g report -n report-prod'
-alias ktest='az aks get-credentials -g report -n report-testing && rm ~/.prod && export PS1="$PS1_ORIG" PROD=n'
-alias kstag='az aks get-credentials -g report -n report-staging && rm ~/.prod && export PS1="$PS1_ORIG" PROD=n'
-alias kdemo='az aks get-credentials -g report -n report-demo && rm ~/.prod && export PS1="$PS1_ORIG" PROD=n'
-alias kcatest='az aks get-credentials --resource-group cat --name cat-test'
-alias kdlog='az acr login --name caddieReportRegistry'
-alias kdloga='aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 328405603528.dkr.ecr.eu-west-2.amazonaws.com'
-alias kgcert='kubectl get certificates'
-alias kdcert='kubectl describe certificates'
-alias krr='kubectl rollout restart'
-alias krrd='kubectl rollout restart deployment'
-alias estag='export $(xargs <envs/staging.env) REDIS_PORT=6380'
-alias wcelery='watchmedo auto-restart --directory=./ --pattern="*.py" --recursive -- celery'
+# work aliases (company kube/az/aws) live in a gated fragment; see
+# .chezmoiignore + the features.work flag in .chezmoi.toml.tmpl
+[[ -r ~/.config/zsh/work.zsh ]] && source ~/.config/zsh/work.zsh
 
 export PATH=$PATH:/home/bparsy/SDKs/az/bin:/opt/cuda/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.local/share/gem/ruby/3.0.0/bin
 export CUDA_HOME=/opt/cuda

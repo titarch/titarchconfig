@@ -2,6 +2,9 @@
 **/__pycache__
 
 # feature flags come from ~/.config/chezmoi/chezmoi.toml [data]
+{{ if not (dig "features" "work" false .) }}
+.config/zsh/work.zsh
+{{ end }}
 {{ if not .features.streaming }}
 .config/stream/**
 .config/sunshine/**
