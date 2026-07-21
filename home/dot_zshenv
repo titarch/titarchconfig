@@ -1,5 +1,22 @@
-# read by every zsh unlike zshrc; .local/bin first or imagemagick's
-# /usr/bin/stream shadows the streaming script
+# read by every zsh unlike zshrc
+typeset -U path PATH   # collapse duplicate PATH entries automatically
+
+# .local/bin first or imagemagick's /usr/bin/stream shadows the streaming script
 export PATH="$HOME/.local/bin:$PATH"
+
 # gpg-agent does ssh, guard keeps ssh -A forwarding intact
 export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-${XDG_RUNTIME_DIR:-/run/user/$UID}/gnupg/S.gpg-agent.ssh}"
+
+# nix: keep the user profile (~/.nix-profile, where the company-approved git
+# 2.34.1 etc. live) OFF the global PATH so system binaries win everywhere. Work
+# dirs opt back in per-project via direnv (PATH_add ~/.nix-profile/bin). The
+# nix CLI stays available via the Arch package in /usr/bin. Self-healing:
+# strips the profile even when a stale graphical session leaked it at login, so
+# the nix package rewriting /etc/profile.d/nix-daemon.sh on updates can no
+# longer force it back globally.
+if [ -d "$HOME/.nix-profile" ]; then
+    path=(${path:#$HOME/.nix-profile/bin})
+    export NIX_PROFILES="/nix/var/nix/profiles/default $HOME/.nix-profile"
+    [ -e /etc/ssl/certs/ca-certificates.crt ] && \
+        export NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+fi

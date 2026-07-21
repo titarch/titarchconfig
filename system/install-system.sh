@@ -33,4 +33,15 @@ if [ -d /usr/lib/firefox ]; then
     fi
 fi
 
+if command -v nix >/dev/null 2>&1 || [ -e /etc/profile.d/nix-daemon.sh ]; then
+    # the nix package rewrites /etc/profile.d/nix-daemon.sh on every update,
+    # re-adding the global ~/.nix-profile/bin PATH prepend. NoExtract tells
+    # pacman to never write that file again; zshenv sets the nix env we want.
+    read -p "nix: stop pacman restoring the global PATH prepend on updates? " -n 1 -r; echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        grep -q 'etc/profile.d/nix-daemon.sh' /etc/pacman.conf \
+            || sed -i '/^\[options\]/a NoExtract = etc/profile.d/nix-daemon.sh' /etc/pacman.conf
+    fi
+fi
+
 echo "done"
