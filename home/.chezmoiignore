@@ -1,3 +1,6 @@
+# never deploy python bytecode caches that appear next to bin scripts
+**/__pycache__
+
 # feature flags come from ~/.config/chezmoi/chezmoi.toml [data]
 {{ if not .features.streaming }}
 .config/stream/**

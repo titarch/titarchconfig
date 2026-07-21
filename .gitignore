@@ -1,5 +1,9 @@
 /_legacy/
 /sunshine/
+
+# python bytecode caches (ws-move etc. are python scripts)
+__pycache__/
+*.py[cod]
 /home/dot_config/DankMaterialShell/plugins/claudeCodeUsage/
 /home/dot_config/DankMaterialShell/plugins/dockerManager/
 /home/dot_config/DankMaterialShell/plugins/homeAssistantMonitor/
