@@ -12,7 +12,7 @@ HISTSIZE=999999999          # keep everything, never trim (see zsh-history-backu
 SAVEHIST=$HISTSIZE
 
 # --- environment ---
-export EDITOR='vim'
+export EDITOR='nvim'
 export RPROMPT='%{$fg[blue]%}($ZSH_KUBECTL_PROMPT)%{$reset_color%}'
 export PATH="$PATH:$HOME/SDKs/az/bin:/opt/cuda/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.local/share/gem/ruby/3.0.0/bin"
 export CUDA_HOME=/opt/cuda
@@ -125,6 +125,7 @@ grb-list() {
 # --- aliases ---
 alias rm='rm -I'
 alias grep='grep --color -n'
+alias vim='nvim'          # real vim still reachable via \vim or `command vim`
 alias p='vim -p'
 alias f='find -name'
 alias watcha='watch -n 1 '
