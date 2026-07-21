@@ -1,0 +1,7 @@
+# use_nix_tools: opt this project into the nix user profile, so the
+# company-approved tool versions (git 2.34.1 etc.) win here only. zshenv keeps
+# ~/.nix-profile off the global PATH; this is the per-project opt-in.
+# Usage: put `use_nix_tools` in the project's .envrc, then `direnv allow`.
+use_nix_tools() {
+    PATH_add "$HOME/.nix-profile/bin"
+}
