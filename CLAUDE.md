@@ -74,3 +74,10 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   with `zsh -n`, not bash.
 - Known upstream bug: hyprland may segfault in CGroup::remove when a
   grouped window dies (crash report in ~/.cache/hyprland/).
+- DO NOT enable HDR / 10-bit on grodarch: an HDR modeset (`cm, hdr` +
+  `bitdepth, 10`) hard-wedges the nvidia-open 610 display engine
+  ("nvidia-modeset: Error while waiting for GPU progress", modeset task
+  stuck in D-state holding a semaphore, Hyprland unkillable, reboot-only).
+  Known open-module + GSP hang class; proprietary module + GSP-off is the
+  only workaround and is not a confirmed HDR fix. Revisit on a newer driver.
+  For HDR video, tone-map instead (mpv --vo=gpu-next), never real HDR out.
