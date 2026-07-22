@@ -14,6 +14,5 @@ clone zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighti
 clone autoswitch_virtualenv   https://github.com/MichaelAquilina/zsh-autoswitch-virtualenv.git
 clone zsh-completions         https://github.com/zsh-users/zsh-completions
 clone zsh-autosuggestions     https://github.com/zsh-users/zsh-autosuggestions
-clone zsh-kubectl-prompt      https://github.com/superbrothers/zsh-kubectl-prompt.git
 clone terragrunt              https://github.com/hanjunlee/terragrunt-oh-my-zsh-plugin
 clone fzf-tab                 https://github.com/Aloxaf/fzf-tab

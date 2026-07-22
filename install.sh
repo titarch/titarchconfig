@@ -34,7 +34,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         otf-fira-mono ttf-fira-code inter-font ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
         feh vlc chromium qrencode wtype xclip libqalculate \
         papirus-icon-theme qt6ct pamixer acpi htop iotop tig sysstat bc \
-        alsa-utils pacman-contrib zoxide fzf atuin eza upower power-profiles-daemon
+        alsa-utils pacman-contrib zoxide fzf atuin eza starship upower power-profiles-daemon
     [ $? -ne 0 ] && exit 1
 fi
 
