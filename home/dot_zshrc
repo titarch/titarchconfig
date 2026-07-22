@@ -16,6 +16,7 @@ SAVEHIST=$HISTSIZE
 
 # --- environment ---
 export EDITOR='nvim'
+export GPG_TTY=$TTY      # let gpg-agent attach its pinentry (commit signing)
 export PATH="$PATH:$HOME/SDKs/az/bin:/opt/cuda/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.local/share/gem/ruby/3.0.0/bin"
 export CUDA_HOME=/opt/cuda
 export PGDATA="$HOME/postgres_data"
