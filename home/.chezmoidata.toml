@@ -15,3 +15,32 @@ primary = true
 wayland = "DP-1"
 mode = "2560x1440@144"
 pos = "5120x0"
+
+# Dracula palette: single source of truth for the kitty, hypr and DMS themes.
+# https://spec.draculatheme.com/. Two hypr exceptions stay inline on purpose:
+# the window-border gradient (muted purples, less distracting) and the shadow.
+[dracula]
+bg           = "#282a36"
+bgDark       = "#21222c"   # ANSI black / DMS container lowest
+currentLine  = "#44475a"   # selection bg / DMS surfaceVariant
+fg           = "#f8f8f2"
+comment      = "#6272a4"   # ANSI bright-black / DMS outline
+white        = "#ffffff"
+cyan         = "#8be9fd"
+cyanBright   = "#a4ffff"
+green        = "#50fa7b"
+greenBright  = "#69ff94"
+yellow       = "#f1fa8c"
+yellowBright = "#ffffa5"
+red          = "#ff5555"
+redBright    = "#ff6e6e"
+pink         = "#ff79c6"
+pinkBright   = "#ff92df"
+purple       = "#bd93f9"
+purpleBright = "#d6acff"
+purpleDim    = "#503d80"   # DMS primaryContainer / hypr groupbar active
+surfaceVariantText = "#bfc5e0"
+surfaceLow         = "#262834"
+surface            = "#2b2d3a"
+surfaceHigh        = "#313445"
+surfaceHighest     = "#3b3e52"

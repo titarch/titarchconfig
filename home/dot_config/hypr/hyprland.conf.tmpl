@@ -68,8 +68,9 @@ general {
     gaps_in = 4
     gaps_out = 8
     border_size = 2
+    # muted purples on purpose (the true dracula accents are too distracting here)
     col.active_border = rgb(a184d6) rgb(d673ab) 45deg
-    col.inactive_border = rgb(44475a)
+    col.inactive_border = rgb({{ trimPrefix "#" .dracula.currentLine }})
     layout = dwindle
 }
 decoration {
@@ -91,12 +92,12 @@ dwindle {
     preserve_split = true
 }
 group {
-    col.border_active = rgb(ff79c6) rgb(bd93f9) 45deg
-    col.border_inactive = rgb(44475a)
+    col.border_active = rgb({{ trimPrefix "#" .dracula.pink }}) rgb({{ trimPrefix "#" .dracula.purple }}) 45deg
+    col.border_inactive = rgb({{ trimPrefix "#" .dracula.currentLine }})
     groupbar {
-        col.active = rgb(503d80)
-        col.inactive = rgb(282a36)
-        text_color = rgb(f8f8f2)
+        col.active = rgb({{ trimPrefix "#" .dracula.purpleDim }})
+        col.inactive = rgb({{ trimPrefix "#" .dracula.bg }})
+        text_color = rgb({{ trimPrefix "#" .dracula.fg }})
     }
 }
 misc {

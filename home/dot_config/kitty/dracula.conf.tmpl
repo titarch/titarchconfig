@@ -1,0 +1,54 @@
+# Dracula theme for kitty — colors from .chezmoidata.toml [dracula]
+
+foreground            {{ .dracula.fg }}
+background            {{ .dracula.bg }}
+selection_foreground  {{ .dracula.white }}
+selection_background  {{ .dracula.currentLine }}
+
+url_color {{ .dracula.cyan }}
+
+# black
+color0  {{ .dracula.bgDark }}
+color8  {{ .dracula.comment }}
+
+# red
+color1  {{ .dracula.red }}
+color9  {{ .dracula.redBright }}
+
+# green
+color2  {{ .dracula.green }}
+color10 {{ .dracula.greenBright }}
+
+# yellow
+color3  {{ .dracula.yellow }}
+color11 {{ .dracula.yellowBright }}
+
+# blue
+color4  {{ .dracula.purple }}
+color12 {{ .dracula.purpleBright }}
+
+# magenta
+color5  {{ .dracula.pink }}
+color13 {{ .dracula.pinkBright }}
+
+# cyan
+color6  {{ .dracula.cyan }}
+color14 {{ .dracula.cyanBright }}
+
+# white
+color7  {{ .dracula.fg }}
+color15 {{ .dracula.white }}
+
+# Cursor colors
+cursor            {{ .dracula.fg }}
+cursor_text_color background
+
+# Tab bar colors
+active_tab_foreground   {{ .dracula.bg }}
+active_tab_background   {{ .dracula.fg }}
+inactive_tab_foreground {{ .dracula.bg }}
+inactive_tab_background {{ .dracula.comment }}
+
+# Marks
+mark1_foreground {{ .dracula.bg }}
+mark1_background {{ .dracula.red }}
