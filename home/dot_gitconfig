@@ -1,3 +1,11 @@
+# This config must stay compatible with the OLDEST git in use: the company-
+# pinned nix git 2.34.1 that work repos run via direnv (personal repos use
+# system git 2.55). When the pinned git is validated to a newer version,
+# re-enable the settings deferred for compatibility:
+#   [merge] conflictstyle = zdiff3   # needs git >= 2.35 (currently diff3)
+#   [core]  fsmonitor     = true     # needs git >= 2.37 builtin (currently removed)
+# rebase.updateRefs / push.autoSetupRemote below are already set and simply
+# start taking effect once the pinned git reaches 2.38 / 2.37.
 [user]
 	name = Baptiste Parsy
 	email = parsybaptiste@gmail.com
@@ -17,7 +25,8 @@
 [rerere]
 	enabled = 1
 [merge]
-	conflictstyle = zdiff3
+	# diff3 not zdiff3: the company-pinned nix git 2.34.1 predates zdiff3 (2.35)
+	conflictstyle = diff3
 [diff]
 	algorithm = histogram
 	colorMoved = default
@@ -33,7 +42,8 @@
 	gpgsign = false
 	verbose = true
 [core]
-	fsmonitor = true
+	# builtin fsmonitor is git 2.37+; the pinned nix git 2.34.1 warns on it.
+	# untrackedCache (2.8+) still speeds `git status` and works on both.
 	untrackedCache = true
 	pager = delta
 [interactive]
