@@ -26,6 +26,10 @@ style = "bold {{ .theme.yellow }}"
 symbol = "🐍 "
 style = "{{ .theme.green }}"
 format = '[${symbol}${virtualenv}]($style) '
+# show only when a virtualenv is active, never just because a .py file is around
+detect_extensions = []
+detect_files = []
+detect_folders = []
 
 # direnv loaded = a work project's pinned (nix) tools are active
 [direnv]
