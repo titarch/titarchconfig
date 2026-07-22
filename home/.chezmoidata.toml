@@ -16,10 +16,11 @@ wayland = "DP-1"
 mode = "2560x1440@144"
 pos = "5120x0"
 
-# Dracula palette: single source of truth for the kitty, hypr and DMS themes.
-# https://spec.draculatheme.com/. Two hypr exceptions stay inline on purpose:
-# the window-border gradient (muted purples, less distracting) and the shadow.
-[dracula]
+# Active theme palette (currently Dracula): single source of truth for the
+# kitty, hypr and DMS themes. Swap the desktop's colors by editing these values
+# only -- no template edits. Two hypr colors stay inline on purpose: the muted
+# window-border gradient (less distracting) and the shadow.
+[theme]
 bg           = "#282a36"
 bgDark       = "#21222c"   # ANSI black / DMS container lowest
 currentLine  = "#44475a"   # selection bg / DMS surfaceVariant
