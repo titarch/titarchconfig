@@ -2,18 +2,50 @@
 	name = Baptiste Parsy
 	email = parsybaptiste@gmail.com
 	signingkey = 11563A7142D25979
-[pull]
-	rebase = false
-[rerere]
-	enabled = 1
 [init]
 	defaultBranch = main
+[pull]
+	rebase = false
+[push]
+	autoSetupRemote = true
+[fetch]
+	prune = true
+[rebase]
+	autostash = true
+	autosquash = true
+	updateRefs = true
+[rerere]
+	enabled = 1
+[merge]
+	conflictstyle = zdiff3
+[diff]
+	algorithm = histogram
+	colorMoved = default
+[branch]
+	sort = -committerdate
+[tag]
+	sort = version:refname
+[column]
+	ui = auto
+[help]
+	autocorrect = prompt
+[commit]
+	gpgsign = false
+	verbose = true
+[core]
+	fsmonitor = true
+	untrackedCache = true
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	line-numbers = true
+	syntax-theme = Dracula
+[gpg]
+	program = gpg2
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
-[gpg]
-	program = gpg2
-[commit]
-	gpgsign = false

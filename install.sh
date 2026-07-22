@@ -19,7 +19,7 @@ fi
 read -p "Install core packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S git neovim curl zsh openssh python python-pip
+    sudo pacman -S git git-delta neovim curl zsh openssh python python-pip
     [ $? -ne 0 ] && exit 1
 fi
 
