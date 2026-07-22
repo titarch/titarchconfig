@@ -9,7 +9,8 @@ repo="$(dirname "$(chezmoi source-path)")"
 git -C "$repo" pull --ff-only
 chezmoi apply
 
-# install any newly-added neovim plugins (no-op when all present)
+# ensure oh-my-zsh custom plugins + newly-added neovim plugins are present
+~/.local/bin/zsh-plugins-setup >/dev/null 2>&1 || true
 command -v nvim >/dev/null && nvim --headless "+Lazy! install" +qa >/dev/null 2>&1 || true
 
 # session-side, skipped over ssh without a compositor or before first login

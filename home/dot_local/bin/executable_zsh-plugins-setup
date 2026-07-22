@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# ensure oh-my-zsh custom plugins are present (idempotent, clone if missing).
+# single source of truth for the custom-plugin list; called by install.sh on a
+# fresh machine and by config-sync so a newly-added plugin lands on every sync.
+set -u
+custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+[ -d "$custom" ] || exit 0   # no oh-my-zsh yet, nothing to do
+dest="$custom/plugins"
+mkdir -p "$dest"
+
+clone() { [ -d "$dest/$1" ] || git clone --depth=1 "$2" "$dest/$1"; }
+
+clone zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
+clone autoswitch_virtualenv   https://github.com/MichaelAquilina/zsh-autoswitch-virtualenv.git
+clone zsh-completions         https://github.com/zsh-users/zsh-completions
+clone zsh-autosuggestions     https://github.com/zsh-users/zsh-autosuggestions
+clone zsh-kubectl-prompt      https://github.com/superbrothers/zsh-kubectl-prompt.git
+clone terragrunt              https://github.com/hanjunlee/terragrunt-oh-my-zsh-plugin
+clone fzf-tab                 https://github.com/Aloxaf/fzf-tab

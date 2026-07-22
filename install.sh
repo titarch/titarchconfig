@@ -31,7 +31,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         grim slurp satty greetd hypridle ydotool fcitx5-im fcitx5-mozc kitty \
         pipewire wireplumber pipewire-pulse pipewire-alsa \
         networkmanager brightnessctl moonlight-qt playerctl pavucontrol thunar tumbler chezmoi jq otf-fira-sans \
-        otf-fira-mono ttf-fira-code ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
+        otf-fira-mono ttf-fira-code inter-font ttf-dejavu ttf-font-awesome awesome-terminal-fonts \
         feh vlc chromium qrencode wtype xclip libqalculate \
         papirus-icon-theme qt6ct pamixer acpi htop iotop tig sysstat bc \
         alsa-utils pacman-contrib zoxide fzf atuin eza upower power-profiles-daemon
@@ -84,13 +84,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     sudo chsh -s $(which zsh) $(id -un)
     [ $? -ne 0 ] && exit 4
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-    git clone https://github.com/MichaelAquilina/zsh-autoswitch-virtualenv.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/autoswitch_virtualenv
-    git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:=~/.oh-my-zsh/custom}/plugins/zsh-completions
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    git clone https://github.com/superbrothers/zsh-kubectl-prompt.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-kubectl-prompt
-    git clone https://github.com/hanjunlee/terragrunt-oh-my-zsh-plugin ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/terragrunt
-    git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-tab
+    # custom-plugin list lives in this script (shared with config-sync)
+    bash home/dot_local/bin/executable_zsh-plugins-setup
     [ $? -ne 0 ] && exit 5
 fi
 
@@ -108,6 +103,12 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     # lazy.nvim self-installs from init.lua, then clones every plugin
     nvim --headless "+Lazy! sync" +qa
+fi
+
+read -p "Import shell history into atuin? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    atuin import auto
 fi
 
 read -p "Install Sunshine system files (streaming machines only)? " -n 1 -r
