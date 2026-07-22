@@ -1,4 +1,5 @@
-# machine-dependent effects, included last so it overrides kitty.conf
+# machine-dependent kitty bits, included last so they override kitty.conf
+font_size {{ dig "kittyFontSize" "15" . }}
 {{- if .features.fancyFx }}
 background_opacity 0.88
 {{- else }}

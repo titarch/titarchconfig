@@ -11,6 +11,7 @@
 {{-   $acrRegistry = promptStringOnce . "work.acrRegistry" "  Work ACR registry name (blank if n/a)" "" -}}
 {{- end -}}
 {{- $composeKey := promptStringOnce . "composeKey" "Compose key xkb option (rwin, menu, prsc, ralt)" "rwin" -}}
+{{- $kittyFontSize := promptStringOnce . "kittyFontSize" "Kitty font size (pt)" "15" -}}
 {{- $capsSwap := promptBoolOnce . "capsSwapEscape" "Swap caps and escape in xkb (no if caps2esc handles it)" false -}}
 {{- $legacySource := joinPath .chezmoi.homeDir "titarchconfig" -}}
 {{- if stat (joinPath $legacySource ".chezmoiroot") }}
@@ -21,6 +22,7 @@ sourceDir = {{ $legacySource | quote }}
 [data]
     composeKey = {{ $composeKey | quote }}
     capsSwapEscape = {{ $capsSwap }}
+    kittyFontSize = {{ $kittyFontSize | quote }}
 
 [data.features]
     streaming = {{ $streaming }}
