@@ -55,7 +55,7 @@ read -p "Install AUR packages (cursors, folder colors)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     # -bin is the versioned greeter launcher; -git tracks master and churns
-    yay -S catppuccin-cursors-mocha papirus-folders greetd-dms-greeter-bin dracula-gtk-theme
+    yay -S catppuccin-cursors-mocha papirus-folders greetd-dms-greeter-bin dracula-gtk-theme forgit
     sudo papirus-folders -C violet --theme Papirus-Dark
 fi
 

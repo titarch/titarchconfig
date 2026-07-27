@@ -188,6 +188,24 @@ alias kn='kubens'
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 command -v direnv >/dev/null && eval "$(direnv hook zsh)"
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+# forgit: fuzzy git ops under an fg- prefix. NO_ALIASES keeps the omz git
+# aliases (gd/gco/glo/gss...) intact; forgit::* functions are still defined.
+export FORGIT_NO_ALIASES=1
+if [ -f /usr/share/zsh/plugins/forgit/forgit.plugin.zsh ]; then
+    source /usr/share/zsh/plugins/forgit/forgit.plugin.zsh
+    alias fga='forgit::add'                       # stage hunks/files interactively
+    alias fgd='forgit::diff'                       # browse diffs
+    alias fgl='forgit::log'                        # browse commits
+    alias fgco='forgit::checkout::branch'          # fuzzy branch switch
+    alias fgcf='forgit::checkout::file'            # discard/restore file changes
+    alias fgss='forgit::stash::show'               # browse stashes
+    alias fgsp='forgit::stash::push'               # stash selected changes
+    alias fgcp='forgit::cherry::pick::from::branch' # cherry-pick across branches
+    alias fgfix='forgit::fixup'                    # pick a commit to fixup into
+    alias fgrb='forgit::rebase'                    # pick a commit to rebase onto
+    alias fgrh='forgit::reset::head'               # unstage interactively
+    alias fgclean='forgit::clean'                  # remove untracked interactively
+fi
 # atuin owns ctrl-r; load last so its ^R wins over fzf. up-arrow stays default
 command -v atuin >/dev/null && eval "$(atuin init zsh --disable-up-arrow)"
 # starship prompt (replaces the omz theme; reads ~/.config/starship.toml)
