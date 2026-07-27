@@ -1,0 +1,72 @@
+# k9s Dracula skin — colors from .chezmoidata.toml [theme]
+k9s:
+  body:
+    fgColor: &fg "{{ .theme.fg }}"
+    bgColor: &bg "{{ .theme.bg }}"
+    logoColor: "{{ .theme.purple }}"
+  prompt:
+    fgColor: *fg
+    bgColor: *bg
+    suggestColor: "{{ .theme.pink }}"
+  info:
+    fgColor: "{{ .theme.pink }}"
+    sectionColor: *fg
+  dialog:
+    fgColor: *fg
+    bgColor: *bg
+    buttonFgColor: *fg
+    buttonBgColor: "{{ .theme.purple }}"
+    buttonFocusFgColor: *bg
+    buttonFocusBgColor: "{{ .theme.pink }}"
+    labelFgColor: "{{ .theme.yellow }}"
+    fieldFgColor: *fg
+  frame:
+    border:
+      fgColor: "{{ .theme.currentLine }}"
+      focusColor: "{{ .theme.purple }}"
+    menu:
+      fgColor: *fg
+      keyColor: "{{ .theme.pink }}"
+      numKeyColor: "{{ .theme.pink }}"
+    crumbs:
+      fgColor: *bg
+      bgColor: "{{ .theme.currentLine }}"
+      activeColor: "{{ .theme.pink }}"
+    status:
+      newColor: "{{ .theme.cyan }}"
+      modifyColor: "{{ .theme.purple }}"
+      addColor: "{{ .theme.green }}"
+      errorColor: "{{ .theme.red }}"
+      highlightColor: "{{ .theme.yellow }}"
+      killColor: "{{ .theme.comment }}"
+      completedColor: "{{ .theme.comment }}"
+    title:
+      fgColor: *fg
+      bgColor: *bg
+      highlightColor: "{{ .theme.yellow }}"
+      counterColor: "{{ .theme.purple }}"
+      filterColor: "{{ .theme.pink }}"
+  views:
+    table:
+      fgColor: *fg
+      bgColor: *bg
+      header:
+        fgColor: *fg
+        bgColor: *bg
+        sorterColor: "{{ .theme.cyan }}"
+    xray:
+      fgColor: *fg
+      bgColor: *bg
+      cursorColor: "{{ .theme.currentLine }}"
+      graphicColor: "{{ .theme.purple }}"
+      showIcons: false
+    yaml:
+      keyColor: "{{ .theme.pink }}"
+      colonColor: "{{ .theme.purple }}"
+      valueColor: *fg
+    logs:
+      fgColor: *fg
+      bgColor: *bg
+      indicator:
+        fgColor: *fg
+        bgColor: *bg

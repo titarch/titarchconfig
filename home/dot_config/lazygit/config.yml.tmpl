@@ -1,0 +1,15 @@
+# colors from .chezmoidata.toml [theme]
+git:
+  paging:
+    colorArg: always
+    pager: delta --dark --paging=never
+gui:
+  nerdFontsVersion: "3"
+  theme:
+    activeBorderColor: ["{{ .theme.pink }}", bold]
+    inactiveBorderColor: ["{{ .theme.comment }}"]
+    selectedLineBgColor: ["{{ .theme.currentLine }}"]
+    optionsTextColor: ["{{ .theme.cyan }}"]
+    cherryPickedCommitFgColor: ["{{ .theme.bg }}"]
+    cherryPickedCommitBgColor: ["{{ .theme.purple }}"]
+    unstagedChangesColor: ["{{ .theme.red }}"]
