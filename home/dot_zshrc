@@ -24,6 +24,11 @@ export PGHOST="/tmp"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# fzf uses fd (respects .gitignore; the dir variant powers Alt-C jumping)
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
+
 # keep tool history off the home root (HISTFILE stays at ~/.zsh_history)
 export LESSHISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/less/history"
 export PSQL_HISTORY="${XDG_STATE_HOME:-$HOME/.local/state}/psql/history"
@@ -46,11 +51,8 @@ zstyle ':fzf-tab:*' switch-group ',' '.'
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath 2>/dev/null || ls -1 $realpath'
 
 # --- functions ---
-makewatch() {
-    [[ -n "$1" ]] && texfile="$1" || texfile=(*.tex(N[1]))
-    echo "Selected file: $texfile"
-    while true; do inotifywait -e modify "$texfile"; date; make; done
-}
+# rebuild on LaTeX change (pass a path to watch just that, else all .tex here)
+makewatch() { watchexec ${1:+--watch "$1"} --exts tex -- make; }
 
 acenv() {
     [[ "$#" -ne 1 ]] && echo "Usage: acenv <env>" && return 1
@@ -139,7 +141,7 @@ alias rm='rm -I'
 alias grep='grep --color -n'
 alias vim='nvim'          # real vim still reachable via \vim or `command vim`
 alias p='vim -p'
-alias f='find -name'
+alias f='fd'              # was find -name; fd is faster + gitignore-aware
 alias watcha='watch -n 1 '
 alias goodbye='systemctl poweroff'
 alias x='start-hyprland'
@@ -172,6 +174,11 @@ if command -v eza >/dev/null; then
     alias ll='eza -lh --group-directories-first --git --icons=auto'
     alias la='eza -lah --group-directories-first --git --icons=auto'
 fi
+# TUIs for the things you do most (run kx/kn with no args for an fzf picker)
+alias lg='lazygit'
+alias lzd='lazydocker'
+alias kx='kubectx'
+alias kn='kubens'
 
 # --- tool integrations ---
 [ -f "$HOME/SDKs/az/lib/az.completion" ] && . "$HOME/SDKs/az/lib/az.completion"

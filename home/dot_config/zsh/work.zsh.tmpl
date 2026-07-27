@@ -15,6 +15,6 @@ alias kdcert='kubectl describe certificates'
 alias krr='kubectl rollout restart'
 alias krrd='kubectl rollout restart deployment'
 alias estag='export $(xargs <envs/staging.env) REDIS_PORT=6380'
-alias wcelery='watchmedo auto-restart --directory=./ --pattern="*.py" --recursive -- celery'
+alias wcelery='watchexec -r -e py -- celery'
 # the red PROD prompt marker (kprod touches ~/.prod) is rendered by starship's
 # custom.prod module — see ~/.config/starship.toml
