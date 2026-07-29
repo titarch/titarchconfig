@@ -36,6 +36,11 @@ command -v zsh >/dev/null 2>&1 || { warn "zsh is required and unavailable; abort
 info "installing comfort tools (best effort)"
 for t in eza fd fd-find ripgrep bat batcat zoxide fzf; do pkg "$t" || true; done
 
+# editor: prefer neovim, fall back to vim (config below works in both)
+info "installing editor (neovim, else vim)"
+command -v nvim >/dev/null 2>&1 || pkg neovim || true
+command -v nvim >/dev/null 2>&1 || command -v vim >/dev/null 2>&1 || pkg vim || true
+
 # --- starship (single binary, no root needed) ---
 mkdir -p "$HOME/.local/bin"          # starship's -b requires an existing dir
 export PATH="$HOME/.local/bin:$PATH"
@@ -83,6 +88,7 @@ SAVEHIST=$HISTSIZE
 setopt hist_ignore_space share_history extended_history hist_ignore_dups hist_reduce_blanks
 
 export EDITOR="${EDITOR:-$(command -v nvim || command -v vim || echo vi)}"
+command -v nvim >/dev/null && alias vim='nvim'   # your local muscle memory
 
 # distro binary-name fixups (Debian ships fd as fdfind, bat as batcat)
 command -v fdfind >/dev/null && alias fd='fdfind'
@@ -107,6 +113,38 @@ command -v zoxide   >/dev/null && eval "$(zoxide init zsh)"
 command -v fzf      >/dev/null && { fzf --zsh 2>/dev/null | source /dev/stdin 2>/dev/null; }
 command -v starship >/dev/null && eval "$(starship init zsh)"
 ZRC
+
+# --- comfortable, plugin-free editor config (works in nvim and vim) ---
+mkdir -p "$HOME/.cache/vim/undo" "$HOME/.config/nvim"
+[ -f "$HOME/.vimrc" ] && cp "$HOME/.vimrc" "$HOME/.vimrc.qomz-bak"
+info "writing editor config"
+cat > "$HOME/.vimrc" <<'VRC'
+" qomz remote editor: plugin-free, comfortable defaults (nvim & vim)
+set nocompatible
+syntax on
+filetype plugin indent on
+set number
+set mouse=a
+set hidden
+set backspace=indent,eol,start
+set ignorecase smartcase
+set incsearch hlsearch
+set scrolloff=4
+set expandtab shiftwidth=4 softtabstop=4
+set autoindent
+set wildmenu wildmode=longest:full,full
+set laststatus=2 ruler
+set clipboard=unnamedplus
+set undofile undodir=~/.cache/vim/undo//
+silent! set termguicolors
+silent! colorscheme habamax
+let mapleader=" "
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <leader>e :Explore<CR>
+nnoremap <leader>h :nohlsearch<CR>
+VRC
+printf 'source ~/.vimrc\n' > "$HOME/.config/nvim/init.vim"   # nvim reuses the same config
 
 # --- make zsh the default shell ---
 if command -v chsh >/dev/null 2>&1; then

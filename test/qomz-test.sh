@@ -28,7 +28,15 @@ probe='
   [ -f "$HOME/.zshrc" ]          || { echo "!! .zshrc missing"; exit 1; }
   zsh -ic "print QOMZ_SHELL_OK" 2>/dev/null | grep -q QOMZ_SHELL_OK \
                                  || { echo "!! .zshrc failed to load in zsh"; exit 1; }
-  command -v starship >/dev/null && echo "   starship: ok" || echo "   starship: MISSING (soft)"
+  { [ -x "$HOME/.local/bin/starship" ] || command -v starship >/dev/null; } \
+    || { echo "!! starship not installed"; exit 1; }
+  echo "   starship: ok"
+  command -v nvim >/dev/null || command -v vim >/dev/null || { echo "!! no editor (nvim/vim)"; exit 1; }
+  [ -f "$HOME/.vimrc" ] || { echo "!! editor config missing"; exit 1; }
+  if command -v nvim >/dev/null; then ED=nvim; nvim --headless -c qa >/tmp/ed 2>&1 || true
+  else ED=vim; vim -es -c qa </dev/null >/tmp/ed 2>&1 || true; fi
+  grep -qiE "E[0-9]{2,}" /tmp/ed && { echo "!! editor config error:"; cat /tmp/ed; exit 1; }
+  echo "   editor: $ED ok"
   echo "   ASSERTIONS_OK"
 '
 
