@@ -178,16 +178,34 @@ do_headless() {
     sh -c "$(curl -fsSL get.chezmoi.io)" -- -b "$HOME/.local/bin" >/dev/null 2>&1 || warn "chezmoi install failed"
   fi
   command -v chezmoi >/dev/null 2>&1 || { warn "chezmoi required; aborting"; exit 1; }
+  # pre-seed the config so chezmoi runs non-interactively (promptBoolOnce reads
+  # these instead of demanding a TTY; --promptBool only feeds promptBool, not Once)
+  mkdir -p "$HOME/.config/chezmoi"
+  [ -f "$HOME/.config/chezmoi/chezmoi.toml" ] || cat > "$HOME/.config/chezmoi/chezmoi.toml" <<'CFG'
+[data]
+    composeKey = "rwin"
+    capsSwapEscape = false
+    kittyFontSize = "15"
+[data.features]
+    streaming = false
+    nvidia = false
+    fancyFx = false
+    work = false
+    headless = true
+[data.work]
+    ecrRegistry = ""
+    acrRegistry = ""
+    email = ""
+CFG
   info "deploying dotfiles (headless profile) from $SRC"
-  # a local dir is used in place (no clone); a URL is cloned by init
-  if [ -d "$SRC" ]; then set -- --source "$SRC" init; else set -- init "$SRC"; fi
-  chezmoi "$@" --apply \
-    --promptBool "features.headless=true" \
-    --promptBool "features.streaming=false" --promptBool "features.nvidia=false" \
-    --promptBool "features.fancyFx=false"  --promptBool "features.work=false" \
-    --promptBool "capsSwapEscape=false" \
-    --promptString "composeKey=rwin" --promptString "kittyFontSize=15" \
-    || { warn "chezmoi init failed"; exit 1; }
+  # init (not bare apply): promptBoolOnce reads the pre-seeded [data] so it never
+  # prompts, and init records the config-template hash -> no "config changed"
+  # warning on later apply/config-sync. URL is cloned by chezmoi to its default source.
+  if [ -d "$SRC" ]; then
+    chezmoi init --apply --source "$SRC" || { warn "chezmoi init failed"; exit 1; }
+  else
+    chezmoi init --apply "$SRC" || { warn "chezmoi init failed"; exit 1; }
+  fi
   if command -v nvim >/dev/null 2>&1; then info "bootstrapping neovim plugins"; nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 || true; fi
   set_zsh_default
   printf '\033[1;32m::\033[0m headless setup done - exec zsh to start.\n'

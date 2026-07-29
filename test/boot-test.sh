@@ -42,11 +42,14 @@ headless_probe='
 
 pass=0 fail=0 summary=""
 run() { # name image tier probe
-  printf '  %-9s %-8s ' "$2" "$3"
-  # copy the (read-only mounted) repo to a writable path so chezmoi can use it
-  if timeout 900 docker run --rm -v "$root":/src:ro "$1" sh -c "cp -a /src /repo && $4" 2>&1 | sed 's/^/    /'; then
-    echo "  -> PASS"; return 0
-  else echo "  -> FAIL"; return 1; fi
+  printf '  %-9s %-8s\n' "$2" "$3"
+  # copy the (read-only mounted) repo to a writable path so chezmoi can use it.
+  # capture first, THEN check rc: piping straight to sed reports sed's exit (always 0)
+  local out rc
+  out="$(timeout 900 docker run --rm -v "$root":/src:ro "$1" sh -c "cp -a /src /repo && $4" 2>&1)"; rc=$?
+  printf '%s\n' "$out" | sed 's/^/    /'
+  if [ "$rc" -eq 0 ]; then echo "    -> PASS"; return 0
+  else echo "    -> FAIL (rc=$rc)"; return 1; fi
 }
 for row in $images; do
   name="${row%%|*}"; image="${row#*|}"
