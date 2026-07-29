@@ -45,7 +45,7 @@ zstyle ':completion:*:*:make:*' use-cache on
 zstyle ':completion:*:*:make:*' cache-path ~/.cache/zsh/make
 zstyle ':completion:*:*:docker:*' option-stacking yes
 zstyle ':completion:*:*:docker-*:*' option-stacking yes
-kitty + complete setup zsh | source /dev/stdin
+command -v kitty >/dev/null && kitty + complete setup zsh | source /dev/stdin
 # fzf-tab: switch result groups with , / . and preview dirs on cd
 zstyle ':fzf-tab:*' switch-group ',' '.'
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath 2>/dev/null || ls -1 $realpath'
