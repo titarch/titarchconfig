@@ -12,3 +12,28 @@
 .config/hypr/monitors-runtime.conf
 .local/bin/stream
 {{ end }}
+{{ if dig "features" "headless" false . }}
+# headless server: skip everything graphical, keep the terminal stack
+.config/DankMaterialShell/**
+.config/hypr/**
+.config/kitty/**
+.config/gtk-3.0/**
+.config/gtk-4.0/**
+.gtkrc-2.0
+.config/qt6ct/**
+.config/mimeapps.list
+.config/stream/**
+.config/sunshine/**
+.XCompose
+.face
+.gnupg/gpg-agent.conf
+.config/environment.d/**
+.local/bin/presence
+.local/bin/cursor-drift
+.local/bin/screenprivacy
+.local/bin/ws-move
+.local/bin/dms-bar-setup
+.local/bin/dms-plugins-setup
+.local/share/wallpapers/**
+.local/state/DankMaterialShell/**
+{{ end }}

@@ -34,13 +34,13 @@
 	sort = -committerdate
 [tag]
 	sort = version:refname
-	gpgsign = true
+	gpgsign = {{ not (dig "features" "headless" false .) }}
 [column]
 	ui = auto
 [help]
 	autocorrect = prompt
 [commit]
-	gpgsign = true
+	gpgsign = {{ not (dig "features" "headless" false .) }}
 	verbose = true
 [core]
 	# builtin fsmonitor is git 2.37+; the pinned nix git 2.34.1 warns on it.

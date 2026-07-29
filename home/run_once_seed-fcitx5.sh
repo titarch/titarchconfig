@@ -1,5 +1,6 @@
 #!/bin/sh
 # seed fcitx5 once, fcitx owns and rewrites these files afterwards
+command -v fcitx5 >/dev/null 2>&1 || exit 0   # skip on headless (no IME)
 d="$HOME/.config/fcitx5"
 mkdir -p "$d"
 [ -f "$d/config" ] || cat > "$d/config" <<'EOF'

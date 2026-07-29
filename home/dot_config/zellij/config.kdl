@@ -1,0 +1,8 @@
+// zellij: tiling-wm-like multiplexer. keybinding hints show at the bottom.
+// https://zellij.dev/documentation
+theme "dracula"                 // built-in dracula theme
+pane_frames false               // cleaner, more wm-like
+default_layout "compact"        // slim UI chrome
+mouse_mode true
+copy_on_select true
+session_serialization true      // sessions survive detach AND reboot (your screen use-case)

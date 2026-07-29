@@ -188,6 +188,8 @@ alias kn='kubens'
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 command -v direnv >/dev/null && eval "$(direnv hook zsh)"
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+# zellij multiplexer: zj = attach-or-create a persistent 'main' session
+command -v zellij >/dev/null && alias zj='zellij attach -c main'
 # forgit: fuzzy git ops under an fg- prefix. NO_ALIASES keeps the omz git
 # aliases (gd/gco/glo/gss...) intact; forgit::* functions are still defined.
 export FORGIT_NO_ALIASES=1

@@ -4,6 +4,7 @@
 {{- $nvidia := promptBoolOnce . "features.nvidia" "Nvidia GPU (driver env vars)" false -}}
 {{- $fancyFx := promptBoolOnce . "features.fancyFx" "Costly visual effects (blur, shadows, animated border)" false -}}
 {{- $work := promptBoolOnce . "features.work" "Work machine (company kube/az/aws aliases)" false -}}
+{{- $headless := promptBoolOnce . "features.headless" "Headless server (terminal only: skip GUI configs, no commit signing)" false -}}
 {{- $ecrRegistry := "" -}}
 {{- $acrRegistry := "" -}}
 {{- if $work -}}
@@ -29,6 +30,7 @@ sourceDir = {{ $legacySource | quote }}
     nvidia = {{ $nvidia }}
     fancyFx = {{ $fancyFx }}
     work = {{ $work }}
+    headless = {{ $headless }}
 
 [data.work]
     ecrRegistry = {{ $ecrRegistry | quote }}
