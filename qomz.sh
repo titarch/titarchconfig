@@ -14,11 +14,11 @@ warn() { printf '\033[1;33m!!\033[0m %s\n' "$1" >&2; }
 SUDO=""
 [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && SUDO="sudo"
 PM="" PMUP=""
-if   command -v apt-get >/dev/null 2>&1; then PM="apt-get install -y"; PMUP="apt-get update"
+if   command -v apt-get >/dev/null 2>&1; then PM="apt-get install -y";            PMUP="apt-get update"
 elif command -v dnf     >/dev/null 2>&1; then PM="dnf install -y"
-elif command -v pacman  >/dev/null 2>&1; then PM="pacman -S --noconfirm --needed"
-elif command -v apk     >/dev/null 2>&1; then PM="apk add"
-elif command -v zypper  >/dev/null 2>&1; then PM="zypper install -y"
+elif command -v pacman  >/dev/null 2>&1; then PM="pacman -S --noconfirm --needed"; PMUP="pacman -Sy --noconfirm"
+elif command -v apk     >/dev/null 2>&1; then PM="apk add";                        PMUP="apk update"
+elif command -v zypper  >/dev/null 2>&1; then PM="zypper --non-interactive install"; PMUP="zypper --non-interactive refresh"
 elif command -v yum     >/dev/null 2>&1; then PM="yum install -y"
 else warn "no known package manager - will use whatever is already installed"
 fi
@@ -29,6 +29,7 @@ pkg() { [ -n "$PM" ] && $SUDO $PM "$1" >/dev/null 2>&1; }
 for c in zsh git curl; do
   command -v "$c" >/dev/null 2>&1 || { info "installing $c"; pkg "$c" || warn "could not install $c"; }
 done
+pkg ca-certificates || true          # some minimal images lack TLS roots for curl
 command -v zsh >/dev/null 2>&1 || { warn "zsh is required and unavailable; aborting"; exit 1; }
 
 # --- comfort tools (best effort; names differ per distro, failures ignored) ---
@@ -49,9 +50,15 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
   info "installing oh-my-zsh"
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null 2>&1 \
     || warn "oh-my-zsh install had issues"
+else
+  info "updating oh-my-zsh"; git -C "$HOME/.oh-my-zsh" pull -q >/dev/null 2>&1 || true
 fi
 ZC="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-clone() { [ -d "$ZC/plugins/$1" ] || git clone -q --depth=1 "$2" "$ZC/plugins/$1" >/dev/null 2>&1; }
+# clone if missing, else pull -- so re-running the one-liner refreshes everything
+clone() {
+  if [ -d "$ZC/plugins/$1" ]; then git -C "$ZC/plugins/$1" pull -q >/dev/null 2>&1 || true
+  else git clone -q --depth=1 "$2" "$ZC/plugins/$1" >/dev/null 2>&1; fi
+}
 info "adding autosuggestions + syntax-highlighting"
 clone zsh-autosuggestions     https://github.com/zsh-users/zsh-autosuggestions
 clone zsh-syntax-highlighting  https://github.com/zsh-users/zsh-syntax-highlighting
@@ -107,3 +114,5 @@ if command -v chsh >/dev/null 2>&1; then
 fi
 
 printf '\033[1;32m::\033[0m done. start your familiar shell now:  \033[1mexec zsh\033[0m\n'
+printf '   re-run the one-liner anytime to refresh; to graduate to the full dotfiles:\n'
+printf '   \033[2mchezmoi init --apply https://github.com/titarch/titarchconfig.git\033[0m\n'
