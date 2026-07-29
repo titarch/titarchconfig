@@ -75,6 +75,44 @@ install_omz() {   # idempotent; --unattended skips chsh + shell launch, keeps an
   else info "updating oh-my-zsh"; git -C "$HOME/.oh-my-zsh" pull -q >/dev/null 2>&1 || true; fi
 }
 
+# --- headless dotfile deploy (shared by the generic and NixOS paths) ---
+# needs chezmoi already on PATH; $SRC set. Owns nothing platform-specific.
+deploy_headless_dotfiles() {
+  install_omz   # the deployed ~/.zshrc sources oh-my-zsh; it must exist first
+  # keep a one-time copy of a pre-existing hand-written ~/.zshrc (real boxes, not fresh VMs)
+  [ -f "$HOME/.zshrc" ] && [ ! -f "$HOME/.zshrc.fleet-bak" ] && cp "$HOME/.zshrc" "$HOME/.zshrc.fleet-bak" && info "backed up existing ~/.zshrc -> ~/.zshrc.fleet-bak"
+  # pre-seed the config so chezmoi runs non-interactively (promptBoolOnce reads
+  # these instead of demanding a TTY; --promptBool only feeds promptBool, not Once)
+  mkdir -p "$HOME/.config/chezmoi"
+  [ -f "$HOME/.config/chezmoi/chezmoi.toml" ] || cat > "$HOME/.config/chezmoi/chezmoi.toml" <<'CFG'
+[data]
+    composeKey = "rwin"
+    capsSwapEscape = false
+    kittyFontSize = "15"
+[data.features]
+    streaming = false
+    nvidia = false
+    fancyFx = false
+    work = false
+    headless = true
+[data.work]
+    ecrRegistry = ""
+    acrRegistry = ""
+    email = ""
+CFG
+  info "deploying dotfiles (headless profile) from $SRC"
+  # init (not bare apply): promptBoolOnce reads the pre-seeded [data] so it never
+  # prompts, and init records the config-template hash -> no "config changed"
+  # warning on later apply/config-sync. URL is cloned by chezmoi to its default source.
+  if [ -d "$SRC" ]; then chezmoi init --apply --source "$SRC" || { warn "chezmoi init failed"; exit 1; }
+  else chezmoi init --apply "$SRC" || { warn "chezmoi init failed"; exit 1; }; fi
+  # full custom-plugin set the deployed zshrc expects (single source of truth;
+  # run via sh so it works where bash is absent, e.g. alpine)
+  [ -f "$HOME/.local/bin/zsh-plugins-setup" ] && { info "installing zsh plugins"; sh "$HOME/.local/bin/zsh-plugins-setup" >/dev/null 2>&1 || warn "zsh-plugins-setup had issues"; }
+  command -v nvim >/dev/null 2>&1 && { info "bootstrapping neovim plugins"; nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 || true; }
+  return 0
+}
+
 # ============================ QUICK ============================
 do_quick() {
   need zsh git curl
@@ -166,7 +204,11 @@ VRC
 }
 
 # ============================ HEADLESS ============================
+# NixOS: tools are declared in Nix (nix/fleet-headless.nix), not a package
+# manager, and curl-dropped binaries need the nix-ld shim + pollute the system.
+# So there we deploy the dotfiles only and let Nix own the toolchain.
 do_headless() {
+  { [ -e /etc/NIXOS ] || command -v nixos-rebuild >/dev/null 2>&1; } && { do_headless_nix; return; }
   need zsh git curl
   info "installing terminal stack (best effort)"
   for t in neovim ripgrep fd fd-find bat batcat eza zoxide fzf lazygit git-delta direnv jq atuin; do pkg "$t" || true; done
@@ -185,44 +227,25 @@ do_headless() {
     sh -c "$(curl -fsSL get.chezmoi.io)" -- -b "$HOME/.local/bin" >/dev/null 2>&1 || warn "chezmoi install failed"
   fi
   command -v chezmoi >/dev/null 2>&1 || { warn "chezmoi required; aborting"; exit 1; }
-  install_omz   # the deployed ~/.zshrc sources oh-my-zsh; it must exist first
-  # pre-seed the config so chezmoi runs non-interactively (promptBoolOnce reads
-  # these instead of demanding a TTY; --promptBool only feeds promptBool, not Once)
-  mkdir -p "$HOME/.config/chezmoi"
-  [ -f "$HOME/.config/chezmoi/chezmoi.toml" ] || cat > "$HOME/.config/chezmoi/chezmoi.toml" <<'CFG'
-[data]
-    composeKey = "rwin"
-    capsSwapEscape = false
-    kittyFontSize = "15"
-[data.features]
-    streaming = false
-    nvidia = false
-    fancyFx = false
-    work = false
-    headless = true
-[data.work]
-    ecrRegistry = ""
-    acrRegistry = ""
-    email = ""
-CFG
-  info "deploying dotfiles (headless profile) from $SRC"
-  # init (not bare apply): promptBoolOnce reads the pre-seeded [data] so it never
-  # prompts, and init records the config-template hash -> no "config changed"
-  # warning on later apply/config-sync. URL is cloned by chezmoi to its default source.
-  if [ -d "$SRC" ]; then
-    chezmoi init --apply --source "$SRC" || { warn "chezmoi init failed"; exit 1; }
-  else
-    chezmoi init --apply "$SRC" || { warn "chezmoi init failed"; exit 1; }
-  fi
-  # full custom-plugin set the deployed zshrc expects (single source of truth;
-  # run via sh so it works where bash is absent, e.g. alpine)
-  if [ -f "$HOME/.local/bin/zsh-plugins-setup" ]; then
-    info "installing zsh plugins"; sh "$HOME/.local/bin/zsh-plugins-setup" >/dev/null 2>&1 || warn "zsh-plugins-setup had issues"
-  fi
-  if command -v nvim >/dev/null 2>&1; then info "bootstrapping neovim plugins"; nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 || true; fi
+  deploy_headless_dotfiles
   set_zsh_default
   printf '\033[1;32m::\033[0m headless setup done - exec zsh to start.\n'
   printf '   zj = persistent zellij session; re-run with:  ~/.local/bin/config-sync\n'
+}
+
+do_headless_nix() {
+  info "NixOS detected: Nix owns the toolchain; deploying fleet dotfiles only"
+  export PATH="$HOME/.local/bin:$PATH"
+  if ! command -v chezmoi >/dev/null 2>&1; then
+    warn "chezmoi not found - add the fleet module to /etc/nixos/configuration.nix, then rebuild:"
+    printf '   imports = [ ... (import (builtins.fetchGit { url = "%s"; ref = "master"; } + "/nix/fleet-headless.nix")) ];\n' "${REPO%.git}"
+    printf '   sudo nixos-rebuild switch    # then re-run this\n'
+    exit 1
+  fi
+  deploy_headless_dotfiles
+  # no chsh (shell is zsh declaratively) and no tool installs (Nix owns them)
+  printf '\033[1;32m::\033[0m headless setup done (NixOS) - exec zsh to start.\n'
+  printf '   tools via Nix; pull fleet updates with:  sudo nixos-rebuild switch && ~/.local/bin/config-sync\n'
 }
 
 # ============================ DESKTOP ============================

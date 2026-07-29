@@ -28,6 +28,12 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   (do NOT add xkb swap here), compose rwin.
 - thinkpad: intel iris xe (fancyFx off), fr-us keyboard with compose prsc,
   capsSwapEscape via xkb, moonlight client, no autologin.
+- tinasx: NixOS home server (zfs tank, docker), headless fleet member. NOT
+  managed by pacman/install.sh: toolchain is declared in `nix/fleet-headless.nix`
+  (imported into /etc/nixos/configuration.nix via fetchGit) + `nixos-rebuild`;
+  dotfiles via `boot.sh headless`, which detects NixOS (/etc/NIXOS) and deploys
+  the chezmoi headless profile only (no PM/curl-binary/chsh). Tools = Nix,
+  config = chezmoi. Do not hand-edit /etc/nixos in this repo (root-owned there).
 
 ## Key components
 - `home/dot_config/hypr/hyprland.conf.tmpl`: i3 keybind port. Workspace

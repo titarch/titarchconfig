@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Exercise boot.sh across distros in fresh containers. Tests the `quick` tier
 # (self-contained) and the `headless` tier (deploys the dotfiles from a copy of
-# this working tree via BOOT_SOURCE, so it needs no push). Desktop tier is
+# this working tree via BOOT_SOURCE, so it needs no push). Also a `nixsim` case
+# (arch + /etc/NIXOS marker) exercising the NixOS branch. Desktop tier is
 # Arch-only + interactive, so it's not covered here.
-# Usage: test/boot-test.sh [distro ...]   (default: all)
+# Usage: test/boot-test.sh [distro ...]   (default: all; nixsim runs with arch)
 set -u
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/.." && pwd)"
@@ -42,6 +43,23 @@ headless_probe='
   echo "   headless: ok"
 '
 
+# NixOS path: arch image + /etc/NIXOS marker + tools pre-provided (standing in for
+# nix/fleet-headless.nix). Asserts boot.sh takes the nix branch and deploys dotfiles
+# WITHOUT trying to install the toolchain itself (starship must stay absent here).
+nixsim_probe='
+  touch /etc/NIXOS
+  pacman -Sy --noconfirm --needed chezmoi git zsh neovim curl >/dev/null 2>&1 || { echo "!! tool preinstall"; exit 1; }
+  BOOT_SOURCE=/repo sh /repo/boot.sh headless 2>&1 | tee /tmp/o | sed "s/^/    /"
+  grep -q "NixOS detected" /tmp/o                            || { echo "!! nix branch not taken"; exit 1; }
+  grep -q "headless setup done (NixOS)" /tmp/o               || { echo "!! nix deploy did not finish"; exit 1; }
+  [ -f "$HOME/.zshrc" ]                                      || { echo "!! zshrc missing"; exit 1; }
+  [ ! -e "$HOME/.config/hypr" ]                              || { echo "!! GUI (hypr) not gated"; exit 1; }
+  grep -q "gpgsign = false" "$HOME/.gitconfig"               || { echo "!! signing not disabled"; exit 1; }
+  command -v starship >/dev/null && { echo "!! boot.sh installed starship on NixOS (should defer to Nix)"; exit 1; } || true
+  w="$(zsh -ic true 2>&1)"; printf "%s" "$w" | grep -q "\[oh-my-zsh\] plugin" && { echo "!! omz plugin warnings"; exit 1; } || true
+  echo "   nixsim: ok"
+'
+
 pass=0 fail=0 summary=""
 run() { # name image tier probe
   printf '  %-9s %-8s\n' "$2" "$3"
@@ -62,5 +80,12 @@ for row in $images; do
   [ "$q" = PASS ] && [ "$h" = PASS ] && { pass=$((pass+1)); summary="$summary  PASS  $name\n"; } \
                                      || { fail=$((fail+1)); summary="$summary  FAIL  $name (quick=$q headless=$h)\n"; }
 done
+# NixOS simulation (reuses the arch image); runs when arch/nixsim is in the selection
+case " $sel " in *" arch "*|*" nixsim "*)
+  printf '\n==================== nixsim (archlinux:latest + /etc/NIXOS) ====================\n'
+  run archlinux:latest nixsim nixos "$nixsim_probe" \
+    && { pass=$((pass+1)); summary="$summary  PASS  nixsim\n"; } \
+    || { fail=$((fail+1)); summary="$summary  FAIL  nixsim\n"; }
+;; esac
 printf '\n==================== summary ====================\n%b passed=%s failed=%s\n' "$summary" "$pass" "$fail"
 [ "$fail" -eq 0 ]
