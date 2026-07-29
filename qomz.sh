@@ -37,6 +37,7 @@ info "installing comfort tools (best effort)"
 for t in eza fd fd-find ripgrep bat batcat zoxide fzf; do pkg "$t" || true; done
 
 # --- starship (single binary, no root needed) ---
+mkdir -p "$HOME/.local/bin"          # starship's -b requires an existing dir
 export PATH="$HOME/.local/bin:$PATH"
 if ! command -v starship >/dev/null 2>&1; then
   info "installing starship prompt into ~/.local/bin"
