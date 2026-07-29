@@ -37,6 +37,8 @@ headless_probe='
   grep -q "gpgsign = false" "$HOME/.gitconfig" || { echo "!! signing not disabled"; exit 1; }
   [ -f "$HOME/.config/zellij/config.kdl" ]    || { echo "!! zellij config missing"; exit 1; }
   { command -v zellij >/dev/null || [ -x "$HOME/.local/bin/zellij" ]; } || echo "   (zellij: soft-missing)"
+  w="$(zsh -ic true 2>&1)"                     # interactive startup must be clean
+  printf "%s" "$w" | grep -q "\[oh-my-zsh\] plugin" && { echo "!! omz plugin warnings:"; printf "%s\n" "$w" | grep "\[oh-my-zsh\]"; exit 1; } || true
   echo "   headless: ok"
 '
 

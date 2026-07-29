@@ -54,16 +54,25 @@ need() {   # ensure listed commands exist (best effort), + TLS roots
   pkg ca-certificates || true
 }
 
-install_starship() {
-  mkdir -p "$HOME/.local/bin"
+install_starship() {   # prefer the signed distro package; upstream installer only where absent/stale
   command -v starship >/dev/null 2>&1 && return 0
-  info "installing starship (~/.local/bin)"
+  pkg starship && command -v starship >/dev/null 2>&1 && { info "installed starship (pkg)"; return 0; }
+  info "installing starship (upstream -> ~/.local/bin)"
+  mkdir -p "$HOME/.local/bin"
   curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b "$HOME/.local/bin" >/dev/null 2>&1 || warn "starship skipped"
 }
 
 set_zsh_default() {
   command -v chsh >/dev/null 2>&1 || return 0
   $SUDO chsh -s "$(command -v zsh)" "$(id -un)" >/dev/null 2>&1 && info "default shell -> zsh" || warn "chsh skipped (set it yourself)"
+}
+
+install_omz() {   # idempotent; --unattended skips chsh + shell launch, keeps any existing ~/.zshrc
+  export RUNZSH=no CHSH=no KEEP_ZSHRC=yes
+  if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    info "installing oh-my-zsh"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null 2>&1 || warn "oh-my-zsh had issues"
+  else info "updating oh-my-zsh"; git -C "$HOME/.oh-my-zsh" pull -q >/dev/null 2>&1 || true; fi
 }
 
 # ============================ QUICK ============================
@@ -77,11 +86,7 @@ do_quick() {
   command -v nvim >/dev/null 2>&1 || command -v vim >/dev/null 2>&1 || pkg vim || true
   export PATH="$HOME/.local/bin:$PATH"
   install_starship
-  export RUNZSH=no CHSH=no KEEP_ZSHRC=yes
-  if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    info "installing oh-my-zsh"
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null 2>&1 || warn "oh-my-zsh had issues"
-  else info "updating oh-my-zsh"; git -C "$HOME/.oh-my-zsh" pull -q >/dev/null 2>&1 || true; fi
+  install_omz
   ZC="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
   clone() { if [ -d "$ZC/plugins/$1" ]; then git -C "$ZC/plugins/$1" pull -q >/dev/null 2>&1 || true; else git clone -q --depth=1 "$2" "$ZC/plugins/$1" >/dev/null 2>&1; fi; }
   info "adding autosuggestions + syntax-highlighting"
@@ -173,11 +178,14 @@ do_headless() {
     curl -fsSL https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz 2>/dev/null \
       | tar -xz -C "$HOME/.local/bin" zellij 2>/dev/null || warn "zellij skipped"
   fi
+  # prefer the signed distro package; upstream installer only where absent/stale (debian stable etc.)
+  command -v chezmoi >/dev/null 2>&1 || { info "installing chezmoi (pkg)"; pkg chezmoi || true; }
   if ! command -v chezmoi >/dev/null 2>&1; then
-    info "installing chezmoi"
+    info "installing chezmoi (upstream -> ~/.local/bin)"
     sh -c "$(curl -fsSL get.chezmoi.io)" -- -b "$HOME/.local/bin" >/dev/null 2>&1 || warn "chezmoi install failed"
   fi
   command -v chezmoi >/dev/null 2>&1 || { warn "chezmoi required; aborting"; exit 1; }
+  install_omz   # the deployed ~/.zshrc sources oh-my-zsh; it must exist first
   # pre-seed the config so chezmoi runs non-interactively (promptBoolOnce reads
   # these instead of demanding a TTY; --promptBool only feeds promptBool, not Once)
   mkdir -p "$HOME/.config/chezmoi"
@@ -205,6 +213,11 @@ CFG
     chezmoi init --apply --source "$SRC" || { warn "chezmoi init failed"; exit 1; }
   else
     chezmoi init --apply "$SRC" || { warn "chezmoi init failed"; exit 1; }
+  fi
+  # full custom-plugin set the deployed zshrc expects (single source of truth;
+  # run via sh so it works where bash is absent, e.g. alpine)
+  if [ -f "$HOME/.local/bin/zsh-plugins-setup" ]; then
+    info "installing zsh plugins"; sh "$HOME/.local/bin/zsh-plugins-setup" >/dev/null 2>&1 || warn "zsh-plugins-setup had issues"
   fi
   if command -v nvim >/dev/null 2>&1; then info "bootstrapping neovim plugins"; nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 || true; fi
   set_zsh_default
