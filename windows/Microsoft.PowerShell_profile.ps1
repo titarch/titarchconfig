@@ -12,8 +12,12 @@ $env:FZF_ALT_C_COMMAND   = 'fd --type d --hidden --exclude .git'
 if (Get-Module -ListAvailable PSReadLine) {
   Import-Module PSReadLine
   Set-PSReadLineOption -EditMode Emacs                    # ctrl-a/e/w/u like zsh default
-  Set-PSReadLineOption -PredictionSource HistoryAndPlugin # inline autosuggestion
-  Set-PSReadLineOption -PredictionViewStyle ListView      # fish-style dropdown
+  # inline prediction needs PSReadLine 2.2+ (Windows PowerShell 5.1 ships 2.0 -> skip).
+  # launch PowerShell 7 (pwsh) to get it; that host bundles a new enough PSReadLine.
+  if ((Get-Module PSReadLine).Version -ge [version]'2.2.0') {
+    Set-PSReadLineOption -PredictionSource HistoryAndPlugin # inline autosuggestion
+    Set-PSReadLineOption -PredictionViewStyle ListView      # fish-style dropdown
+  }
   Set-PSReadLineOption -HistoryNoDuplicates
   Set-PSReadLineKeyHandler -Key UpArrow   -Function HistorySearchBackward
   Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward

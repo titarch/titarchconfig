@@ -8,11 +8,16 @@ For a full Linux experience instead, prefer WSL2 + `boot.sh headless`.
 
 ## Install
 
-In PowerShell (7+ recommended):
+In PowerShell:
 
     irm https://raw.githubusercontent.com/titarch/titarchconfig/master/windows/setup.ps1 | iex
 
-or from a checkout: `.\windows\setup.ps1`. Then restart PowerShell.
+or from a checkout: `.\windows\setup.ps1`. Then launch **PowerShell 7 (`pwsh`)**.
+
+The setup installs pwsh 7 and deploys the profile to both host paths. Use pwsh 7
+for the full experience: Windows PowerShell 5.1 loads the same profile fine but
+skips inline prediction (it ships PSReadLine 2.0, which lacks it). In Windows
+Terminal, set PowerShell 7 as your default profile.
 
 Installs the CLI stack via **winget** (ids verified against winget-pkgs), the
 PSFzf/PSReadLine PowerShell modules (from PSGallery - winget doesn't do PS
