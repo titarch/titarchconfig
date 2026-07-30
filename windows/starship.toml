@@ -1,0 +1,59 @@
+# starship prompt - Dracula snapshot rendered from titarchconfig [theme].
+# The Linux copy is chezmoi-templated (home/dot_config/starship.toml.tmpl); this
+# is a static render for Windows. Re-render if the palette changes. The Linux-only
+# [custom.prod] block (Unix `test`) is intentionally dropped here.
+"$schema" = 'https://starship.rs/config-schema.json'
+add_newline = false
+
+format = "$directory$git_branch$git_status$git_state$python$direnv$line_break$status$character"
+right_format = "$cmd_duration$kubernetes"
+
+[directory]
+style = "bold #8be9fd"
+truncation_length = 3
+truncate_to_repo = false
+
+[git_branch]
+symbol = " "
+style = "bold #bd93f9"
+
+[git_status]
+style = "#ff5555"
+
+[git_state]
+style = "bold #f1fa8c"
+
+[python]
+symbol = "🐍 "
+style = "#50fa7b"
+format = '[${symbol}${virtualenv}]($style) '
+detect_extensions = []
+detect_files = []
+detect_folders = []
+
+[direnv]
+disabled = false
+symbol = "❄ "
+style = "#8be9fd"
+format = '[$symbol]($style)'
+
+[cmd_duration]
+min_time = 2000
+format = '[⏱ $duration]($style) '
+style = "#f1fa8c"
+
+[kubernetes]
+disabled = false
+symbol = "☸ "
+style = "bold #ff79c6"
+format = '[$symbol$context]($style) '
+
+[status]
+disabled = false
+symbol = "✘ "
+format = '[$symbol$status]($style) '
+style = "bold #ff5555"
+
+[character]
+success_symbol = "[❯](bold #50fa7b)"
+error_symbol = "[❯](bold #ff5555)"
