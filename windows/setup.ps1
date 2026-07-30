@@ -1,23 +1,31 @@
 #Requires -Version 5.1
-# titarchconfig - Windows bootstrap: scoop + CLI tools + PowerShell profile.
+# titarchconfig - Windows bootstrap: winget CLI tools + PowerShell profile.
 # One-liner:
 #   irm https://raw.githubusercontent.com/titarch/titarchconfig/master/windows/setup.ps1 | iex
 # or from a checkout:  .\windows\setup.ps1
 $ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $false   # don't abort on winget's nonzero (already-installed) exits
 function info($m) { Write-Host ":: $m" -ForegroundColor Magenta }
 function warn($m) { Write-Host "!! $m" -ForegroundColor Yellow }
 
-# --- scoop: no-admin package manager (the Linux-feeling one) ---
-if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
-  info 'installing scoop'
-  Set-ExecutionPolicy -Scope CurrentUser RemoteSigned -Force
-  Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+# --- winget (ships as App Installer on Win10 1709+/Win11) ---
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+  warn 'winget not found - install "App Installer" from the Microsoft Store, then re-run.'
+  return
 }
-scoop bucket add extras 6>$null 2>$null   # eza/delta/lazygit/atuin live here
-info 'installing CLI tools (scoop)'
-scoop install git zoxide starship fzf ripgrep fd bat eza delta lazygit jq neovim atuin
+# ids verified against microsoft/winget-pkgs
+$pkgs = @(
+  'Git.Git', 'ajeetdsouza.zoxide', 'Starship.Starship', 'junegunn.fzf',
+  'BurntSushi.ripgrep.MSVC', 'sharkdp.fd', 'sharkdp.bat', 'eza-community.eza',
+  'dandavison.delta', 'JesseDuffield.lazygit', 'jqlang.jq', 'Neovim.Neovim', 'Atuinsh.Atuin'
+)
+info 'installing CLI tools (winget)'
+foreach ($id in $pkgs) {
+  winget install --id $id -e --source winget --silent --accept-package-agreements --accept-source-agreements
+  if ($LASTEXITCODE -ne 0) { warn "winget '$id' returned $LASTEXITCODE (already installed / no match - continuing)" }
+}
 
-# --- PowerShell modules: fzf keybindings + inline predictions ---
+# --- PowerShell modules (not winget): fzf keybindings + inline predictions ---
 info 'installing PowerShell modules (PSFzf, PSReadLine)'
 if (-not (Get-Module -ListAvailable PSFzf))      { Install-Module PSFzf      -Scope CurrentUser -Force }
 if (-not (Get-Module -ListAvailable PSReadLine)) { Install-Module PSReadLine -Scope CurrentUser -Force }

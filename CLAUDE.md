@@ -17,7 +17,7 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
 - `install.sh` guided new-machine setup; `cleanup-x11.sh` removes i3-era
   relics; `_legacy/` untracked graveyard.
 - `windows/` standalone PowerShell parity (NOT chezmoi-managed): `setup.ps1`
-  (scoop tools + PSFzf/PSReadLine + deploy), `Microsoft.PowerShell_profile.ps1`
+  (winget tools + PSFzf/PSReadLine + deploy), `Microsoft.PowerShell_profile.ps1`
   (zoxide/fzf/eza/starship/atuin, mirrors zshrc), static `starship.toml`
   (Dracula render of the templated one). For rare Windows-native work; WSL2 +
   `boot.sh headless` is the fuller option.

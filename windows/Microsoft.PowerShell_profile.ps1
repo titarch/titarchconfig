@@ -1,5 +1,5 @@
 # titarchconfig - PowerShell profile mirroring the Linux zsh setup.
-# Deployed to $PROFILE by windows/setup.ps1; CLI tools come from scoop.
+# Deployed to $PROFILE by windows/setup.ps1; CLI tools come from winget.
 
 # --- environment ---
 $env:EDITOR = 'nvim'

@@ -14,9 +14,10 @@ In PowerShell (7+ recommended):
 
 or from a checkout: `.\windows\setup.ps1`. Then restart PowerShell.
 
-Installs scoop + the CLI stack, the PSFzf/PSReadLine modules, writes `$PROFILE`
-(backing up any existing one to `$PROFILE.titarch-bak`) and
-`~/.config/starship.toml`.
+Installs the CLI stack via **winget** (ids verified against winget-pkgs), the
+PSFzf/PSReadLine PowerShell modules (from PSGallery - winget doesn't do PS
+modules), writes `$PROFILE` (backing up any existing one to
+`$PROFILE.titarch-bak`) and `~/.config/starship.toml`.
 
 ## What you get
 
@@ -29,7 +30,7 @@ Installs scoop + the CLI stack, the PSFzf/PSReadLine modules, writes `$PROFILE`
 
 - **Shared history**: run `atuin register` / `atuin login` then `atuin sync` -
   the same command history follows you between Linux and Windows.
-- **Windows Terminal**: install a Nerd Font (e.g. `scoop install extras/FiraCode-NF`)
-  and set it as the profile font, then add the official Dracula scheme from
-  https://draculatheme.com/windows-terminal and select it. That covers the
-  glyphs the prompt and eza icons use.
+- **Windows Terminal**: install a Nerd Font (winget has some, or grab one from
+  https://www.nerdfonts.com) and set it as the profile font, then add the
+  official Dracula scheme from https://draculatheme.com/windows-terminal and
+  select it. That covers the glyphs the prompt and eza icons use.
