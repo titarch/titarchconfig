@@ -92,3 +92,11 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   Known open-module + GSP hang class; proprietary module + GSP-off is the
   only workaround and is not a confirmed HDR fix. Revisit on a newer driver.
   For HDR video, tone-map instead (mpv --vo=gpu-next), never real HDR out.
+- hyprlang .conf is DEPRECATED (0.55+; 0.56 warns on startup) in favor of Lua
+  (~/.config/hypr/hyprland.lua). .conf still loads (support ~1-2 releases past
+  0.55, so ~0.57-0.58); no auto-converter; the two cannot coexist (hyprland.lua
+  wins if present). DO NOT migrate yet: DMS mod+F1 cheatsheet parses the .conf
+  main file (Lua likely breaks it), and the whole config is chezmoi-templated
+  (per-host monitors, theme palette, feature gates, sourced binds-workspaces).
+  Revisit when DMS gains Lua keybind support + Lua config stabilizes. Warning
+  is cosmetic; no clean suppress found (hyprlang noerror is for plugins only).
