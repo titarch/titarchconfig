@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# monitors - turn Hyprland outputs on/off and switch named on/off profiles.
+# Mechanism: a sourced override file + `hyprctl reload`. On this Hyprland
+# `hyprctl keyword monitor` and wlr-output-management (what DMS/GUI display
+# tools drive) are silently ignored at runtime; reloading a sourced file is the
+# one that sticks - same trick the stream script uses.
+set -euo pipefail
+
+cfg="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
+ov="$cfg/monitors-override.conf"
+profiles="$cfg/monitor-profiles"
+hdr="# written by 'monitors'; output overrides win last on reload. edit via the helper."
+
+# resolve a live instance even from a detached tty (in-session this is already set)
+export HYPRLAND_INSTANCE_SIGNATURE="${HYPRLAND_INSTANCE_SIGNATURE:-$(ls -t "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr" 2>/dev/null | grep -v '\.lock$' | head -1)}"
+
+ensure() { [ -f "$ov" ] || printf '%s\n' "$hdr" > "$ov"; }
+reload() {
+  hyprctl reload >/dev/null 2>&1 || { echo "monitors: hyprctl reload failed (is Hyprland running here?)" >&2; exit 1; }
+  echo "reloaded"
+}
+drop() { grep -vFx "monitor = $1, disable" "$ov" > "$ov.tmp" || true; mv "$ov.tmp" "$ov"; }
+disabled_set() { grep -E '^monitor = .+, disable$' "$ov" 2>/dev/null | sed -E 's/^monitor = (.+), disable$/\1/' | paste -sd' ' - || true; }
+
+usage() {
+  cat >&2 <<EOF
+monitors - Hyprland output on/off + profiles
+  monitors status              show outputs and current overrides (default)
+  monitors off  NAME...        disable output(s), e.g. monitors off DP-1
+  monitors on   NAME...        re-enable output(s)
+  monitors toggle NAME         flip one output
+  monitors reset               clear all overrides (back to config defaults)
+  monitors save NAME           save the current off-set as profile NAME
+  monitors load NAME           apply profile NAME
+  monitors profiles            list saved profiles
+EOF
+}
+
+cmd="${1:-status}"; shift || true
+case "$cmd" in
+  off)
+    [ $# -ge 1 ] || { usage; exit 1; }; ensure
+    for m in "$@"; do grep -Fxq "monitor = $m, disable" "$ov" || printf 'monitor = %s, disable\n' "$m" >> "$ov"; done
+    reload ;;
+  on)
+    [ $# -ge 1 ] || { usage; exit 1; }; ensure
+    for m in "$@"; do drop "$m"; done
+    reload ;;
+  toggle)
+    [ $# -eq 1 ] || { usage; exit 1; }; ensure
+    if grep -Fxq "monitor = $1, disable" "$ov"; then drop "$1"; else printf 'monitor = %s, disable\n' "$1" >> "$ov"; fi
+    reload ;;
+  reset)
+    printf '%s\n' "$hdr" > "$ov"; reload ;;
+  save)
+    [ $# -eq 1 ] || { usage; exit 1; }; ensure
+    set="$(disabled_set)"; touch "$profiles"
+    { grep -vE "^$1:" "$profiles" 2>/dev/null || true; } > "$profiles.tmp"; mv "$profiles.tmp" "$profiles"
+    printf '%s: %s\n' "$1" "$set" >> "$profiles"
+    echo "saved profile '$1' -> off:[${set:-none}]" ;;
+  load)
+    [ $# -eq 1 ] || { usage; exit 1; }
+    grep -qE "^$1:" "$profiles" 2>/dev/null || { echo "monitors: no profile '$1' (see: monitors profiles)" >&2; exit 1; }
+    set="$(grep -E "^$1:" "$profiles" | head -1 | cut -d: -f2-)"
+    printf '%s\n' "$hdr" > "$ov"
+    for m in $set; do printf 'monitor = %s, disable\n' "$m" >> "$ov"; done
+    reload ;;
+  profiles)
+    [ -s "$profiles" ] && sed 's/^/  /' "$profiles" || echo "  (no profiles saved)" ;;
+  status)
+    echo "# outputs:"; hyprctl monitors all 2>/dev/null | grep -E '^Monitor' | sed 's/^/  /' || echo "  (hyprctl unavailable)"
+    echo "# overrides ($ov):"; grep -E '^monitor' "$ov" 2>/dev/null | sed 's/^/  /' || echo "  (none)" ;;
+  -h|--help|help) usage ;;
+  *) echo "monitors: unknown command '$cmd'" >&2; usage; exit 1 ;;
+esac

@@ -13,6 +13,8 @@ monitor = , preferred, auto, 1
 # owned by the stream script, wins over rules above on reload
 source = ~/.config/hypr/monitors-runtime.conf
 {{- end }}
+# manual output on/off overrides from the `monitors` helper (win last on reload)
+source = ~/.config/hypr/monitors-override.conf
 
 # env
 {{- if .features.nvidia }}
