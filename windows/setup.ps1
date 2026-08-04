@@ -46,12 +46,14 @@ $targets = @($PROFILE)
 if     ($PROFILE -match 'WindowsPowerShell') { $targets += ($PROFILE -replace 'WindowsPowerShell', 'PowerShell') }
 elseif ($PROFILE -match '\\PowerShell\\')    { $targets += ($PROFILE -replace '\\PowerShell\\', '\WindowsPowerShell\') }
 foreach ($p in ($targets | Select-Object -Unique)) {
-  New-Item -ItemType Directory -Force -Path (Split-Path $p) | Out-Null
+  $dir = Split-Path $p
+  New-Item -ItemType Directory -Force -Path $dir | Out-Null
   if ((Test-Path $p) -and -not (Test-Path "$p.titarch-bak")) {
     Copy-Item $p "$p.titarch-bak"; info "backed up existing profile -> $p.titarch-bak"
   }
   info "writing profile -> $p"
   Fetch 'Microsoft.PowerShell_profile.ps1' $p
+  Fetch 'git-aliases.ps1' (Join-Path $dir 'git-aliases.ps1')   # sourced by the profile
 }
 
 $cfgDir = Join-Path $HOME '.config'

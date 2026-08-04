@@ -52,8 +52,10 @@ if (Get-Command eza -ErrorAction SilentlyContinue) {
 if (Get-Command nvim -ErrorAction SilentlyContinue) { Set-Alias vim nvim }
 function f   { fd @args }              # was find; fd is faster + gitignore-aware
 function lg  { lazygit @args }
-function g   { git @args }
-function gs  { git status @args }
-function gd  { git diff @args }
 function eb  { nvim $PROFILE }          # edit this profile
 function sb  { . $PROFILE }             # reload it
+
+# omz-style git aliases (gst/gco/gp/gd/glog/...), generated from the oh-my-zsh git
+# plugin so they match zsh. Shadows built-in PS aliases gc/gp/gl/gm/gcm (-> git).
+$gitAliases = Join-Path $PSScriptRoot 'git-aliases.ps1'
+if (Test-Path $gitAliases) { . $gitAliases }

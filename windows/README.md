@@ -28,7 +28,12 @@ modules), writes `$PROFILE` (backing up any existing one to
 
 - `z <dir>` / `zi` (zoxide), `Ctrl-r` history + `Ctrl-t` file picker (fzf),
   inline history autosuggestion + fish-style list (PSReadLine).
-- `ls`/`ll`/`la` -> eza, `f` -> fd, `lg` -> lazygit, `vim` -> nvim, `g`/`gs`/`gd`.
+- `ls`/`ll`/`la` -> eza, `f` -> fd, `lg` -> lazygit, `vim` -> nvim.
+- **All the oh-my-zsh git aliases** (`gst`, `gco`, `gp`, `gd`, `glog`, `gcm`, ...):
+  `git-aliases.ps1` is generated from your omz git plugin by `gen-git-aliases.sh`
+  and sourced by the profile. Note it shadows the built-in PowerShell aliases
+  `gc`/`gp`/`gl`/`gm`/`gcm` (they become git). Regenerate after omz updates:
+  `bash windows/gen-git-aliases.sh`.
 - Dracula starship prompt reading `~/.config/starship.toml`.
 
 ## Two extras for real parity
