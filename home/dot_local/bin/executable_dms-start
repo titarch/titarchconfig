@@ -1,0 +1,11 @@
+#!/bin/sh
+# Launch DMS after PipeWire + WirePlumber are answering. quickshell's PipeWire
+# audio module (QAudioContext) crashes/deadlocks at boot if it connects while
+# pipewire is still coming up - segfault in libpipewire-module-protocol-native,
+# or the "pw_core_sync timed out" freeze. Gating on readiness dodges the race.
+for i in $(seq 1 50); do                       # up to ~10s
+  pw-cli info 0 >/dev/null 2>&1 && wpctl status >/dev/null 2>&1 && break
+  sleep 0.2
+done
+sleep 0.3                                       # let wireplumber finish registering nodes
+exec dms run

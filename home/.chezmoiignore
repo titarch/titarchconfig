@@ -34,6 +34,7 @@
 .local/bin/ws-move
 .local/bin/dms-bar-setup
 .local/bin/dms-plugins-setup
+.local/bin/dms-start
 .local/share/wallpapers/**
 .local/state/DankMaterialShell/**
 {{ end }}

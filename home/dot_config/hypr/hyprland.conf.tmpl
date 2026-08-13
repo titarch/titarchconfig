@@ -34,7 +34,9 @@ env = GLFW_IM_MODULE,ibus
 
 # autostart
 exec-once = systemctl --user import-environment WAYLAND_DISPLAY DISPLAY HYPRLAND_INSTANCE_SIGNATURE && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP
-exec-once = dms run
+# dms-start waits for pipewire before `dms run`: quickshell's PipeWire module
+# crashes/deadlocks if it races pipewire at boot (see CLAUDE.md gotcha)
+exec-once = ~/.local/bin/dms-start
 exec-once = wl-paste --type text --watch cliphist store
 exec-once = wl-paste --type image --watch cliphist store
 exec-once = fcitx5 -d
@@ -47,8 +49,11 @@ exec-once = ~/.local/bin/screenprivacy watch
 {{- if .features.streaming }}
 exec-once = ~/.local/bin/stream init-virt
 {{- end }}
-# lock on boot only when greetd auto-logs-in (else the greeter already asked)
-exec-once = sh -c 'grep -q "^\[initial_session\]" /etc/greetd/config.toml 2>/dev/null || exit 0; for i in $(seq 1 60); do [ "$(dms ipc call lock isLocked 2>/dev/null)" = "true" ] && exit; dms ipc call lock lock >/dev/null 2>&1; sleep 0.5; done'
+# lock on boot only when greetd auto-logs-in (else the greeter already asked).
+# timeout on each ipc call so a wedged DMS can't hang the loop; if DMS never
+# locks within the deadline (crashed/wedged), fall back to hyprlock so the box
+# never sits unlocked (DMS quickshell has crashed on boot - see CLAUDE.md gotcha).
+exec-once = sh -c 'grep -q "^\[initial_session\]" /etc/greetd/config.toml 2>/dev/null || exit 0; end=$(( $(date +%s) + 25 )); while [ "$(date +%s)" -lt "$end" ]; do [ "$(timeout 1 dms ipc call lock isLocked 2>/dev/null)" = "true" ] && exit 0; timeout 1 dms ipc call lock lock >/dev/null 2>&1; sleep 0.5; done; command -v hyprlock >/dev/null && exec hyprlock'
 
 input {
     kb_layout = fr

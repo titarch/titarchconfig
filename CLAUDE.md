@@ -85,6 +85,16 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   with `zsh -n`, not bash.
 - Known upstream bug: hyprland may segfault in CGroup::remove when a
   grouped window dies (crash report in ~/.cache/hyprland/).
+- DMS/quickshell dies at boot racing PipeWire (quickshell 0.3, pipewire 1.6.8):
+  its audio thread (QAudioContext) either segfaults in
+  libpipewire-module-protocol-native or deadlocks ("pw_core_sync timed out").
+  Symptom: no bar + (worse) lock-on-boot never fires -> box sits UNLOCKED.
+  Coredumps: `coredumpctl list quickshell`; hypr log is in /run (wiped on
+  reboot) so use journalctl -b -1. Mitigations in place: `dms-start` gates
+  `dms run` on pipewire readiness (pw-cli info 0 + wpctl); wireplumber
+  50-disable-stream-restore.conf turns off the persisted stream state it chokes
+  on; the lock-on-boot loop `timeout`s each dms ipc call and falls back to
+  hyprlock. Recover a live wedge: `pkill -9 -f quickshell/dms; setsid -f dms run`.
 - DO NOT enable HDR / 10-bit on grodarch: an HDR modeset (`cm, hdr` +
   `bitdepth, 10`) hard-wedges the nvidia-open 610 display engine
   ("nvidia-modeset: Error while waiting for GPU progress", modeset task

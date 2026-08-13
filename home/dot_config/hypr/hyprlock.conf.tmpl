@@ -1,0 +1,29 @@
+# Fallback locker: DMS provides the normal lock; this is used by the lock-on-boot
+# exec-once only when DMS is dead/wedged (see hyprland.conf.tmpl), and for manual
+# `hyprlock`. Colors from .chezmoidata.toml [theme].
+background {
+    color = rgb({{ trimPrefix "#" .theme.bgDark }})
+}
+
+input-field {
+    size = 320, 52
+    outline_thickness = 2
+    dots_center = true
+    outer_color = rgb({{ trimPrefix "#" .theme.purple }})
+    inner_color = rgb({{ trimPrefix "#" .theme.bg }})
+    font_color = rgb({{ trimPrefix "#" .theme.fg }})
+    fail_color = rgb({{ trimPrefix "#" .theme.red }})
+    placeholder_text = <span foreground="##{{ trimPrefix "#" .theme.comment }}">locked (fallback)</span>
+    position = 0, -20
+    halign = center
+    valign = center
+}
+
+label {
+    text = $TIME
+    color = rgb({{ trimPrefix "#" .theme.fg }})
+    font_size = 44
+    position = 0, 90
+    halign = center
+    valign = center
+}
