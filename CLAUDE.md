@@ -54,7 +54,11 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   way to sync a machine.
 - DMS plugins in `home/dot_config/DankMaterialShell/plugins/`: netspeed is
   homegrown (fixed-width rates + vpn toggle popout); registry plugins are
-  installed by dms-plugins-setup (list lives in that script).
+  installed by dms-plugins-setup (list lives in that script). That script also
+  sets the Calculator plugin's engine to qalc (libqalculate: unit/currency/hex
+  conversions) by merging calcEngine into plugin_settings.json; DMS never
+  rewrites that file except on a GUI change, so the external merge is safe and
+  applies on next DMS start. mod+x (spotlight "= ") routes to that plugin.
 - Firefox tab-scroll fix: autoconfig in `system/firefox/` + pacman hook
   (accumulates hi-res wheel deltas; stock handler switches per event).
 

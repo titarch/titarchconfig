@@ -39,3 +39,23 @@ sleep 2
 for p in "${ENABLE[@]}"; do
     dms ipc call plugins enable "$p"
 done
+
+# default the Calculator plugin to the qalc engine (libqalculate: unit/currency/hex/%
+# conversions) instead of its basic JS default. Stored in plugin_settings.json, which
+# DMS reads at startup and only rewrites on an explicit GUI change, so an external merge
+# is safe (applies on next DMS start / re-login). Idempotent; skipped if qalc is absent.
+if command -v qalc >/dev/null; then
+    python3 - <<'PY'
+import json, os
+p = os.path.expanduser("~/.config/DankMaterialShell/plugin_settings.json")
+try: d = json.load(open(p))
+except Exception: d = {}
+c = d.setdefault("calculator", {})
+if c.get("calcEngine") != "qalc":
+    c["calcEngine"] = "qalc"
+    tmp = p + ".tmp"
+    with open(tmp, "w") as f: json.dump(d, f, indent=2)
+    os.replace(tmp, p)
+    print("calculator: engine -> qalc (re-login or restart DMS to apply)")
+PY
+fi
