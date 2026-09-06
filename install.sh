@@ -62,13 +62,14 @@ fi
 read -p "Setup DMS greeter (run this from inside a hyprland session)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    # binary already installed above, this just writes the greetd config
-    dms greeter install
+    # binary came from yay; install writes greetd config, sync applies the theme
+    dms-greeter install
+    dms-greeter sync
     read -p "Enable auto-login + lock-on-boot (desktops only)? " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         dms ipc call settings set greeterAutoLogin true
-        dms greeter sync --autologin
+        dms-greeter sync --autologin   # 1.6+: --autologin applies only autologin, not the theme (synced above)
     fi
 fi
 

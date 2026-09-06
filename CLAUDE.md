@@ -106,6 +106,13 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   Known open-module + GSP hang class; proprietary module + GSP-off is the
   only workaround and is not a confirmed HDR fix. Revisit on a newer driver.
   For HDR video, tone-map instead (mpv --vo=gpu-next), never real HDR out.
+- DMS greeter (1.6+): now a single `/usr/bin/dms-greeter` binary, embedded UI
+  (the /usr/share/quickshell/dms-greeter tree is gone). `dms greeter <cmd>` is a
+  deprecation shim -> `dms-greeter <cmd>`, so the existing /etc/greetd/config.toml
+  keeps working. After a greeter repackage, re-run `sudo dms-greeter sync` (theme).
+  New `sync --autologin` applies ONLY autologin, not the theme (run plain `sync`
+  too). Do NOT re-run `dms-greeter install`/`enable` on grodarch: it may reset the
+  hand-tuned initial_session (env XDG_SESSION_TYPE + launch-session --from-memory).
 - hyprlang .conf is DEPRECATED (0.55+; 0.56 warns on startup) in favor of Lua
   (~/.config/hypr/hyprland.lua). .conf still loads (support ~1-2 releases past
   0.55, so ~0.57-0.58); no auto-converter; the two cannot coexist (hyprland.lua
