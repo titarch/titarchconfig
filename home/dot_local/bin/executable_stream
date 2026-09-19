@@ -16,10 +16,10 @@ LAST_PROFILE_FILE="$STATE_DIR/last-profile"
 # diagonal park pos shares no edge with real monitors, cursor cannot reach
 PARK_MODE="1920x1080@60"
 PARK_POS="20000x20000"
-# hyprctl keyword monitor and wlr-output-management are no-ops at runtime
-# (hyprland 0.55); writing rules to this sourced file + hyprctl reload works.
-# All monitor ops silently no-op while the hyprland VT is not active.
-RUNTIME_MON_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/monitors-runtime.conf"
+# hyprctl keyword and wlr-output-management are no-ops at runtime; under the Lua
+# config we write hl.monitor{} / hl.workspace_rule{} to this module (require'd by
+# hyprland.lua) then hyprctl reload. All monitor ops no-op while the VT is inactive.
+RUNTIME_MON_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/monitors-runtime.lua"
 
 die() { echo "stream: $*" >&2; exit 1; }
 
@@ -109,11 +109,11 @@ hypr_virt() {
 hypr_park_virt() {
     local m
     {
-        echo "# written by stream, home state"
+        echo "-- written by stream, home state"
         for m in $(hyprctl -j monitors all 2>/dev/null \
             | jq -r '.[].name | select(startswith("HEADLESS-"))'); do
-            echo "monitor = $m, $PARK_MODE, $PARK_POS, 1"
-            echo "workspace = name:stream-park, monitor:$m, default:true"
+            echo "hl.monitor({ output = \"$m\", mode = \"$PARK_MODE\", position = \"$PARK_POS\", scale = 1 })"
+            echo "hl.workspace_rule({ workspace = \"name:stream-park\", monitor = \"$m\", default = true })"
         done
     } > "$RUNTIME_MON_CONF"
     hyprctl reload >/dev/null 2>&1
@@ -208,11 +208,11 @@ cmd_on() {
     # monitors all so an away to away profile switch keeps physicals off
     local m
     {
-        echo "# written by stream, away mode ($profile)"
-        echo "monitor = $virt, ${w}x${h}@${r}, 0x0, 1"
+        echo "-- written by stream, away mode ($profile)"
+        echo "hl.monitor({ output = \"$virt\", mode = \"${w}x${h}@${r}\", position = \"0x0\", scale = 1 })"
         for m in $(hyprctl -j monitors all 2>/dev/null \
             | jq -r '.[].name | select(startswith("HEADLESS-") | not)'); do
-            echo "monitor = $m, disable"
+            echo "hl.monitor({ output = \"$m\", disabled = true })"
         done
     } > "$RUNTIME_MON_CONF"
     hyprctl reload >/dev/null 2>&1
