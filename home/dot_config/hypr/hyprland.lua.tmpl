@@ -1,0 +1,238 @@
+-- Hyprland + DankMaterialShell, i3 keybind port (Lua config; ported from hyprland.conf)
+{{- $host := index .hosts .chezmoi.hostname }}
+
+-- monitors
+{{- if $host }}
+{{- range $host.monitors }}
+hl.monitor({ output = "{{ .wayland }}", mode = "{{ .mode }}", position = "{{ .pos }}", scale = 1 })
+{{- end }}
+{{- else }}
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
+{{- end }}
+{{- if .features.streaming }}
+require("monitors-runtime")   -- owned by the stream script, wins over rules above on reload
+{{- end }}
+require("monitors-override")  -- manual on/off from the `monitors` helper, wins last
+
+-- env
+{{- if .features.nvidia }}
+hl.env("LIBVA_DRIVER_NAME", "nvidia")
+hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+hl.env("NVD_BACKEND", "direct")
+{{- end }}
+hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
+hl.env("GTK_THEME", "Dracula")
+hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
+-- fcitx5: GTK apps use wayland text-input directly, no GTK_IM_MODULE
+hl.env("QT_IM_MODULE", "fcitx")
+hl.env("XMODIFIERS", "@im=fcitx")
+hl.env("SDL_IM_MODULE", "fcitx")
+-- kitty has no wayland text-input, IME via ibus protocol
+hl.env("GLFW_IM_MODULE", "ibus")
+
+-- autostart
+hl.on("hyprland.start", function()
+  hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY DISPLAY HYPRLAND_INSTANCE_SIGNATURE && dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP")
+  -- dms-start waits for pipewire before `dms run` (quickshell races pipewire at boot; CLAUDE.md)
+  hl.exec_cmd("~/.local/bin/dms-start")
+  hl.exec_cmd("wl-paste --type text --watch cliphist store")
+  hl.exec_cmd("wl-paste --type image --watch cliphist store")
+  hl.exec_cmd("fcitx5 -d")
+  hl.exec_cmd("~/.local/bin/cursor-drift daemon")
+  hl.exec_cmd("~/.local/bin/presence watch")
+  hl.exec_cmd("~/.local/bin/screenprivacy watch")
+{{- if .features.streaming }}
+  hl.exec_cmd("~/.local/bin/stream init-virt")
+{{- end }}
+  -- lock on boot only under greetd autologin; timeout each ipc call so a wedged DMS
+  -- can't hang; fall back to hyprlock if DMS never locks (CLAUDE.md gotcha)
+  hl.exec_cmd([[sh -c 'grep -q "^\[initial_session\]" /etc/greetd/config.toml 2>/dev/null || exit 0; end=$(( $(date +%s) + 25 )); while [ "$(date +%s)" -lt "$end" ]; do [ "$(timeout 1 dms ipc call lock isLocked 2>/dev/null)" = "true" ] && exit 0; timeout 1 dms ipc call lock lock >/dev/null 2>&1; sleep 0.5; done; command -v hyprlock >/dev/null && exec hyprlock']])
+end)
+
+-- input
+hl.config({
+  input = {
+    kb_layout = "fr",
+    kb_variant = "us",
+    kb_options = "compose:{{ .composeKey }}{{ if .capsSwapEscape }},caps:swapescape{{ end }}",
+    follow_mouse = 1,
+  },
+})
+{{- if .features.streaming }}
+-- sunshine virtual kbd bypasses caps2esc; options override, not merge
+hl.device({ name = "keyboard-passthrough", kb_layout = "fr", kb_variant = "us", kb_options = "compose:{{ .composeKey }},caps:swapescape" })
+{{- end }}
+
+-- general / decoration / dwindle / group / misc / animations
+hl.config({
+  general = {
+    gaps_in = 4,
+    gaps_out = 8,
+    border_size = 2,
+    -- muted purples on purpose (true dracula accents too distracting here)
+    col = {
+      active_border = { colors = { "rgb(a184d6)", "rgb(d673ab)" }, angle = 45 },
+      inactive_border = "rgb({{ trimPrefix "#" .theme.currentLine }})",
+    },
+    layout = "dwindle",
+  },
+  decoration = {
+    rounding = 8,
+    blur = { enabled = {{ .features.fancyFx }}, size = 6, passes = 3, popups = true },
+    shadow = { enabled = {{ .features.fancyFx }}, range = 18, render_power = 3, color = "rgba(1e2029b0)" },
+  },
+  dwindle = { preserve_split = true },
+  group = {
+    col = {
+      border_active = { colors = { "rgb({{ trimPrefix "#" .theme.pink }})", "rgb({{ trimPrefix "#" .theme.purple }})" }, angle = 45 },
+      border_inactive = "rgb({{ trimPrefix "#" .theme.currentLine }})",
+    },
+    groupbar = {
+      col = { active = "rgb({{ trimPrefix "#" .theme.purpleDim }})", inactive = "rgb({{ trimPrefix "#" .theme.bg }})" },
+      text_color = "rgb({{ trimPrefix "#" .theme.fg }})",
+    },
+  },
+  misc = { disable_hyprland_logo = true },
+  animations = { enabled = true },
+})
+
+-- animations (durations in 100ms units)
+hl.curve("quick", { type = "bezier", points = { {0.23, 1}, {0.32, 1} } })
+hl.animation({ leaf = "global",     enabled = true, speed = 2.5, bezier = "quick" })
+hl.animation({ leaf = "windows",    enabled = true, speed = 1.5, bezier = "quick", style = "popin 85%" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 1.2, bezier = "quick", style = "popin 85%" })
+hl.animation({ leaf = "fade",       enabled = true, speed = 1.5, bezier = "quick" })
+hl.animation({ leaf = "layers",     enabled = true, speed = 1.2, bezier = "quick" })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 2,   bezier = "quick", style = "slide" })
+hl.animation({ leaf = "border",     enabled = true, speed = 2,   bezier = "quick" })
+{{- if .features.fancyFx }}
+hl.animation({ leaf = "borderangle", enabled = true, speed = 50, bezier = "linear", style = "loop" })
+{{- end }}
+
+-- apps
+hl.bind("SUPER + Return", hl.dsp.exec_cmd("kitty"))
+hl.bind("SUPER + SHIFT + Q", hl.dsp.window.close())
+hl.bind("SUPER + D", hl.dsp.exec_cmd("dms ipc call spotlight toggle"))
+hl.bind("SUPER + slash", hl.dsp.exec_cmd("dms ipc call hypr toggleOverview"))
+hl.bind("SUPER + F1", hl.dsp.exec_cmd("dms ipc call keybinds toggle hyprland"))
+hl.bind("SUPER + SHIFT + V", hl.dsp.exec_cmd("dms ipc call clipboard toggle"))
+hl.bind("SUPER + CTRL + L", hl.dsp.exec_cmd("dms ipc call lock lock"))
+hl.bind("SUPER + CTRL + SHIFT + L", hl.dsp.exec_cmd("systemctl suspend"))
+hl.bind("SUPER + CTRL + SHIFT + P", hl.dsp.exec_cmd("systemctl hibernate"))
+hl.bind("SUPER + CTRL + SHIFT + A", hl.dsp.exec_cmd("systemctl poweroff"))
+hl.bind("SUPER + CTRL + SHIFT + R", hl.dsp.exec_cmd("reboot"))
+hl.bind("SUPER + CTRL + J", hl.dsp.exec_cmd("jetbrains-toolbox"))
+-- region select then annotate/copy/save (dms screenshot mode is niri-only)
+hl.bind("SUPER + F12", hl.dsp.exec_cmd([[sh -c 'grim -g "$(slurp)" - | satty --filename - --output-filename ~/Pictures/Screenshots/shot-$(date +%Y%m%d-%H%M%S).png --early-exit --copy-command wl-copy']]))
+hl.bind("SUPER + grave", hl.dsp.exec_cmd("dms ipc call spotlight openQuery \":e \""))
+hl.bind("SUPER + Insert", hl.dsp.exec_cmd([[sh -c 'notify-send "Clipboard" "$(wl-paste)"']]))
+hl.bind("SUPER + Pause", hl.dsp.exec_cmd([[sh -c 'qrencode -s 50 -o /tmp/qr.png "$(wl-paste)" && feh --auto-zoom --fullscreen /tmp/qr.png || notify-send "QR Code Failure" "Error code $?"']]))
+{{- if .features.streaming }}
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("~/.local/bin/stream toggle"))
+{{- end }}
+hl.bind("SUPER + P", hl.dsp.exec_cmd("~/.local/bin/presence toggle"))
+hl.bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("~/.local/bin/screenprivacy toggle"))
+hl.bind("SUPER + N", hl.dsp.exec_cmd("dms ipc call notepad toggle"))
+-- dock toggle disabled: dms 1.5.2 ignores dockPosition and shoves windows from the top; retry after a dms update
+-- hl.bind("SUPER + B", hl.dsp.exec_cmd("dms ipc call dock toggle"))
+hl.bind("SUPER + Escape", hl.dsp.exec_cmd("dms ipc call processlist toggle"))
+hl.bind("CTRL + grave", hl.dsp.exec_cmd("dms ipc call notifications toggle"))
+hl.bind("CTRL + space", hl.dsp.exec_cmd("dms ipc call notifications dismissAllPopups"))
+hl.bind("CTRL + SHIFT + space", hl.dsp.exec_cmd("dms ipc call notifications clearAll"))
+hl.bind("SUPER + SHIFT + E", hl.dsp.exec_cmd("dms ipc call powermenu toggle"))
+hl.bind("SUPER + X", hl.dsp.exec_cmd("dms ipc call spotlight openQuery \"= \""))
+-- ime toggle fr <-> mozc (fcitx wayland hotkey unreliable, drive via fcitx5-remote)
+hl.bind("SUPER + space", hl.dsp.exec_cmd("fcitx5-remote -t"))
+
+-- focus / move (i3 muscle memory: J=left K=down L=up ;=right)
+hl.bind("SUPER + J", hl.dsp.focus({ direction = "left" }))
+hl.bind("SUPER + K", hl.dsp.focus({ direction = "down" }))
+hl.bind("SUPER + L", hl.dsp.focus({ direction = "up" }))
+hl.bind("SUPER + semicolon", hl.dsp.focus({ direction = "right" }))
+hl.bind("SUPER + left", hl.dsp.focus({ direction = "left" }))
+hl.bind("SUPER + down", hl.dsp.focus({ direction = "down" }))
+hl.bind("SUPER + up", hl.dsp.focus({ direction = "up" }))
+hl.bind("SUPER + right", hl.dsp.focus({ direction = "right" }))
+-- move window, joining a group when pushed into one
+hl.bind("SUPER + SHIFT + J", hl.dsp.window.move({ direction = "left", group_aware = true }))
+hl.bind("SUPER + SHIFT + K", hl.dsp.window.move({ direction = "down", group_aware = true }))
+hl.bind("SUPER + SHIFT + L", hl.dsp.window.move({ direction = "up", group_aware = true }))
+hl.bind("SUPER + SHIFT + semicolon", hl.dsp.window.move({ direction = "right", group_aware = true }))
+hl.bind("SUPER + SHIFT + left", hl.dsp.window.move({ direction = "left", group_aware = true }))
+hl.bind("SUPER + SHIFT + down", hl.dsp.window.move({ direction = "down", group_aware = true }))
+hl.bind("SUPER + SHIFT + up", hl.dsp.window.move({ direction = "up", group_aware = true }))
+hl.bind("SUPER + SHIFT + right", hl.dsp.window.move({ direction = "right", group_aware = true }))
+
+-- splits, group = i3 tabbed
+hl.bind("SUPER + H", hl.dsp.layout("preselect r"))
+hl.bind("SUPER + V", hl.dsp.layout("preselect d"))
+hl.bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
+hl.bind("SUPER + W", hl.dsp.group.toggle())
+hl.bind("SUPER + TAB", hl.dsp.group.next())
+hl.bind("SUPER + SHIFT + TAB", hl.dsp.group.prev())
+hl.bind("SUPER + E", hl.dsp.layout("togglesplit"))
+hl.bind("SUPER + SHIFT + space", hl.dsp.window.float({ action = "toggle" }))
+
+-- workspaces: N on SUPER, primed N' on SUPER+ALT, ids interleaved so the switcher
+-- sorts 1 1' 2 2'; one example of each pattern here, the rest in binds-workspaces
+hl.bind("SUPER + 1", hl.dsp.focus({ workspace = "1" }))
+hl.bind("SUPER + ALT + 1", hl.dsp.focus({ workspace = "2" }))
+hl.bind("SUPER + SHIFT + 1", hl.dsp.window.move({ workspace = "1" }))
+hl.bind("SUPER + SHIFT + ALT + 1", hl.dsp.window.move({ workspace = "2" }))
+
+require("binds-workspaces")
+
+-- wraps at the edges like i3
+hl.bind("SUPER + CTRL + right", hl.dsp.exec_cmd("~/.local/bin/ws-move r"))
+hl.bind("SUPER + CTRL + left", hl.dsp.exec_cmd("~/.local/bin/ws-move l"))
+
+hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("hyprctl reload"))
+hl.bind("SUPER + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload"))
+
+-- resize submap
+hl.bind("SUPER + R", hl.dsp.submap("resize"))
+hl.define_submap("resize", function()
+  hl.bind("J", hl.dsp.window.resize({ x = -40, y = 0 }), { repeating = true })
+  hl.bind("K", hl.dsp.window.resize({ x = 0, y = 40 }), { repeating = true })
+  hl.bind("L", hl.dsp.window.resize({ x = 0, y = -40 }), { repeating = true })
+  hl.bind("semicolon", hl.dsp.window.resize({ x = 40, y = 0 }), { repeating = true })
+  hl.bind("left", hl.dsp.window.resize({ x = -40, y = 0 }), { repeating = true })
+  hl.bind("down", hl.dsp.window.resize({ x = 0, y = 40 }), { repeating = true })
+  hl.bind("up", hl.dsp.window.resize({ x = 0, y = -40 }), { repeating = true })
+  hl.bind("right", hl.dsp.window.resize({ x = 40, y = 0 }), { repeating = true })
+  hl.bind("Return", hl.dsp.submap("reset"))
+  hl.bind("escape", hl.dsp.submap("reset"))
+  hl.bind("SUPER + R", hl.dsp.submap("reset"))
+end)
+
+-- mouse
+hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true })
+hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+-- media / volume / brightness (locked = active on the lock screen too)
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ +5%"), { locked = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ -5%"), { locked = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("pactl set-sink-mute @DEFAULT_SINK@ toggle"), { locked = true })
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("dms ipc call brightness increment 5 \"\""), { locked = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("dms ipc call brightness decrement 5 \"\""), { locked = true })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl pause"), { locked = true })
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+hl.bind("SUPER + ALT + down", hl.dsp.exec_cmd("playerctl play-pause"))
+hl.bind("SUPER + ALT + left", hl.dsp.exec_cmd("playerctl previous"))
+hl.bind("SUPER + ALT + right", hl.dsp.exec_cmd("playerctl next"))
+
+-- window rules
+hl.window_rule({ match = { title = "^(float-.*)" }, float = true })
+hl.window_rule({ match = { title = "^(sfml-.*)" }, float = true })
+-- maximize requests are meaningless when tiling (firefox titlebar dblclick)
+hl.window_rule({ match = { class = ".*" }, suppress_event = "maximize" })
+{{- if .features.fancyFx }}
+-- blur the bar and panels (layer surfaces; window blur does not cover them)
+hl.layer_rule({ match = { namespace = "^(dms:).*" }, blur = true })
+hl.layer_rule({ match = { namespace = "^(dms:).*" }, ignore_alpha = 0.3 })
+-- frost dms toplevel windows (settings etc); opacity affects text too, keep high
+hl.window_rule({ match = { class = "^(com.danklinux.dms)$" }, opacity = 0.86 })
+{{- end }}
+hl.window_rule({ match = { class = "^(com\\.moonlight_stream\\.Moonlight)$" }, fullscreen = true })
