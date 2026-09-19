@@ -28,7 +28,8 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
 
 ## Machines
 - grodarch: desktop, RTX 4080 (nvidia flag on), 3x 2560x1440@144
-  (DP-2 left, DP-3 mid, DP-1 right), sunshine streaming host, greetd
+  (DP-4 left, DP-3 mid, DP-5 right; connectors shuffle on hw changes, match by
+  serial in .chezmoidata.toml), sunshine streaming host, greetd
   autologin + lock-on-boot, caps2esc system service handles caps/esc
   (do NOT add xkb swap here), compose rwin.
 - thinkpad: intel iris xe (fancyFx off), fr-us keyboard with compose prsc,
@@ -41,13 +42,17 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   config = chezmoi. Do not hand-edit /etc/nixos in this repo (root-owned there).
 
 ## Key components
-- `home/dot_config/hypr/hyprland.conf.tmpl`: i3 keybind port. Workspace
-  binds 2-12/14-24 live in `binds-workspaces.conf` (sourced) ON PURPOSE:
-  the DMS keybind cheatsheet (mod+F1) only parses the main file.
+- `home/dot_config/hypr/hyprland.lua.tmpl`: i3 keybind port, Lua config
+  (chezmoi-templated). Workspace binds 2-12/14-24 live in `binds-workspaces.lua`
+  (require'd); kept split for readability - DMS 1.6 parses require'd lua modules
+  for the mod+F1 cheatsheet, so the split no longer hides them. Validate any
+  edit with `Hyprland -c <rendered.lua> --verify-config` (renders via
+  `chezmoi execute-template`).
 - `stream` (dot_local/bin): sunshine away mode. Persistent parked headless
   output (20000x20000, named ws stream-park) so sunshine wlr capture always
-  sees it; monitor switching writes `~/.config/hypr/monitors-runtime.conf`
-  + `hyprctl reload`. Never restart sunshine from its own prep-cmd.
+  sees it; monitor switching writes `hl.monitor{}` to
+  `~/.config/hypr/monitors-runtime.lua` + `hyprctl reload`. Never restart
+  sunshine from its own prep-cmd.
 - `presence`: idle inhibit + ydotool jiggler (mod+P). `cursor-drift`:
   catppuccin cursor accent rotation. `config-sync`: non-interactive pull +
   apply + dms refresh (calls dms-bar-setup / dms-plugins-setup), the normal
@@ -63,11 +68,14 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   (accumulates hi-res wheel deltas; stock handler switches per event).
 
 ## Hard-won gotchas
-- Hyprland (0.55): `hyprctl keyword monitor` and wlr-output-management are
-  silently ignored at runtime. Working mechanism: write rules to a sourced
-  file, then `hyprctl reload`. ALL monitor ops no-op while the hyprland VT
-  is not the active seat ("drm: Session inactive" in its log) -- never
-  debug monitor behavior from another TTY.
+- Monitor ops at runtime (Lua config): `hyprctl keyword` HARD-fails ("keyword
+  can't work with non-legacy parsers. Use eval.") and wlr-output-management is
+  ignored. Working mechanism: write `hl.monitor{}` to a require'd .lua module
+  (monitors-override.lua via the `monitors` helper, monitors-runtime.lua via
+  `stream`) then `hyprctl reload` (CONFIRMED re-reads require'd modules).
+  `hyprctl eval 'hl.monitor{...}'` also works live (returns "ok" even when inert
+  -> verify via `hyprctl -j monitors`). ALL monitor ops no-op while the hyprland
+  VT is not the active seat ("drm: Session inactive") -- never debug from another TTY.
 - Debug a live session from anywhere:
   `export HYPRLAND_INSTANCE_SIGNATURE=$(ls -t /run/user/1000/hypr/ | head -1)`
   then hyprctl works (configerrors, reload, -j monitors). `dms ipc` lists
@@ -113,11 +121,20 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   New `sync --autologin` applies ONLY autologin, not the theme (run plain `sync`
   too). Do NOT re-run `dms-greeter install`/`enable` on grodarch: it may reset the
   hand-tuned initial_session (env XDG_SESSION_TYPE + launch-session --from-memory).
-- hyprlang .conf is DEPRECATED (0.55+; 0.56 warns on startup) in favor of Lua
-  (~/.config/hypr/hyprland.lua). .conf still loads (support ~1-2 releases past
-  0.55, so ~0.57-0.58); no auto-converter; the two cannot coexist (hyprland.lua
-  wins if present). DO NOT migrate yet: DMS mod+F1 cheatsheet parses the .conf
-  main file (Lua likely breaks it), and the whole config is chezmoi-templated
-  (per-host monitors, theme palette, feature gates, sourced binds-workspaces).
-  Revisit when DMS gains Lua keybind support + Lua config stabilizes. Warning
-  is cosmetic; no clean suppress found (hyprlang noerror is for plugins only).
+- Config MIGRATED to Lua (2026-09; hyprland 0.56.2, dms 1.6.2). hyprland.lua.tmpl
+  is the config; hyprlang .conf retired. Parser chosen at STARTUP: hyprland.lua
+  present -> lua; `hyprctl reload` does NOT switch parsers, so a swap needs a
+  relogin. Rollback = `rm ~/.config/hypr/hyprland.lua` + relogin (restore .conf
+  from git if ever needed). Validated Lua API on 0.56.2: keys are "MOD + KEY"
+  (+ separated, no-mod = bare key); hl.monitor/env/config/bind/define_submap/
+  window_rule/layer_rule/workspace_rule/curve({type="bezier",points=})/animation
+  ({leaf,enabled,speed,bezier,style})/device/on/timer; gradients =
+  {colors={..},angle=N}, single colors = "rgb(hex)" strings; dispatchers hl.dsp.*
+  (focus{direction=|workspace=}, window.move{workspace=|direction=,group_aware=},
+  window.fullscreen{mode=,action=}, window.float{action=}, layout("preselect r"),
+  group.toggle/next/prev, workspace.move{monitor=}). Validate edits with
+  `Hyprland -c f.lua --verify-config` (EXCEPT hl.timer, which suppresses its
+  clean output). DEFERRED: internalizing cursor-drift/presence/screenprivacy into
+  hl.timer/hl.on("screenshare.state")/hl.get_windows -- hl.timer is not statically
+  verifiable and screenshare.state may fire for sunshine wlr-screencopy (privacy-
+  trigger risk); they stay external exec-once until confirmed live.
