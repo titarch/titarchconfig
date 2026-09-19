@@ -11,4 +11,6 @@ if len(mons) < 2:
 mons.sort(key=lambda m: m["x"])
 cur = next(i for i, m in enumerate(mons) if m["focused"])
 target = mons[(cur + step) % len(mons)]["name"]
-subprocess.run(["hyprctl", "dispatch", "movecurrentworkspacetomonitor", target])
+# lua config: `hyprctl dispatch <name> <args>` is reinterpreted as hl.dispatch(lua);
+# pass the hl.dsp form. no workspace= -> current workspace.
+subprocess.run(["hyprctl", "dispatch", f'hl.dsp.workspace.move({{monitor="{target}"}})'])

@@ -76,6 +76,12 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   `hyprctl eval 'hl.monitor{...}'` also works live (returns "ok" even when inert
   -> verify via `hyprctl -j monitors`). ALL monitor ops no-op while the hyprland
   VT is not the active seat ("drm: Session inactive") -- never debug from another TTY.
+- Under the Lua config, `hyprctl dispatch <name> <args>` (legacy string form) is
+  reinterpreted as `hl.dispatch(<lua>)` and errors (e.g. "')' expected near 'DP'").
+  Scripts must use `hyprctl dispatch 'hl.dsp.<X>(...)'`: workspace.move({workspace=,
+  monitor=}) (no workspace= = current), focus({monitor=|workspace="name:x"|"id"}),
+  cursor.move({x=,y=}), exec_cmd("cmd"), no_op(). Bit ws-move + stream's away-restore
+  post-migration. `hyprctl output/-j monitors/reload` (non-dispatch) are unaffected.
 - Debug a live session from anywhere:
   `export HYPRLAND_INSTANCE_SIGNATURE=$(ls -t /run/user/1000/hypr/ | head -1)`
   then hyprctl works (configerrors, reload, -j monitors). `dms ipc` lists

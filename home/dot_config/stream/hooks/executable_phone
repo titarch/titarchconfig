@@ -1,9 +1,9 @@
 #!/bin/sh
 # phone profile hook: touch-friendly layout on a dedicated workspace
 if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && hyprctl monitors >/dev/null 2>&1; then
-    hyprctl dispatch workspace name:phone >/dev/null
+    hyprctl dispatch 'hl.dsp.focus({workspace="name:phone"})' >/dev/null
     if [ "$(hyprctl -j workspaces | jq '[.[] | select(.name=="phone")] | first.windows // 0')" = "0" ]; then
-        hyprctl dispatch exec firefox >/dev/null
+        hyprctl dispatch 'hl.dsp.exec_cmd("firefox")' >/dev/null
     fi
 else
     # tabbed = tappable titlebars

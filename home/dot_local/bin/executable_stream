@@ -143,7 +143,7 @@ hypr_restore_workspaces() {
     if [ -r "$WS_STATE" ]; then
         while IFS=$'\t' read -r id mon; do
             case "$mon" in HEADLESS-*) continue ;; esac
-            hyprctl dispatch moveworkspacetomonitor "$id" "$mon" >/dev/null 2>&1
+            hyprctl dispatch "hl.dsp.workspace.move({workspace=\"$id\", monitor=\"$mon\"})" >/dev/null 2>&1
         done < <(jq -r '.[] | select(.id >= 1) | [.id, .monitor] | @tsv' "$WS_STATE")
     fi
     # sweep workspaces created while away off the headless output
@@ -154,19 +154,19 @@ hypr_restore_workspaces() {
         for id in $(hyprctl -j workspaces 2>/dev/null \
             | jq -r '.[] | select(.id >= 1) | select(.name != "stream-park")
                 | select(.monitor | startswith("HEADLESS-")) | .id'); do
-            hyprctl dispatch moveworkspacetomonitor "$id" "$first_phys" >/dev/null 2>&1
+            hyprctl dispatch "hl.dsp.workspace.move({workspace=\"$id\", monitor=\"$first_phys\"})" >/dev/null 2>&1
         done
     fi
     # explicit, the default:true workspace rule is ignored for auto-created ones
     local hm
     for hm in $(hypr_enabled_monitors | grep '^HEADLESS-'); do
-        hyprctl dispatch focusmonitor "$hm" >/dev/null 2>&1
-        hyprctl dispatch workspace name:stream-park >/dev/null 2>&1
+        hyprctl dispatch "hl.dsp.focus({monitor=\"$hm\"})" >/dev/null 2>&1
+        hyprctl dispatch 'hl.dsp.focus({workspace="name:stream-park"})' >/dev/null 2>&1
     done
     if [ -r "$MON_STATE" ]; then
         while IFS=$'\t' read -r mon id; do
-            hyprctl dispatch focusmonitor "$mon" >/dev/null 2>&1
-            hyprctl dispatch workspace "$id" >/dev/null 2>&1
+            hyprctl dispatch "hl.dsp.focus({monitor=\"$mon\"})" >/dev/null 2>&1
+            hyprctl dispatch "hl.dsp.focus({workspace=\"$id\"})" >/dev/null 2>&1
         done < <(jq -r 'sort_by(.focused) | .[]
             | select(.name | startswith("HEADLESS-") | not)
             | [.name, .activeWorkspace.id] | @tsv' "$MON_STATE")
@@ -176,10 +176,10 @@ hypr_restore_workspaces() {
     focus_mon=$(jq -r '[.[] | select(.focused)] | first.name // empty' "$MON_STATE" 2>/dev/null)
     case "$focus_mon" in ""|HEADLESS-*) focus_mon="$first_phys" ;; esac
     if [ -n "$focus_mon" ]; then
-        hyprctl dispatch focusmonitor "$focus_mon" >/dev/null 2>&1
+        hyprctl dispatch "hl.dsp.focus({monitor=\"$focus_mon\"})" >/dev/null 2>&1
         center=$(hyprctl -j monitors 2>/dev/null | jq -r --arg m "$focus_mon" \
             '.[] | select(.name == $m) | "\(.x + (.width/2 | floor)) \(.y + (.height/2 | floor))"')
-        [ -n "$center" ] && hyprctl dispatch movecursor $center >/dev/null 2>&1
+        [ -n "$center" ] && hyprctl dispatch "hl.dsp.cursor.move({x=${center% *}, y=${center#* }})" >/dev/null 2>&1
     fi
     rm -f "$WS_STATE" "$MON_STATE"
 }
