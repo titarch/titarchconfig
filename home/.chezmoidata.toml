@@ -1,18 +1,19 @@
 # per-host data, template lookup: index .hosts .chezmoi.hostname
-# grodarch mapping verified against panel serials 2026-07-19
+# grodarch mapping. connector names shuffle on hardware changes -> match by
+# panel serial (VG27A x3). remapped 2026-09-19 after a mobo+CPU swap.
 [[hosts.grodarch.monitors]]
-wayland = "DP-2"
+wayland = "DP-4"   # serial M1LMQS109598 (left)
 mode = "2560x1440@144"
 pos = "0x0"
 
 [[hosts.grodarch.monitors]]
-wayland = "DP-3"
+wayland = "DP-3"   # serial L6LMQS143616 (mid, main/BIOS)
 mode = "2560x1440@144"
 pos = "2560x0"
 primary = true
 
 [[hosts.grodarch.monitors]]
-wayland = "DP-1"
+wayland = "DP-5"   # serial KCLMQS100054 (right)
 mode = "2560x1440@144"
 pos = "5120x0"
 
