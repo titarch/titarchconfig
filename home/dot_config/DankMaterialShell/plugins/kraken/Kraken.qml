@@ -41,7 +41,7 @@ PluginComponent {
     // at ~91C. red only when hot AND power throttled (overheating). Tctl limit ~95-96
     function powerColor() {
         if (!havePower) return Theme.surfaceVariantText;
-        if (power >= 160) return Theme.info;      // sustaining near-max -> excellent
+        if (power >= 190) return Theme.info;      // sustaining near-max (>=190 of ~200W) -> excellent
         if (cpuTemp >= 93) return Theme.error;    // hot but power not near-max -> throttling/overheating
         if (power >= 70) return Theme.success;    // solid load, temp in check -> good
         if (cpuTemp >= 85) return Theme.warning;  // warm under light load -> watch
