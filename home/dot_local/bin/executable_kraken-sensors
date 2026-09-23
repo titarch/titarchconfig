@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# one json line of kraken elite + cpu thermal/power sensors for the dms kraken widget.
+# resolves hwmon dirs by name (indices shuffle across boots), inputs by label.
+# any missing sensor -> null. energy_uj is raw uJ (widget derives watts from the delta).
+set -u
+
+hwmon_by_name() { # $1 name -> dir path, or nothing
+    local want=$1 d
+    for d in /sys/class/hwmon/hwmon*; do
+        [ -r "$d/name" ] && [ "$(cat "$d/name")" = "$want" ] && { printf '%s' "$d"; return 0; }
+    done
+    return 1
+}
+
+read_labeled() { # $1 dir  $2 label  $3 kind(temp|fan) -> raw int, or nothing
+    local dir=$1 label=$2 kind=$3 lf inp
+    [ -n "$dir" ] || return 1
+    for lf in "$dir/${kind}"*_label; do
+        [ -r "$lf" ] && [ "$(cat "$lf")" = "$label" ] || continue
+        inp=${lf%_label}_input
+        [ -r "$inp" ] && { cat "$inp"; return 0; }
+    done
+    return 1
+}
+
+rapl_pkg() { # first intel-rapl package zone dir, or nothing
+    local z
+    for z in /sys/class/powercap/intel-rapl:*; do
+        [ -r "$z/name" ] || continue
+        case "$(cat "$z/name")" in package-*) printf '%s' "$z"; return 0;; esac
+    done
+    return 1
+}
+
+num()  { [ -n "${1:-}" ] && awk -v v="$1" -v d="$2" 'BEGIN{printf "%.2f", v/d}' || printf null; }  # milli-unit -> unit
+int()  { [ -n "${1:-}" ] && printf '%s' "$1" || printf null; }
+
+k=$(hwmon_by_name kraken2023elite) || k=""
+c=$(hwmon_by_name k10temp) || c=""
+n=$(hwmon_by_name nct6799) || n=""
+r=$(rapl_pkg) || r=""
+
+coolant=$(read_labeled "$k" "Coolant temp" temp || true)
+pump=$(read_labeled "$k" "Pump speed" fan || true)
+fan=$(read_labeled "$k" "Fan speed" fan || true)
+cpu=$(read_labeled "$c" "Tctl" temp || true)
+ccd1=$(read_labeled "$c" "Tccd1" temp || true)
+ccd2=$(read_labeled "$c" "Tccd2" temp || true)
+amb=$(read_labeled "$n" "SYSTIN" temp || true)
+energy=$([ -n "$r" ] && cat "$r/energy_uj" 2>/dev/null || true)
+emax=$([ -n "$r" ] && cat "$r/max_energy_range_uj" 2>/dev/null || true)
+
+printf '{"coolant":%s,"pump":%s,"fan":%s,"cpu_temp":%s,"tccd1":%s,"tccd2":%s,"ambient":%s,"energy_uj":%s,"energy_max_uj":%s}\n' \
+    "$(num "$coolant" 1000)" "$(int "$pump")" "$(int "$fan")" \
+    "$(num "$cpu" 1000)" "$(num "$ccd1" 1000)" "$(num "$ccd2" 1000)" "$(num "$amb" 1000)" \
+    "$(int "$energy")" "$(int "$emax")"

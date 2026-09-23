@@ -44,4 +44,17 @@ if command -v nix >/dev/null 2>&1 || [ -e /etc/profile.d/nix-daemon.sh ]; then
     fi
 fi
 
+# CPU package power (RAPL energy_uj) is root-only since PLATYPUS. The kraken/
+# cpu-power dms widget reads it as group powermon. Membership needs a re-login.
+if [ -d /sys/class/powercap/intel-rapl:0 ]; then
+    read -p "rapl power access for the cooling widget (powermon group + tmpfiles)? " -n 1 -r; echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        getent group powermon >/dev/null || groupadd powermon
+        u=${SUDO_USER:-$USER}
+        id -nG "$u" | grep -qw powermon || gpasswd -a "$u" powermon
+        install -Dm644 powercap/powercap-rapl.conf /etc/tmpfiles.d/powercap-rapl.conf
+        systemd-tmpfiles --create /etc/tmpfiles.d/powercap-rapl.conf
+    fi
+fi
+
 echo "done"

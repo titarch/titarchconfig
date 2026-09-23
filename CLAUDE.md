@@ -64,6 +64,16 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   conversions) by merging calcEngine into plugin_settings.json; DMS never
   rewrites that file except on a GUI change, so the external merge is safe and
   applies on next DMS start. mod+x (spotlight "= ") routes to that plugin.
+- kraken plugin (homegrown, grodarch only, self-gates on a kraken hwmon so
+  thinkpad skips it): pill = coolant temp + CPU package power; popout = pump/fan
+  gauges, cpu/ccd/board temps, coolant-vs-air dT and C/W (only meaningful under
+  load; SYSTIN is a board sensor, not room ambient). Data via `kraken-sensors`
+  (dot_local/bin; resolves hwmon dirs by name since indices shuffle). Power =
+  RAPL energy_uj delta (widget derives W); energy_uj is root-only since PLATYPUS,
+  read as group powermon -> tmpfiles rule `system/powercap/powercap-rapl.conf`
+  set up by install-system.sh (already live on grodarch). Bolt color = performance,
+  keyed on sustained power not temp (200W ~91C is good): blue = near-max power,
+  green = solid load, red = hot + power throttled (overheating), else muted.
 - Firefox tab-scroll fix: autoconfig in `system/firefox/` + pacman hook
   (accumulates hi-res wheel deltas; stock handler switches per event).
 

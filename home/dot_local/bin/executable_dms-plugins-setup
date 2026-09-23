@@ -24,6 +24,8 @@ declare -A GIT=(
 # enable per relevance: gpu->nvidia, docker->runtime, hass->configured
 ENABLE=(netspeed diskmon calculator emojiLauncher claudeCodeUsage)
 command -v nvidia-smi >/dev/null && ENABLE+=(gpumon)
+# kraken widget only where an nzxt kraken hwmon exists (grodarch)
+grep -qi kraken /sys/class/hwmon/hwmon*/name 2>/dev/null && ENABLE+=(kraken)
 have_docker && ENABLE+=(dockerManager)
 hass_configured && ENABLE+=(homeAssistantMonitor)
 

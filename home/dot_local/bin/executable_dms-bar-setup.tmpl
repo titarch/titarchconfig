@@ -30,7 +30,10 @@ for c in d.get("barConfigs", []):
     # grouped), then status/action icons. battery only on machines with one
     import shutil
     gpu = "gpumon" if shutil.which("nvidia-smi") else "gpuTemp"
-    mons = ["cpuUsage", "cpuTemp", gpu, "memUsage", "diskmon"]
+    # kraken widget only where an nzxt kraken hwmon exists (grodarch)
+    kraken = ["kraken"] if any("kraken" in open(n).read().lower()
+              for n in glob.glob("/sys/class/hwmon/hwmon*/name")) else []
+    mons = ["cpuUsage", "cpuTemp"] + kraken + [gpu, "memUsage", "diskmon"]
     # docker widget only where docker exists; hass stays unplaced until the
     # user adds its token (else it renders an unconfigured/empty widget)
     apps = ["claudeCodeUsage"]

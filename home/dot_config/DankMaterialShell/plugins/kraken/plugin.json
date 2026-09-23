@@ -1,0 +1,9 @@
+{
+  "id": "kraken",
+  "name": "Kraken",
+  "version": "1.0.0",
+  "author": "bparsy",
+  "description": "Kraken Elite coolant temp + CPU package power in the bar, click for pump/fan/temps/efficiency",
+  "type": "widget",
+  "component": "Kraken.qml"
+}
