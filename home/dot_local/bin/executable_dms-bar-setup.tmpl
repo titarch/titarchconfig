@@ -20,12 +20,16 @@ p = os.path.join(base, "settings.json")
 d = json.load(open(p)) if os.path.exists(p) else {}
 d.update(json.load(open(os.path.join(base, "defaults.json"))))
 d["popupTransparency"] = float(os.environ["POPUP_ALPHA"])
+d["showSeconds"] = False  # narrower clock -> more center room
 for c in d.get("barConfigs", []):
     c["position"] = 1
     c["transparency"] = float(os.environ["BAR_ALPHA"])
     # bar background scroll misfires with hovered vs focused screen (dms
     # 1.5.2), widget scroll still works; retry after dms updates
     c["scrollEnabled"] = False
+    # tighter so the widget count fits without the right group clipping center
+    c["widgetPadding"] = 4
+    c["spacing"] = 2
     # canonical right side: net + system-monitor cluster (cpu/gpu/mem/disk
     # grouped), then status/action icons. battery only on machines with one
     import shutil
@@ -46,14 +50,17 @@ for c in d.get("barConfigs", []):
             apps.append("homeAssistantMonitor")
     except Exception:
         pass
-    rw = ["netspeed"] + mons + apps + ["systemTray", "clipboard",
+    rw = ["netspeed"] + mons + ["systemTray", "clipboard",
           "privacyIndicator", "idleInhibitor", "notificationButton",
           "systemUpdate"]
     if glob.glob("/sys/class/power_supply/BAT*"):
         rw.append("battery")
     rw.append("controlCenterButton")
     c["rightWidgets"] = rw
-    print("bar widgets:", rw)
+    # app/usage widgets moved off the crowded right into the left group
+    c["leftWidgets"] = ["launcherButton", "workspaceSwitcher", "focusedWindow"] + apps
+    print("left:", c["leftWidgets"])
+    print("right:", rw)
 json.dump(d, open(p, "w"), indent=2)
 EOF
 setsid -f dms run >/dev/null 2>&1

@@ -25,19 +25,23 @@ PluginComponent {
 
     horizontalBarPill: Component {
         Item {
+            id: pill
             implicitWidth: contentRow.implicitWidth
             implicitHeight: contentRow.implicitHeight
 
+            // stacked down/up on two lines -> one narrow column, not two wide ones
+            readonly property real fs: Math.round(Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText) * 0.78)
+
             StyledTextMetrics {
                 id: baseline
-                font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+                font.pixelSize: pill.fs
                 text: "888.8 MB/s"
             }
 
             Row {
                 id: contentRow
                 anchors.centerIn: parent
-                spacing: Theme.spacingS
+                spacing: Theme.spacingXS
 
                 DankIcon {
                     name: "network_check"
@@ -46,47 +50,44 @@ PluginComponent {
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
-                Row {
+                Column {
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: Theme.spacingXS
+                    spacing: 0
 
-                    StyledText {
-                        text: "↓"
-                        font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                        color: Theme.info
+                    Row {
+                        spacing: Theme.spacingXS
+                        StyledText {
+                            text: "↓"
+                            font.pixelSize: pill.fs
+                            color: Theme.info
+                        }
+                        StyledText {
+                            text: root.fmt(DgopService.networkRxRate)
+                            font.pixelSize: pill.fs
+                            color: Theme.widgetTextColor
+                            horizontalAlignment: Text.AlignRight
+                            elide: Text.ElideNone
+                            wrapMode: Text.NoWrap
+                            width: baseline.width
+                        }
                     }
 
-                    StyledText {
-                        text: root.fmt(DgopService.networkRxRate)
-                        font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                        color: Theme.widgetTextColor
-                        anchors.verticalCenter: parent.verticalCenter
-                        horizontalAlignment: Text.AlignRight
-                        elide: Text.ElideNone
-                        wrapMode: Text.NoWrap
-                        width: baseline.width
-                    }
-                }
-
-                Row {
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: Theme.spacingXS
-
-                    StyledText {
-                        text: "↑"
-                        font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                        color: Theme.error
-                    }
-
-                    StyledText {
-                        text: root.fmt(DgopService.networkTxRate)
-                        font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                        color: Theme.widgetTextColor
-                        anchors.verticalCenter: parent.verticalCenter
-                        horizontalAlignment: Text.AlignRight
-                        elide: Text.ElideNone
-                        wrapMode: Text.NoWrap
-                        width: baseline.width
+                    Row {
+                        spacing: Theme.spacingXS
+                        StyledText {
+                            text: "↑"
+                            font.pixelSize: pill.fs
+                            color: Theme.error
+                        }
+                        StyledText {
+                            text: root.fmt(DgopService.networkTxRate)
+                            font.pixelSize: pill.fs
+                            color: Theme.widgetTextColor
+                            horizontalAlignment: Text.AlignRight
+                            elide: Text.ElideNone
+                            wrapMode: Text.NoWrap
+                            width: baseline.width
+                        }
                     }
                 }
             }
