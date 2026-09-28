@@ -7,7 +7,7 @@
 hl.monitor({ output = "{{ .wayland }}", mode = "{{ .mode }}", position = "{{ .pos }}", scale = 1 })
 {{- end }}
 {{- else }}
-hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
 {{- end }}
 {{- if .features.streaming }}
 require("monitors-runtime")   -- owned by the stream script, wins over rules above on reload
