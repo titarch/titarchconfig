@@ -130,13 +130,32 @@ Chezmoi source repo for Baptiste's Arch machines. Hyprland + DankMaterialShell
   Known open-module + GSP hang class; proprietary module + GSP-off is the
   only workaround and is not a confirmed HDR fix. Revisit on a newer driver.
   For HDR video, tone-map instead (mpv --vo=gpu-next), never real HDR out.
-- DMS greeter (1.6+): now a single `/usr/bin/dms-greeter` binary, embedded UI
-  (the /usr/share/quickshell/dms-greeter tree is gone). `dms greeter <cmd>` is a
-  deprecation shim -> `dms-greeter <cmd>`, so the existing /etc/greetd/config.toml
-  keeps working. After a greeter repackage, re-run `sudo dms-greeter sync` (theme).
-  New `sync --autologin` applies ONLY autologin, not the theme (run plain `sync`
-  too). Do NOT re-run `dms-greeter install`/`enable` on grodarch: it may reset the
-  hand-tuned initial_session (env XDG_SESSION_TYPE + launch-session --from-memory).
+- DMS greeter (1.6+): single `/usr/bin/dms-greeter` binary (pkg
+  greetd-dms-greeter-bin), embedded UI (/usr/share/quickshell/dms-greeter gone).
+  `dms greeter <cmd>` still works (deprecation shim -> dms-greeter). NEVER
+  `sudo dms-greeter sync`: under sudo it treats ROOT as the user and relinks the
+  greeter symlinks /var/cache/dms-greeter/{settings,session,colors}.json to /root
+  (root DMS cfg = {} -> greeterAutoLogin reads false). Run `dms-greeter sync` (theme
+  + relink to /home/bparsy) and `dms-greeter sync --autologin` (greetd only) BOTH as
+  bparsy, no sudo (it self-escalates). `dms-greeter status` shows symlink health.
+  Do NOT `dms-greeter install`/`enable` on grodarch (resets initial_session).
+- Greeter autologin GATE = `greeterAutoLogin` read through the settings.json symlink
+  above; no separate flag (memory.json only holds lastSuccessfulUser + session id).
+  Symlinks -> /root => gate shut => `dms-greeter launch-session --from-memory`
+  FATALs "auto-login is disabled" and greetd drops to the greeter. Run it as bparsy
+  to see the real reason. greetd-dms-greeter-bin UPGRADES do exactly this + strip
+  [initial_session] (happened 2026-09-13 -> remote lockout). GUARD in place:
+  system/greetd/greeter-autologin.hook + greeter-autologin-guard.sh (deployed by
+  install-system.sh greeter section) re-point the symlinks + restore config.toml
+  (from /etc/greetd/config.toml.autologin) after each upgrade; self-gates on
+  greeterAutoLogin so no-autologin boxes no-op.
+- greetd runfile: `systemctl restart greetd` does NOT re-run [initial_session] while
+  /run/greetd.run exists (created this boot) -> lands at greeter even with a correct
+  config. Autologin re-fires only on a clean boot (/run wiped) or `rm /run/greetd.run`
+  before restart. The greeter compositor reparents to init (PPID 1) and SURVIVES
+  greetd restarts, squatting seat0/tty1 + DRM master -> a restart-triggered autologin
+  can't get the GPU either. Journal tell: "session opened/closed for user bparsy" in
+  the same second = launch-session bailed (gate shut); reboot beats restart here.
 - Config MIGRATED to Lua (2026-09; hyprland 0.56.2, dms 1.6.2). hyprland.lua.tmpl
   is the config; hyprlang .conf retired. Parser chosen at STARTUP: hyprland.lua
   present -> lua; `hyprctl reload` does NOT switch parsers, so a swap needs a

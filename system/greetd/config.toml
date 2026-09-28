@@ -1,0 +1,14 @@
+# grodarch known-good greetd config (autologin). Source of truth for the
+# autologin guard: greeter-autologin-guard.sh restores this when a
+# greetd-dms-greeter-bin upgrade strips [initial_session]. NOT auto-deployed to
+# the live /etc/greetd/config.toml except when initial_session has gone missing.
+[terminal]
+vt = 1
+
+[default_session]
+command = "/usr/bin/dms-greeter --command hyprland -C /etc/greetd/dms-greeter-hypr.conf --cache-dir /var/cache/dms-greeter"
+user = "greeter"
+
+[initial_session]
+user = "bparsy"
+command = "env XDG_SESSION_TYPE=wayland sh -c 'exec /usr/bin/dms-greeter launch-session --from-memory --cache-dir /var/cache/dms-greeter'"

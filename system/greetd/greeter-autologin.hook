@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = greetd-dms-greeter-bin
+
+[Action]
+Description = Re-applying greeter autologin (dms-greeter upgrade resets it)
+When = PostTransaction
+Exec = /etc/greetd/greeter-autologin-guard.sh

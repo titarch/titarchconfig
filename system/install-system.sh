@@ -13,12 +13,21 @@ fi
 # the greeter hypridle (1min dpms) and no anime girl. dms greeter sync/install
 # rewrites config.toml and drops the -C flag, rerun this if it regresses
 if [ -d /etc/greetd ]; then
-    read -p "greeter extras (monitor layout, 1min screen-off)? " -n 1 -r; echo
+    read -p "greeter extras (monitor layout, 1min screen-off, autologin guard)? " -n 1 -r; echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         install -m644 greetd/dms-greeter-hypr.conf /etc/greetd/dms-greeter-hypr.conf
         install -m644 greetd/hypridle-greeter.conf /etc/greetd/hypridle-greeter.conf
         grep -q 'dms-greeter-hypr.conf' /etc/greetd/config.toml 2>/dev/null \
             || sed -i 's|--command hyprland|--command hyprland -C /etc/greetd/dms-greeter-hypr.conf|' /etc/greetd/config.toml
+        # autologin guard: greetd-dms-greeter-bin upgrades relink the greeter
+        # config to /root (greeterAutoLogin reads false -> autologin gate shuts)
+        # and can strip [initial_session]. hook re-points symlinks + restores
+        # config after each upgrade. guard self-gates on greeterAutoLogin, so
+        # deploying on a no-autologin box is a no-op. run it now to apply.
+        install -m644 greetd/config.toml /etc/greetd/config.toml.autologin
+        install -m755 greetd/greeter-autologin-guard.sh /etc/greetd/greeter-autologin-guard.sh
+        install -Dm644 greetd/greeter-autologin.hook /etc/pacman.d/hooks/greeter-autologin.hook
+        /etc/greetd/greeter-autologin-guard.sh || true
     fi
 fi
 
