@@ -59,8 +59,9 @@ hl.config({
   },
 })
 {{- if .features.streaming }}
--- sunshine virtual kbd bypasses caps2esc; options override, not merge
-hl.device({ name = "keyboard-passthrough", kb_layout = "fr", kb_variant = "us", kb_options = "compose:{{ .composeKey }},caps:swapescape" })
+-- sunshine virtual kbd bypasses caps2esc; options override, not merge.
+-- name drifts on sunshine input-backend updates -> recheck 'hyprctl devices'
+hl.device({ name = "libvirtualhid-keyboard", kb_layout = "fr", kb_variant = "us", kb_options = "compose:{{ .composeKey }},caps:swapescape" })
 {{- end }}
 
 -- general / decoration / dwindle / group / misc / animations
