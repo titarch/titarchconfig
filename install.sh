@@ -26,7 +26,7 @@ fi
 read -p "Install extra packages? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo pacman -S hyprland dms-shell-hyprland xdg-desktop-portal-hyprland \
+    sudo pacman -S hyprland xdg-desktop-portal-hyprland \
         xdg-desktop-portal-gtk qt5-wayland qt6-wayland wl-clipboard cliphist \
         grim slurp satty greetd hypridle ydotool fcitx5-im fcitx5-mozc kitty \
         pipewire wireplumber pipewire-pulse pipewire-alsa \
@@ -54,8 +54,9 @@ fi
 read -p "Install AUR packages (cursors, folder colors)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    # -bin is the versioned greeter launcher; -git tracks master and churns
-    yay -S catppuccin-cursors-mocha papirus-folders greetd-dms-greeter-bin dracula-gtk-theme forgit
+    # dms->dux rebrand v2.0.0 (MIT, same team): greeter=dux-greeter-bin, shell=dux-shell-git
+    # (dms-shell retired, no -bin yet -> git builds from source). -bin versioned, -git churns.
+    yay -S catppuccin-cursors-mocha papirus-folders dux-greeter-bin dux-shell-git dracula-gtk-theme forgit
     sudo papirus-folders -C violet --theme Papirus-Dark
 fi
 
