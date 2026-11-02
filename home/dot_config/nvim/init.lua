@@ -66,4 +66,12 @@ require("lazy").setup({
       formatters_by_ft = { c = { "clang_format" }, cpp = { "clang_format" } } } },
   { "tikhomirov/vim-glsl", ft = "glsl" },
   { "github/copilot.vim" },
+  -- treesitter: markdown parsers for render-markdown (+ better highlight)
+  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate",
+    opts = { ensure_installed = { "markdown", "markdown_inline" }, highlight = { enable = true } },
+    config = function(_, o) require("nvim-treesitter.configs").setup(o) end },
+  -- inline md render; raw only on cursor line/insert. :RenderMarkdown toggle
+  { "MeanderingProgrammer/render-markdown.nvim", ft = "markdown",
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    opts = {} },
 }, { change_detection = { notify = false } })
