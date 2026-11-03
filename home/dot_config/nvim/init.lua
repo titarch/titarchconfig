@@ -66,8 +66,9 @@ require("lazy").setup({
       formatters_by_ft = { c = { "clang_format" }, cpp = { "clang_format" } } } },
   { "tikhomirov/vim-glsl", ft = "glsl" },
   { "github/copilot.vim" },
-  -- treesitter: markdown parsers for render-markdown (+ better highlight)
-  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate",
+  -- treesitter: markdown parsers for render-markdown (+ better highlight).
+  -- pin master; new default 'main' branch dropped the nvim-treesitter.configs API
+  { "nvim-treesitter/nvim-treesitter", branch = "master", build = ":TSUpdate",
     opts = { ensure_installed = { "markdown", "markdown_inline" }, highlight = { enable = true } },
     config = function(_, o) require("nvim-treesitter.configs").setup(o) end },
   -- inline md render; raw only on cursor line/insert. :RenderMarkdown toggle
